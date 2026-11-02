@@ -1,0 +1,13 @@
+build/
+.gradle/
+run/
+run-data/
+*.iml
+.idea/
+.vscode/
+*.log
+logs/
+
+# Jars (built mods, reference jars, libs/). The Gradle wrapper jar stays: gradlew.bat needs it to build.
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
