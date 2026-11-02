@@ -176,6 +176,21 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `misc/SableCarrier`, todos los `ModList.isLoaded("sable")` | ídem |
 | Galena Hats (jarJar) | D4 |
 
+## 6c. Criaturas: diferencias de API resueltas (F3+)
+| Original (1.21) | Port (1.20.1) |
+|---|---|
+| `EntityType.Builder.eyeHeight/passengerAttachments/ridingOffset` | overrides `getStandingEyeHeight`, `getPassengersRidingOffset`, `getMyRidingOffset` con los mismos valores |
+| `SpawnEggItem(EntityType)` | `ForgeSpawnEggItem(RegistryObject)` (los ítems se registran antes que las entidades; Forge registra los colores) |
+| `RegisterSpawnPlacementsEvent` / `SpawnPlacementTypes` | `SpawnPlacementRegisterEvent` / `SpawnPlacements.Type` |
+| atributos en `CreatureFeature.registerAttributes` | `CFEvents.ModBus.registerAttributes` (mismo evento) |
+| `SpawnPlacements.isSpawnPositionOk(type, level, pos)` | `NaturalSpawner.isSpawnPositionOk(getPlacementType(type), level, pos, type)` |
+| `getDefaultGravity()` (beauty) | atributo `ForgeMod.ENTITY_GRAVITY` con la misma fórmula (lo lee `LivingEntity.travel`) |
+| `MeleeAttackGoal` usa `isWithinMeleeAttackRange` (sinister lo anula) | en 1.20.1 usa `getAttackReachSqr`: `SinisterMeleeGoal` devuelve −1, así el sinister nunca pega cuerpo a cuerpo (como el original) |
+| `BREEZE_WHIRL` (beauty) | `PLAYER_ATTACK_SWEEP` (D3) |
+| `DUST_PILLAR` (detritus) | `ParticleTypes.BLOCK` (D3) |
+| vértices `addVertex().setColor()…` / modelos `renderToBuffer(…, int color)` | `vertex().color()…endVertex()` / `renderToBuffer(…, r, g, b, a)` |
+| `ByteBufferBuilder` (buffer propio del detritus) | `BufferBuilder` |
+
 ## 6b. Cambios en archivos JSON (no admiten `// PORT:`)
 | Archivo | Cambio | Motivo |
 |---|---|---|
@@ -189,6 +204,8 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `data/minecraft/tags/items/music_discs.json` (nuevo) | los 2 discos | en 1.20.1 el tocadiscos solo acepta ítems de `#minecraft:music_discs`; sin el tag el disco se consumía y el tocadiscos quedaba vacío (lo detectó un GameTest) |
 | `lang/*.json` | se agregan `item.creaturefeature.music_disc_*.desc` copiando `jukebox_song.creaturefeature.*` (lo hace el script) | el tooltip del disco en 1.20.1 usa `<id del ítem>.desc` |
 | `particles/reveal.json` y `textures/particle/reveal.png` | no se copian | el original no registra ningún tipo `reveal`; en 1.20.1 un JSON de partícula sin tipo hace fallar la recarga de recursos del cliente |
+| `loot_tables/entities/*.json` (F3+) | `enchanted_count_increase` (looting) → `looting_enchant` con el mismo `count`; `random_chance_with_enchanted_bonus` → `random_chance_with_looting` con `chance` = `unenchanted_chance` y `looting_multiplier` = (`base` + 2·`per_level_above_first` − `unenchanted_chance`)/3. Las entradas de ítems todavía no registrados se quitan y el script las lista (vuelven al correrlo en su fase) | formato 1.20.1. La probabilidad es **igual** a la del original cuando `per_level_above_first` = `base` − `unenchanted_chance` (machination, sinister); si no, coincide en Botín III (detritus: 0,19/0,24/0,29 en lugar de 0,15/0,22/0,29). Beauty no suelta `bouquet` hasta F6 |
+| `data/minecraft/tags/entity_type/zombies.json` | no se copia | el tag no existe en 1.20.1; detritus pasa a ser no-muerto con `getMobType() = UNDEAD` (minds ya lo es por ser `Zombie`; blossom, que también está en el tag, se revisa en F5) |
 
 ---
 
@@ -201,9 +218,9 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | **F0** ✅ | Análisis, esqueleto Forge 1.20.1 (Java 17 por toolchain, MixinExtras, GameTests) | el mod aparece en la lista de mods |
 | **F1** ✅ | Registros base: sonidos, efectos (lógica simple), bloques y sus ítems, ítems simples (sin lógica de entidades), tags, recetas, loot de bloques, materiales de adorno, idioma, modelos/texturas, pestaña creativa, config, manejadores de color de las plumas (agregados después de la prueba en el juego: `blocks/FeatherTints` + `CreatureFeatureClient`) | `/give` de bloques e ítems, colocar/romper bloques (drops), recetas en la mesa, adornar armadura con ectoplasma/pergaminos, `/effect give @s creaturefeature:sleepy` |
 | **F2** ✅ | Infra: red `SimpleChannel` (8 paquetes), NBT en lugar de componentes, partículas (tipos + providers), `CFRenderTypes` + 9 shaders core registrados (los 5 ★ quedan para F9), discos (`RecordItem`), accessors | `/particle creaturefeature:...`, discos en el tocadiscos (incl. título del NaN) |
-| **F3** | Criaturas lote 1 (las más simples): minds (+part), machination, sinister, beauty, detritus, blossom, coat_of_arms + loot + huevos + atributos + spawn placements | `/summon` y huevos, pelear, drops |
-| **F4** | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo + proyectiles (feather, star, bullet) + efectos fiendish/sleepy completos | idem + efectos visibles |
-| **F5** | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass + kicked_block, spat_block, murky_pearl, vitric_arrow, eep (TNT) | idem |
+| **F3** ✅ | Criaturas lote 1: minds (+part), machination, sinister, beauty, detritus + loot + huevos + atributos + spawn placements (sin spawn natural: F8) | `/summon` y huevos, pelear, drops |
+| **F4** | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo, **coat_of_arms** (pasó de F3: dispara `bullet`) + proyectiles (feather, star, bullet) + efectos fiendish/sleepy completos | idem + efectos visibles |
+| **F5** | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass, **blossom** (pasó de F3: escupe `spat_block`) + kicked_block, spat_block, murky_pearl, vitric_arrow, eep (TNT) | idem |
 | **F6** | Ítems con lógica: flintlock, vertigo_horn, dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
 | **F7** | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
 | **F8** | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |

@@ -6,15 +6,29 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 // PORT: DeferredRegister.Items/DeferredItem -> DeferredRegister/RegistryObject.
 // Phase F1 registers the items without logic of their own. Still to come (see docs/PORT_MAP.md):
-// spawn eggs (F3-F5), the items with their own class (F6). Music discs: F2.
+// spawn eggs of the later creatures (F4-F5), the items with their own class (F6). Music discs: F2. Eggs: F3+.
 public class CFItemInit {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CreatureFeature.MODID);
+
+    // PORT: SpawnEggItem(EntityType) -> ForgeSpawnEggItem(Supplier<EntityType>): in 1.20.1 items are registered
+    // before entity types, so the egg can only take the type lazily. Forge also registers the egg colours.
+    public static final RegistryObject<Item> MINDS_EGG = ITEMS.register("minds_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.MINDS,0xd17989,0x923a70,new  Item.Properties()));
+    public static final RegistryObject<Item> SINISTER_EGG = ITEMS.register("sinister_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.SINISTER,0xffffff,0xf1e49f,new  Item.Properties()));
+    public static final RegistryObject<Item> MACHINATION_EGG = ITEMS.register("machination_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.MACHINATION,0xf1e49f,0x6f5adb,new  Item.Properties()));
+    public static final RegistryObject<Item> BEAUTY_EGG = ITEMS.register("beauty_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.BEAUTY,0x629062,0x91344d,new  Item.Properties()));
+    public static final RegistryObject<Item> DETRITUS_EGG = ITEMS.register("detritus_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.DETRITUS,0xcb67ad,0x7d6a42,new  Item.Properties()));
 
     // PORT: jukebox_song data (1.21) -> RecordItem(comparator output, sound, properties, length in ticks), with the
     // values of data/creaturefeature/jukebox_song: nothing = 15 / 16.3 s, new_age_nevermore = 3 / 71 s.

@@ -11,7 +11,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 // PORT: Forge 1.20.1 entry point (the original constructor receives IEventBus/ModContainer from NeoForge).
-// Registries are added phase by phase (see docs/PORT_MAP.md); entity attributes arrive with the creatures (F3-F5).
+// Registries are added phase by phase (see docs/PORT_MAP.md). Entity attributes and spawn placements: CFEvents.ModBus.
 @Mod(CreatureFeature.MODID)
 public class CreatureFeature {
     public static final String MODID = "creaturefeature";
@@ -29,6 +29,7 @@ public class CreatureFeature {
         CFMobEffectInit.MOB_EFFECTS.register(modEventBus);
         CFItemInit.ITEMS.register(modEventBus);
         CFBlockInit.BLOCKS.register(modEventBus);
+        CFEntityInit.ENTITIES.register(modEventBus);
     }
 
     // PORT: ResourceLocation.fromNamespaceAndPath does not exist in 1.20.1

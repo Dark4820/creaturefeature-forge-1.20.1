@@ -3,9 +3,16 @@ package net.atired.creaturefeature.client;
 import net.atired.creaturefeature.CreatureFeature;
 import net.atired.creaturefeature.client.particles.*;
 import net.atired.creaturefeature.blocks.FeatherTints;
+import net.atired.creaturefeature.client.renderers.*;
+import net.atired.creaturefeature.client.renderers.models.*;
 import net.atired.creaturefeature.init.CFBlockInit;
+import net.atired.creaturefeature.init.CFEntityInit;
 import net.atired.creaturefeature.init.CFParticleInit;
+import net.minecraft.client.model.HumanoidArmorModel;
+import net.minecraft.client.model.geom.LayerDefinitions;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -16,8 +23,9 @@ import net.minecraftforge.fml.common.Mod;
  * subscriber limited to Dist.CLIENT (a dedicated server never loads it). The original also registered NeoForge's
  * ConfigurationScreen; Forge 1.20.1 has no built-in config screen, so the config is edited in its file.
  * Filled phase by phase: F1 = feather colour handlers (added after the in-game test), F2 = PROXY and particle
- * providers (shaders are registered in CFRenderTypes). Still to come: item properties (F6), post chains and render
- * targets (F7), layers and renderers (F3-F5) and the client tick (with their content).
+ * providers (shaders are registered in CFRenderTypes), F3 = layers and renderers of the first creatures.
+ * Still to come: item properties (F6), post chains and render targets (F7), the other layers and renderers (F4-F5)
+ * and the client tick (with their content).
  */
 @Mod.EventBusSubscriber(modid = CreatureFeature.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CreatureFeatureClient {
@@ -39,6 +47,27 @@ public class CreatureFeatureClient {
                 CFBlockInit.MOSAIC_DOWN_FEATHERS.get(), CFBlockInit.MOSAIC_DOWN_FEATHERS_CARPET.get());
         event.register((blockState, blockAndTintGetter, blockPos, tintIndex) -> FeatherTints.normal(blockPos, tintIndex),
                 CFBlockInit.DOWN_FEATHERS.get(), CFBlockInit.DOWN_FEATHERS_CARPET.get());
+    }
+
+    // PORT: only the creatures already ported (F3: minds, machination, sinister, beauty, detritus)
+    @SubscribeEvent
+    public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(MindsEntityModel.LAYER_LOCATION, MindsEntityModel::createBodyLayer);
+        event.registerLayerDefinition(MindsEntityModel.LAYER_INNER_ARMOUR_LOCATION,()->{return LayerDefinition.create(HumanoidArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION), 64, 32);});
+        event.registerLayerDefinition(MindsEntityModel.LAYER_ARMOUR_LOCATION, ()->{return LayerDefinition.create(HumanoidArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION), 64, 32);});
+        event.registerLayerDefinition(MachinationEntityModel.LAYER_LOCATION, MachinationEntityModel::createBodyLayer);
+        event.registerLayerDefinition(SinisterEntityModel.LAYER_LOCATION, SinisterEntityModel::createBodyLayer);
+        event.registerLayerDefinition(BeautyEntityModel.LAYER_LOCATION, BeautyEntityModel::createBodyLayer);
+        event.registerLayerDefinition(DetritusEntityModel.LAYER_LOCATION, DetritusEntityModel::createBodyLayer);
+    }
+
+    @SubscribeEvent
+    public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(CFEntityInit.MINDS.get(), MindsEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.MACHINATION.get(), MachinationEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.SINISTER.get(), SinisterEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.BEAUTY.get(), BeautyEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.DETRITUS.get(), DetritusEntityRenderer::new);
     }
 
     // PORT: FISHEYE and RED_POWDER (★) are left out until F9

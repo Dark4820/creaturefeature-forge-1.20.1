@@ -1,7 +1,24 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F1 y F2 cerradas y probadas en el juego (2026-11-02).** Siguiente: F3 (primer lote de criaturas).
+**F3 cerrada (2026-11-02).** Siguiente: F4 (segundo lote de criaturas). F1 y F2 probadas en el juego, salvo el arreglo de las plumas.
+
+## Pruebas en el juego pendientes
+- **Arreglo de las plumas (F1):** colores normales (degradé crema/celeste) y mosaico (franjas verde/violeta) en ítems y bloques; el pincel cambia entre las dos y vuelve. Se prueba junto con F3.
+- **F3:** las 5 criaturas (aspecto, animaciones, ataques, sonidos, botín, huevos).
+
+## F3 - Criaturas lote 1 (2026-11-02) ✅
+Lote elegido por depender menos de fases futuras: **minds** (+ `MindsEntityPart`, el cerebro que se puede golpear aparte), **machination**, **sinister**, **beauty**, **detritus**. Usan solo partículas, sonidos, red y un shader core ya portados en F1–F2.
+- Pasan a otras fases: **coat_of_arms → F4** (dispara la entidad `bullet`) y **blossom → F5** (escupe `spat_block`). Quedan: F4 = fiend, fend, friend, blitz, eeper, nothing, canary, vertigo, coat_of_arms; F5 = dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass, blossom.
+
+Hecho:
+- `init/CFEntityInit` (5 tipos, mismos tamaños y rangos), las 5 entidades portadas, atributos (`CFEvents.ModBus.registerAttributes`), spawn placements (sin spawn natural hasta F8), `hurtMinds` (golpear el cerebro le pega al minds), 5 huevos `ForgeSpawnEggItem` con los colores del original en la pestaña de huevos.
+- Cliente: 5 modelos y 5 renderers con la API de vértices de 1.20.1, capas registradas (incluida la armadura del minds). Revisado en el original qué tiene cada uno: minds (ojo flotante cuando pierde el cerebro + capa de armadura + se pone más rosado (menos verde) mientras corre después de un golpe), machination (señal giratoria cuando carga el salto), beauty (anillo de pétalos al girar), detritus (shader `monochrome` con su propio buffer en `CFClientProxy`, se desatura con cada copia), sinister (sin extras). Ninguno tiene manejadores de color.
+- Loot: el script convierte las loot tables de entidades (funciones y condiciones de looting de 1.21 → 1.20.1, PORT_MAP §6b). Beauty no suelta `bouquet` hasta F6.
+- Cambios con `// PORT:` (resumen en PORT_MAP §6c): alturas de ojos/montura como overrides; gravedad del beauty con el atributo `ENTITY_GRAVITY`; `SinisterMeleeGoal` (en 1.20.1 `MeleeAttackGoal` no mira `isWithinMeleeAttackRange`, y sin esto el sinister pegaría cuerpo a cuerpo, cosa que el original no hace); detritus no-muerto con `getMobType()` (el tag `minecraft:zombies` no existe en 1.20.1); `BREEZE_WHIRL` → `PLAYER_ATTACK_SWEEP` y `DUST_PILLAR` → `BLOCK` (D3).
+- GameTests (`F3GameTests`, 7): los 5 huevos sacan su criatura; las loot tables sueltan los ítems del original (300 tiradas con jugador asesino); golpear el cerebro del minds lo deja sin cerebro y sin partes; el espejo del sinister bloquea los golpes de frente y no los de atrás, y usa `SinisterMeleeGoal`; el beauty esquiva el primer golpe, flota mientras gira (gravedad negativa) y vuelve a 0,056; el detritus es no-muerto y se divide 3 veces al bajar de 12 a 8 de vida; atributos y altura de ojos del original.
+
+Verificado: `build` OK; `runGameTestServer` 21/21; `runServer` hasta `Done (4.367s)` sin errores del mod; `runClient` hasta la pantalla de título sin errores del mod (ahí se construyen los renderers y se hornean los modelos). El dibujo de las criaturas en el mundo no lo cubre ninguna prueba automática: se ve en las pruebas en el juego.
 
 ## Pruebas en el juego de F1 + F2 (2026-11-02) ✅
 El usuario probó el jar real en una instancia aparte (`C:\cf\test`): pestañas, carapacho, gelatina, sleepy, fiendish, comidas, partículas (sleepy, glass_shard, crit_text, spore), discos, recetas, drops y adornos funcionaron. En el `latest.log` de la prueba no hay errores del mod: solo los avisos conocidos (uniforms de shaders, sonido `entity.stained_glass_retreat`) y la corrección de los `.toml` de configuración creados por primera vez.

@@ -1,13 +1,21 @@
 package net.atired.creaturefeature;
 
+import net.atired.creaturefeature.entity.*;
 import net.atired.creaturefeature.init.CFBlockInit;
+import net.atired.creaturefeature.init.CFEntityInit;
 import net.atired.creaturefeature.init.CFItemInit;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -16,12 +24,48 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = CreatureFeature.MODID)
 public class CFEvents {
 
+    @SubscribeEvent
+    public static void hurtMinds(AttackEntityEvent event) {
+        if(event.getTarget() instanceof MindsEntityPart part){
+            event.setCanceled(true);
+            event.getEntity().attack(part.getParent());
+        }
+    }
+
     @Mod.EventBusSubscriber(modid = CreatureFeature.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ModBus {
+        // PORT: in the original the attributes are registered in CreatureFeature.registerAttributes (same event)
+        @SubscribeEvent
+        public static void registerAttributes(EntityAttributeCreationEvent event) {
+            event.put(CFEntityInit.MINDS.get(), MindsEntity.createMindsAttributes().build());
+            event.put(CFEntityInit.MACHINATION.get(), MachinationEntity.createMachinationAttributes().build());
+            event.put(CFEntityInit.SINISTER.get(), SinisterEntity.createSinisterAttributes().build());
+            event.put(CFEntityInit.BEAUTY.get(), BeautyEntity.createBeautyAttributes().build());
+            event.put(CFEntityInit.DETRITUS.get(), DetritusEntity.createDetritusAttributes().build());
+        }
+
+        // PORT: RegisterSpawnPlacementsEvent/SpawnPlacementTypes -> SpawnPlacementRegisterEvent/SpawnPlacements.Type.
+        // Natural spawns (biome modifiers) arrive in F8; the placements are already used by the detritus' births.
+        @SubscribeEvent
+        public static void spawnPlacements(SpawnPlacementRegisterEvent event) {
+            event.register(CFEntityInit.SINISTER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, SinisterEntity::checkSinisterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.BEAUTY.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.MINDS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.MACHINATION.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.DETRITUS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, DetritusEntity::checkDetritusSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+        }
+
         // PORT: insertAfter/insertBefore -> getEntries().putAfter/putBefore (see insertAfter/insertBefore below).
         // Only the entries of the content already ported are here; the rest come back phase by phase.
         @SubscribeEvent
         public static void buildContents(BuildCreativeModeTabContentsEvent event) {
+            if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
+                event.accept(CFItemInit.MINDS_EGG.get());
+                event.accept(CFItemInit.BEAUTY_EGG.get());
+                event.accept(CFItemInit.SINISTER_EGG.get());
+                event.accept(CFItemInit.MACHINATION_EGG.get());
+                event.accept(CFItemInit.DETRITUS_EGG.get());
+            }
             if(event.getTabKey()==CreativeModeTabs.INGREDIENTS){
                 insertBefore(event,Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE,CFItemInit.BI_SCROLL.get());
                 insertBefore(event,Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE,CFItemInit.PRIDE_SCROLL.get());

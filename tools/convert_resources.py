@@ -1,7 +1,7 @@
 """Copies and converts Creature Feature resources from the 1.21.1 source to the Forge 1.20.1 port.
 
 Re-runnable: it only writes content whose creaturefeature ids are already registered in the port's Java code
-(CFItemInit / CFBlockInit), so later phases just run it again. Hand-made files (atlases) are not touched.
+(CFItemInit / CFBlockInit / CFEntityInit), so later phases just run it again. Hand-made files (atlases) are not touched.
 
 Usage: python -I tools/convert_resources.py
 """
@@ -54,7 +54,7 @@ DISCS = {"music_disc_nothing": "nothing", "music_disc_nan": "new_age_nevermore"}
 
 def registered_ids():
     ids = set()
-    for name in ("init/CFItemInit.java", "init/CFBlockInit.java"):
+    for name in ("init/CFItemInit.java", "init/CFBlockInit.java", "init/CFEntityInit.java"):
         path = os.path.join(JAVA, name)
         if os.path.exists(path):
             ids.update(re.findall(r'register(?:Block)?\(\s*"([a-z0-9_]+)"', open(path, encoding="utf-8").read()))
@@ -115,6 +115,53 @@ def copy_assets():
 
 
 # ---------- data ----------
+def convert_entity_loot(d, ids, dropped):
+    """1.21 entity loot -> 1.20.1. Entries with items not registered yet are dropped (and listed); a pool left
+    without entries is removed. Re-running the script in a later phase brings them back."""
+    pools = []
+    for pool in d.get("pools", []):
+        entries = []
+        for e in pool.get("entries", []):
+            name = e.get("name", "")
+            if name.startswith(NS + ":") and name.split(":", 1)[1] not in ids:
+                dropped.append(name)
+                continue
+            for f in e.get("functions", []):
+                if f["function"] == "minecraft:enchanted_count_increase":
+                    _LOOT_COUNTS[id(e)] = f["count"]
+                    # 1.21 enchanted_count_increase(looting) -> 1.20.1 looting_enchant (same count per level)
+                    f.clear()
+                    f.update({"function": "minecraft:looting_enchant", "count": e_count(e)})
+            entries.append(e)
+        if not entries:
+            continue
+        pool["entries"] = entries
+        conditions = []
+        for c in pool.get("conditions", []):
+            if c["condition"] == "minecraft:random_chance_with_enchanted_bonus":
+                # 1.21: unenchanted chance, then a linear chance per looting level (base at level 1).
+                # 1.20.1 random_chance_with_looting: chance + level * looting_multiplier. Exact when
+                # per_level == base - unenchanted; otherwise the multiplier matches the original at Looting III.
+                lin = c["enchanted_chance"]
+                unench = c["unenchanted_chance"]
+                mult = round((lin["base"] + 2 * lin["per_level_above_first"] - unench) / 3, 4)
+                c = {"condition": "minecraft:random_chance_with_looting", "chance": unench, "looting_multiplier": mult}
+            conditions.append(c)
+        if conditions:
+            pool["conditions"] = conditions
+        pools.append(pool)
+    d["pools"] = pools
+    return d
+
+
+_LOOT_COUNTS = {}
+
+
+def e_count(entry):
+    return _LOOT_COUNTS.pop(id(entry))
+
+
+
 def convert_result(result):
     out = {"item": result["id"]}
     if result.get("count", 1) != 1:
@@ -160,6 +207,18 @@ def convert_data(ids):
             skipped.append(("block loot", fn + " needs " + ",".join(sorted(miss))))
             continue
         write_json(os.path.join(out, NS, "loot_tables", "blocks", fn), d)
+
+    # entity loot tables (only the creatures already registered)
+    for fn in sorted(os.listdir(os.path.join(data, NS, "loot_table", "entities"))):
+        stem = os.path.splitext(fn)[0]
+        if stem in EXCLUDED_IDS or stem not in ids:
+            continue
+        d = json.load(open(os.path.join(data, NS, "loot_table", "entities", fn), encoding="utf-8"))
+        dropped = []
+        d = convert_entity_loot(d, ids, dropped)
+        if dropped:
+            skipped.append(("entity loot entry", fn + " -> " + ",".join(dropped)))
+        write_json(os.path.join(out, NS, "loot_tables", "entities", fn), d)
 
     # block and item tags ("block" -> "blocks", "item" -> "items"); entity tags wait for the creatures
     tag_dirs = [
