@@ -1,11 +1,13 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F3 cerrada (2026-11-02).** Siguiente: F4 (segundo lote de criaturas). F1 y F2 probadas en el juego, salvo el arreglo de las plumas.
+**F3 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F4 (segundo lote de criaturas).
 
-## Pruebas en el juego pendientes
-- **Arreglo de las plumas (F1):** colores normales (degradé crema/celeste) y mosaico (franjas verde/violeta) en ítems y bloques; el pincel cambia entre las dos y vuelve. Se prueba junto con F3.
-- **F3:** las 5 criaturas (aspecto, animaciones, ataques, sonidos, botín, huevos).
+## Pruebas en el juego pendientes (tanda final)
+- **F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
+
+## Prueba corta en el juego de F3 + plumas (2026-11-02) ✅
+El usuario probó el jar real (`C:\cf\test`): las 5 criaturas se ven y se animan bien y lo característico de cada una funciona; las plumas cambian de color y el pincel las alterna. `latest.log` sin errores del mod: solo los avisos conocidos y "Object did not get ID it asked for" de los 5 huevos (el mundo de prueba se creó con el jar de F2 y Forge renumera los ítems nuevos; es normal).
 
 ## F3 - Criaturas lote 1 (2026-11-02) ✅
 Lote elegido por depender menos de fases futuras: **minds** (+ `MindsEntityPart`, el cerebro que se puede golpear aparte), **machination**, **sinister**, **beauty**, **detritus**. Usan solo partículas, sonidos, red y un shader core ya portados en F1–F2.
