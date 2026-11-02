@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "creaturefeature:carapace_bricks"
+  },
+  "result": "creaturefeature:carapace_brick_stairs",
+  "count": 1
+}

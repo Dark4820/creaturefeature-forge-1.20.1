@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "creaturefeature:murky_pearl_tiles"
+  },
+  "result": "creaturefeature:murky_pearl_tile_stairs",
+  "count": 1
+}

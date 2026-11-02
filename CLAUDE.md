@@ -22,6 +22,7 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 - **El EULA lo acepta el usuario, nunca Claude** (`run\eula.txt`).
 - Puede haber **otros Claude Code trabajando a la vez en otros proyectos**: NUNCA cerrar procesos por nombre (`java.exe`). Cerrar solo el PID que este proyecto inició y verificar solo ese PID. Si el puerto 25565 está ocupado, usar otro en `run\server.properties`.
 - El jar para el modpack es `build\libs\creaturefeature-<versión>-all.jar` (lleva MixinExtras adentro por jarJar). El jar sin `-all` no sirve en el juego real.
+- Recursos: `python -I tools/convert_resources.py` copia los assets y convierte recetas, loot tables de bloques y tags de la fuente al formato 1.20.1. Solo escribe lo que ya está registrado en `CFItemInit`/`CFBlockInit` y lista lo saltado: volver a correrlo en cada fase. Los atlas de `assets/minecraft/atlases` están hechos a mano (no los toca).
 - Bytecode del jar de referencia: `javap -p -c -classpath C:\cf\ref\creaturefeature-1.2.3.3.jar <clase>`.
 
 ## Cómo trabajar

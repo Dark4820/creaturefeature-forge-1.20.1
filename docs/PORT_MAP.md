@@ -92,6 +92,12 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 | 20 | IamActivelyHavingaMigraineMixin | cliente | accessor de `PoseStack.poseStack` | ✅ |
 | 21 | LivingEntityRendererMixin | cliente | `@ModifyConstant(-1)` color ARGB en `render` → tinte verde | 🔧 en 1.20.1 son 4 floats: `@ModifyArgs` sobre `renderToBuffer` |
 
+**Mixins nuevos del port** (no están en el original):
+
+| Mixin | Lado | Qué hace | Fase |
+|---|---|---|---|
+| SleepyJumpMixin | común | `LivingEntity.getJumpPower` → 0 con el efecto sleepy (reemplaza el modificador de `JUMP_STRENGTH`, que en 1.20.1 no existe para jugadores ni mobs) | F1 |
+
 Además hay que corregir: el original usa `java.awt.Color` en un renderer (funciona pero conviene quitarlo) y llama a `CreatureFeatureClient.PROXY` desde código común (`JukeBoxPlayableMixin`, ítems).
 
 ---
@@ -154,12 +160,29 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 
 ---
 
-## 6. Decisiones pendientes (FRENO)
+## 6. Decisiones (tomadas por el usuario el 2026-11-02)
 
-- **D1 – Base del port**: fuente (más nueva, con contenido ★ a medio hacer) o contenido del jar 1.2.3.3.
-- **D2 – Sable**: no existe en 1.20.1 → quitar Toadstool y runic_stone_bricks (propuesta), o reemplazar su física por algo simple (mucho trabajo, resultado distinto).
-- **D3 – Contenido vanilla de 1.21 sin equivalente**: propuesta de sustitutos: `INFESTED` → quitar (o Veneno), `OOZING` → quitar (o Lentitud), sonidos `BREEZE_*` → sonidos parecidos de 1.20.1 (p. ej. `BLAZE`/`PHANTOM`), `DUST_PILLAR` → `BLOCK` (misma opción de bloque), `ITEM_COBWEB` → `ITEM` con telaraña o pluma, posición en pestaña de `MACE`/`BREEZE_ROD` → junto a otros ítems; `ominous_powder_skull`★ (trial chambers) → quitar o pasarlo a otra estructura (p. ej. mazmorras).
-- **D4 – Galena Hats**: incluir `hats-forge-1.20.1-1.3.0` por jarJar como el original, o no incluirlo (no lo usa el código; es solo cosmético para supporters).
+- **D1 – Base del port = código fuente de GitHub.** F1–F8 portan el contenido publicado en el jar 1.2.3.3. El contenido ★ se decide en F9 (idea del usuario: solo Powder Skull, con su botín pasado a las mazmorras; Trichael, Fish Eye y Wraith quedan afuera por inacabados).
+- **D2 – Sable: se quita.** Ver "Contenido quitado" abajo.
+- **D3 – Contenido vanilla de 1.21:** se quitan `INFESTED` y `OOZING` de blighted_brain; los sonidos `BREEZE_*` se cambian por sonidos parecidos de 1.20.1; `DUST_PILLAR` → `ParticleTypes.BLOCK` (mismo bloque) e `ITEM_COBWEB` → `ParticleTypes.ITEM` con una telaraña. Cada cambio lleva `// PORT:`.
+- **D4 – Galena Hats: no se incluye.**
+
+### Contenido quitado (no existe en el port)
+| Contenido | Motivo |
+|---|---|
+| Entidad `toadstool` + `toadstool_spawn_egg` + spawn (`biome_modifier/toadstool.json`) + loot `entities/toadstool` + paquete `ToadstoolRenderPayload` + `ToadstoolEntityRenderer` | depende de Sable (física de sub-niveles), que no existe en 1.20.1 (D2) |
+| Bloque `runic_stone_bricks` (`RunicStoneBricksBlock`) + su loot y modelos | depende de Sable (D2) |
+| `misc/SableCarrier`, todos los `ModList.isLoaded("sable")` | ídem |
+| Galena Hats (jarJar) | D4 |
+
+## 6b. Cambios en archivos JSON (no admiten `// PORT:`)
+| Archivo | Cambio | Motivo |
+|---|---|---|
+| `assets/minecraft/atlases/armor_trims.json`, `blocks.json` | `blueprint:paletted_permutations` → `minecraft:paletted_permutations`; en `armor_trims` la fuente `directory` se cambia por la lista explícita de los 16 patrones vanilla (×2 con `_leggings`) | el tipo de Blueprint hace que los adornos dependan de Blueprint; con el vanilla funcionan sin él (los patrones de otros mods no reciben los colores de este mod) |
+| `sounds.json` | sin `entity.fisheye_screech` | ★ (F9) |
+| `trim_material/*.json` | sin cambios (mismo formato en 1.20.1) | — |
+| `ru_ru.json`, `en_us.json` | sin cambios (tienen claves de contenido quitado/★: no molestan) | — |
+| Recetas, loot tables, tags | formato y carpetas de 1.20.1 (ver §4) | 1.20.1 |
 
 ---
 
@@ -170,7 +193,7 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | Fase | Contenido | Prueba en el juego al cerrar |
 |---|---|---|
 | **F0** ✅ | Análisis, esqueleto Forge 1.20.1 (Java 17 por toolchain, MixinExtras, GameTests) | el mod aparece en la lista de mods |
-| **F1** | Registros base: sonidos, efectos (lógica simple), bloques y sus ítems, ítems simples (sin lógica de entidades), tags, recetas, loot de bloques, materiales de adorno, idioma, modelos/texturas, pestaña creativa, config | `/give` de bloques e ítems, colocar/romper bloques (drops), recetas en la mesa, adornar armadura con ectoplasma/pergaminos, `/effect give @s creaturefeature:sleepy` |
+| **F1** ✅ | Registros base: sonidos, efectos (lógica simple), bloques y sus ítems, ítems simples (sin lógica de entidades), tags, recetas, loot de bloques, materiales de adorno, idioma, modelos/texturas, pestaña creativa, config | `/give` de bloques e ítems, colocar/romper bloques (drops), recetas en la mesa, adornar armadura con ectoplasma/pergaminos, `/effect give @s creaturefeature:sleepy` |
 | **F2** | Infra: red `SimpleChannel` (8 paquetes), NBT en lugar de componentes, partículas (tipos + providers), `CFRenderTypes` + 16 shaders core registrados, discos (`RecordItem`), accessors | `/particle creaturefeature:...`, discos en el tocadiscos (incl. título del NaN) |
 | **F3** | Criaturas lote 1 (las más simples): minds (+part), machination, sinister, beauty, detritus, blossom, coat_of_arms + loot + huevos + atributos + spawn placements | `/summon` y huevos, pelear, drops |
 | **F4** | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo + proyectiles (feather, star, bullet) + efectos fiendish/sleepy completos | idem + efectos visibles |

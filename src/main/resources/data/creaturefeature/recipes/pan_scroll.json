@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:paper"
+    },
+    "A": {
+      "item": "creaturefeature:ectoplasm"
+    },
+    "M": {
+      "item": "minecraft:magenta_dye"
+    },
+    "Y": {
+      "item": "minecraft:yellow_dye"
+    },
+    "L": {
+      "item": "minecraft:light_blue_dye"
+    }
+  },
+  "pattern": [
+    "#MY",
+    "#AL"
+  ],
+  "result": {
+    "item": "creaturefeature:scroll_pan"
+  }
+}

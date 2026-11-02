@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": {
+      "item": "creaturefeature:down_feathers"
+    }
+  },
+  "pattern": [
+    "##"
+  ],
+  "result": {
+    "item": "creaturefeature:down_feathers_carpet",
+    "count": 3
+  }
+}

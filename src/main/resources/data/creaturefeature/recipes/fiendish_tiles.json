@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": {
+      "item": "creaturefeature:fiendish_essence"
+    },
+    "C": {
+      "item": "minecraft:stone"
+    }
+  },
+  "pattern": [
+    "CCC",
+    "C#C",
+    "CCC"
+  ],
+  "result": {
+    "item": "creaturefeature:fiendish_tiles",
+    "count": 8
+  }
+}
