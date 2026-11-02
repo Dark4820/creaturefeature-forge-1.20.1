@@ -52,6 +52,13 @@ public class CFNetwork {
         }
     }
 
+    // PORT: PacketDistributor.sendToPlayer(player, payloads...)
+    public static void sendToPlayer(net.minecraft.server.level.ServerPlayer player, Object... payloads) {
+        for (Object payload : payloads) {
+            CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), payload);
+        }
+    }
+
     // PORT: PacketDistributor.sendToServer(payload)
     public static void sendToServer(Object payload) {
         CHANNEL.sendToServer(payload);

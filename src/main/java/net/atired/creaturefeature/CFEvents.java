@@ -42,6 +42,16 @@ public class CFEvents {
             event.put(CFEntityInit.SINISTER.get(), SinisterEntity.createSinisterAttributes().build());
             event.put(CFEntityInit.BEAUTY.get(), BeautyEntity.createBeautyAttributes().build());
             event.put(CFEntityInit.DETRITUS.get(), DetritusEntity.createDetritusAttributes().build());
+            event.put(CFEntityInit.BLITZ.get(), BlitzEntity.createBlitzAttributes().build());
+            event.put(CFEntityInit.EEPER.get(), EeperEntity.createEeperAttributes().build());
+            event.put(CFEntityInit.NOTHING.get(), NoThingEntity.createNothingAttributes().build());
+            event.put(CFEntityInit.CANARY.get(), CanaryEntity.createCanaryAttributes().build());
+            event.put(CFEntityInit.CANARY_PART.get(), CanaryPart.createCanaryAttributes().build());
+            event.put(CFEntityInit.VERTIGO.get(), VertigoEntity.createVertigoAttributes().build());
+            event.put(CFEntityInit.FIEND.get(), FiendEntity.createFiendAttributes().build());
+            event.put(CFEntityInit.FEND.get(), FendEntity.createFendAttributes().build());
+            event.put(CFEntityInit.FRIEND.get(), FriendEntity.createFriendAttributes().build());
+            event.put(CFEntityInit.COATOFARMS.get(), CoatOfArmsEntity.createCoatOfArmsAttributes().build());
         }
 
         // PORT: RegisterSpawnPlacementsEvent/SpawnPlacementTypes -> SpawnPlacementRegisterEvent/SpawnPlacements.Type.
@@ -49,6 +59,15 @@ public class CFEvents {
         @SubscribeEvent
         public static void spawnPlacements(SpawnPlacementRegisterEvent event) {
             event.register(CFEntityInit.SINISTER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, SinisterEntity::checkSinisterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.EEPER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.NOTHING.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.BLITZ.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.VERTIGO.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.CANARY.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, CanaryEntity::checkCanarySpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.FIEND.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.FRIEND.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FriendEntity::checkFriendSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.FEND.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FendEntity::checkFendSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.COATOFARMS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.BEAUTY.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.MINDS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.MACHINATION.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
@@ -64,7 +83,19 @@ public class CFEvents {
                 event.accept(CFItemInit.BEAUTY_EGG.get());
                 event.accept(CFItemInit.SINISTER_EGG.get());
                 event.accept(CFItemInit.MACHINATION_EGG.get());
+                event.accept(CFItemInit.EEPER_EGG.get());
+                event.accept(CFItemInit.BLITZ_EGG.get());
+                event.accept(CFItemInit.NOTHING_EGG.get());
+                event.accept(CFItemInit.CANARY_EGG.get());
+                event.accept(CFItemInit.VERTIGO_EGG.get());
+                event.accept(CFItemInit.FIEND_EGG.get());
+                event.accept(CFItemInit.FEND_EGG.get());
+                event.accept(CFItemInit.FRIEND_EGG.get());
                 event.accept(CFItemInit.DETRITUS_EGG.get());
+                event.accept(CFItemInit.COAT_OF_ARMS_EGG.get());
+            }
+            if(event.getTabKey()==CreativeModeTabs.COMBAT){
+                insertBefore(event,Items.BOW,CFItemInit.FLINTLOCK.get());
             }
             if(event.getTabKey()==CreativeModeTabs.INGREDIENTS){
                 insertBefore(event,Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE,CFItemInit.BI_SCROLL.get());

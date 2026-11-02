@@ -1,10 +1,23 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F3 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F4 (segundo lote de criaturas).
+**F4 cerrada (2026-11-02).** Falta la prueba corta en el juego de F4. Siguiente: F5 (tercer lote de criaturas).
 
-## Pruebas en el juego pendientes (tanda final)
-- **F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
+## Pruebas en el juego pendientes
+- **Prueba corta de F4:** que las 9 criaturas se vean, se animen y ataquen bien (lista en el mensaje de cierre de F4).
+- **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
+- **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## F4 - Criaturas lote 2 (2026-11-02) ✅
+Lote: **fiend, fend, friend, blitz, eeper, nothing, canary** (+ `canary_part`, los segmentos del cuerpo), **vertigo, coat_of_arms** + la entidad **bullet** (disparo instantáneo de fiend, coat_of_arms y flintlock).
+- Adelantados: **kicked_block** (de F5; el fiend patea el bloque que pisa) y el ítem **flintlock** (de F6; fiend y coat_of_arms lo dibujan en la mano y el fiend suelta sus partículas). Pasan a F5: **feather** (mockingbird) y **star** (saint_solis), que el plan tenía en F4.
+- Revisado en el original el renderizado especial de cada una, todo portado: fiend (flintlock flotante al disparar + capa blanca brillante `FiendCritLayer` con el shader silk al patear o disparar), fend (shader `fend` ondulado con color según el arma, textura "deep", capa de armadura, buffer propio), friend (cubo giratorio con shader `friend` + carita hacia la cámara, buffer propio, texturas alternativas con `remodelfriend`), blitz (estela de 5 copias), eeper (se hincha y parpadea en blanco antes de explotar), nothing (shader `ambush` casi invisible que se revela al golpearlo o al cargar + ojos `NoThingEyesLayer`), canary (cinta de humo `ambush` detrás + segmentos), vertigo (abanico `outlined` + `ambush` al cargar el grito), coat_of_arms (capa de cintas que se abre y muestra flintlocks), bullet (trazo amarillo), kicked_block (bloque girando con el ícono de crítico). Ninguna tiene manejadores de color.
+- Cambios con `// PORT:` (PORT_MAP §6c): gravedades y altura de paso por atributos; `LivingEntitySwingMixin` (nuevo, el canary balancea el doble de lento: en 1.20.1 el método es privado); `stopInPlace`, `noBlockCollision`, `customArrow`/`getMobArrow`, `isSpawner`, `isEmpty`, paquete de alta del bullet; `BREEZE_*` → `BLAZE_*`/`PLAYER_ATTACK_SWEEP`; `DUST_PILLAR` → `BLOCK` (D3); `triggerOnDeathMobEffects` sin equivalente necesario.
+- Pendiente de otras fases (a propósito): botín de cuernos del vertigo (`// PORT: TODO F6`, vuelve con `VertigoHornItem`); `murky_pearl` en el botín del nothing (F5); el daño diferido del canary ("gas leak") y la rabia del vertigo sobre el jugador dependen de `PlayerMixin` (F6), y sus efectos de pantalla de F7: hasta entonces los golpes pegan normal pero sin ese extra. El canary conserva los `System.out.println` de depuración del original.
+- Problema encontrado: el flintlock con `durability(4).stacksTo(1)` impedía cargar el mod ("Unable to have damage AND stack"), y `runGameTestServer` igual terminaba en BUILD SUCCESSFUL. Corregido y anotado en CLAUDE.md: el resultado vale por la línea "All N required tests passed", no por Gradle.
+- GameTests (`F4GameTests`, 8): los 9 huevos; botín de 7 criaturas; gravedades, altura de paso y altura de ojos; el canary balancea el doble que un zombi (mixin); el eeper explota cerca de su objetivo y lo deja con sleepy y dañado; el bullet daña lo que tiene enfrente; el kicked_block pega 5 y se rompe; el friend se aplana al recibir un golpe y no recibe daño aplanado; el fend aparece armado y con casco.
+
+Verificado: `build` OK; `runGameTestServer` 29/29; `runServer` hasta `Done (4.240s)` (los 2 mixins se aplican) sin errores del mod; `runClient` hasta la pantalla de título sin errores del mod (cerrado por su PID).
 
 ## Prueba corta en el juego de F3 + plumas (2026-11-02) ✅
 El usuario probó el jar real (`C:\cf\test`): las 5 criaturas se ven y se animan bien y lo característico de cada una funciona; las plumas cambian de color y el pincel las alterna. `latest.log` sin errores del mod: solo los avisos conocidos y "Object did not get ID it asked for" de los 5 huevos (el mundo de prueba se creó con el jar de F2 y Forge renumera los ítems nuevos; es normal).

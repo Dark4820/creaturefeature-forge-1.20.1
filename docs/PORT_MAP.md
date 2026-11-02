@@ -97,6 +97,7 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 | Mixin | Lado | Qué hace | Fase |
 |---|---|---|---|
 | SleepyJumpMixin | común | `LivingEntity.getJumpPower` → 0 con el efecto sleepy (reemplaza el modificador de `JUMP_STRENGTH`, que en 1.20.1 no existe para jugadores ni mobs) | F1 |
+| LivingEntitySwingMixin | común | `LivingEntity.getCurrentSwingDuration` (privado en 1.20.1) ×2 para el canary, como el override del original | F4 |
 
 Además hay que corregir: el original usa `java.awt.Color` en un renderer (funciona pero conviene quitarlo) y llama a `CreatureFeatureClient.PROXY` desde código común (`JukeBoxPlayableMixin`, ítems).
 
@@ -189,7 +190,22 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `BREEZE_WHIRL` (beauty) | `PLAYER_ATTACK_SWEEP` (D3) |
 | `DUST_PILLAR` (detritus) | `ParticleTypes.BLOCK` (D3) |
 | vértices `addVertex().setColor()…` / modelos `renderToBuffer(…, int color)` | `vertex().color()…endVertex()` / `renderToBuffer(…, r, g, b, a)` |
-| `ByteBufferBuilder` (buffer propio del detritus) | `BufferBuilder` |
+| `ByteBufferBuilder` (buffers propios de detritus, fend y friend) | `BufferBuilder`. El de fend no lleva `entityWraithCutout` (shader ★, F9; solo lo usa el wraith) |
+| `Attributes.STEP_HEIGHT` (friend 10, blitz 1,5) | `setMaxUpStep` en el constructor |
+| `getDefaultGravity()` constante (canary 0,01, canary_part 0, coat_of_arms ×0,6) | valor base de `ENTITY_GRAVITY` en sus atributos; `getGravity()` (fend) → `getAttributeValue(ENTITY_GRAVITY)`; en `KickedBlockEntity` (proyectil) → 0 |
+| `getCurrentSwingDuration` (público en 1.21, el canary lo duplica) | privado en 1.20.1: `LivingEntitySwingMixin` |
+| `Mob.stopInPlace()` (fiend, coat_of_arms) | su cuerpo: `getNavigation().stop()` + `setXxa/setYya/setSpeed(0)` |
+| `noBlockCollision` (fend) | el mismo recorrido sobre `getBlockCollisions` |
+| `ProjectileWeaponItem.customArrow(arrow, ammo, weapon)` / `getMobArrow(…, weapon)` (fend) | `BowItem.customArrow(arrow)` / `getMobArrow(…)` (como el esqueleto de Forge 1.20.1) |
+| `MobSpawnType.isSpawner` (fend) | `== SPAWNER` (1.20.1 no tiene trial spawners) |
+| `BlockState.isEmpty()` (fiend) | `isAir()` |
+| `triggerOnDeathMobEffects` (eeper) | sin llamada: en 1.20.1 ningún efecto reacciona a la muerte |
+| `dropCustomDeathLoot(ServerLevel, DamageSource, boolean)` / `finalizeSpawn(…)` | `dropCustomDeathLoot(DamageSource, int looting, boolean)` / `finalizeSpawn(…, CompoundTag)` |
+| `getAddEntityPacket(ServerEntity)` (kicked_block) / sin override (bullet) | `getAddEntityPacket()`; en 1.20.1 es abstracto en `Entity`, así que bullet lo implementa |
+| `EventHooks.onProjectileImpact` + `hitTargetOrDeflectSelf` | `ForgeEventFactory.onProjectileImpact` + `onHit` |
+| `BREEZE_HURT/DEATH` (blitz), `BREEZE_WHIRL` (coat_of_arms) | `BLAZE_HURT/DEATH` (el blitz_rod ya reemplaza a la vara de breeze), `PLAYER_ATTACK_SWEEP` (D3) |
+| `Item.Properties().durability(4).stacksTo(1)` (flintlock) | `durability(4)`: en 1.20.1 `stacksTo` después de `durability` lanza "Unable to have damage AND stack" (el mod no cargaba) |
+| `PacketDistributor.sendToPlayer` | `CFNetwork.sendToPlayer` |
 
 ## 6b. Cambios en archivos JSON (no admiten `// PORT:`)
 | Archivo | Cambio | Motivo |
@@ -219,9 +235,9 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | **F1** ✅ | Registros base: sonidos, efectos (lógica simple), bloques y sus ítems, ítems simples (sin lógica de entidades), tags, recetas, loot de bloques, materiales de adorno, idioma, modelos/texturas, pestaña creativa, config, manejadores de color de las plumas (agregados después de la prueba en el juego: `blocks/FeatherTints` + `CreatureFeatureClient`) | `/give` de bloques e ítems, colocar/romper bloques (drops), recetas en la mesa, adornar armadura con ectoplasma/pergaminos, `/effect give @s creaturefeature:sleepy` |
 | **F2** ✅ | Infra: red `SimpleChannel` (8 paquetes), NBT en lugar de componentes, partículas (tipos + providers), `CFRenderTypes` + 9 shaders core registrados (los 5 ★ quedan para F9), discos (`RecordItem`), accessors | `/particle creaturefeature:...`, discos en el tocadiscos (incl. título del NaN) |
 | **F3** ✅ | Criaturas lote 1: minds (+part), machination, sinister, beauty, detritus + loot + huevos + atributos + spawn placements (sin spawn natural: F8) | `/summon` y huevos, pelear, drops |
-| **F4** | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo, **coat_of_arms** (pasó de F3: dispara `bullet`) + proyectiles (feather, star, bullet) + efectos fiendish/sleepy completos | idem + efectos visibles |
-| **F5** | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass, **blossom** (pasó de F3: escupe `spat_block`) + kicked_block, spat_block, murky_pearl, vitric_arrow, eep (TNT) | idem |
-| **F6** | Ítems con lógica: flintlock, vertigo_horn, dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
+| **F4** ✅ | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo, **coat_of_arms** + `bullet`, **`kicked_block`** (pasó de F5: lo patea el fiend) y el ítem **flintlock** (pasó de F6: lo sostienen fiend y coat_of_arms) | `/summon`, ver y pelear |
+| **F5** | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass, **blossom** (pasó de F3: escupe `spat_block`) + spat_block, murky_pearl, vitric_arrow, eep (TNT), **feather** (mockingbird) y **star** (saint_solis), que estaban en F4 | idem |
+| **F6** | Ítems con lógica (el flintlock ya está desde F4): vertigo_horn (vuelve con él el botín de cuernos del vertigo), dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
 | **F7** | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
 | **F8** | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |
 | **F9** (opcional, según D1) | Contenido ★: powder_skull, trichael, fisheye, wraith, obelisk, collumn, delay | `/summon` |

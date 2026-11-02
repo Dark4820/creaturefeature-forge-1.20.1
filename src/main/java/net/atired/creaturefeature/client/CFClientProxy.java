@@ -3,6 +3,7 @@ package net.atired.creaturefeature.client;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.atired.creaturefeature.CreatureFeature;
+import net.atired.creaturefeature.client.renderers.FriendEntityRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Map;
 
 // PORT: client-only state, as in the original. The cached BufferSources arrive with their creatures:
-// getDetritusSource in F3; getFendSource, getSunSource and getFriendSource in F4-F5.
+// getDetritusSource in F3, getFendSource and getFriendSource in F4, getSunSource in F5.
 public class CFClientProxy {
     public float eebyDeebyNess = 0.0f;
     public float flayed2 = 0.0f;
@@ -41,6 +42,45 @@ public class CFClientProxy {
                     new BufferBuilder(CFRenderTypes.entityMonochromeCull(DETRITUS_LOCATION).bufferSize()));
             DETRITUS_SOURCE=MultiBufferSource.immediateWithBuffers(buffers,new BufferBuilder(256));
             return DETRITUS_SOURCE;
+        }
+    }
+
+    private static final ResourceLocation FEND_LOCATION = CreatureFeature.getId("textures/entity/fend.png");
+    public static MultiBufferSource.BufferSource FEND_SOURCE = null;
+
+    // PORT: same buffers as the original minus entityWraithCutout (the wraith shader is ★ content, F9; only the
+    // wraith renderer draws with it). ByteBufferBuilder -> BufferBuilder as in getDetritusSource.
+    public static MultiBufferSource.BufferSource getFendSource(){
+        if(FEND_SOURCE!=null){
+            return FEND_SOURCE;
+        }else{
+            Map<RenderType,BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
+            buffers.put(CFRenderTypes.entityFendCutout(FEND_LOCATION),
+                    new BufferBuilder(CFRenderTypes.entityFendCutout(FEND_LOCATION).bufferSize()));
+            FEND_SOURCE=MultiBufferSource.immediateWithBuffers(buffers,new BufferBuilder(256));
+            return FEND_SOURCE;
+        }
+    }
+
+    public static MultiBufferSource.BufferSource FRIEND_SOURCE = null;
+
+    // PORT: ByteBufferBuilder -> BufferBuilder (same buffers as the original)
+    public static MultiBufferSource.BufferSource getFriendSource(){
+        if(FRIEND_SOURCE!=null){
+            return FRIEND_SOURCE;
+        }else{
+            Map<RenderType,BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
+            buffers.put(CFRenderTypes.entityFriendCutout(FriendEntityRenderer.CUBE_LOCATION),
+                    new BufferBuilder(CFRenderTypes.entityFriendCutout(FriendEntityRenderer.CUBE_LOCATION).bufferSize()));
+            buffers.put(CFRenderTypes.entitySilkCull(FriendEntityRenderer.CUBE_LOCATION),
+                    new BufferBuilder(CFRenderTypes.entitySilkCull(FriendEntityRenderer.CUBE_LOCATION).bufferSize()));
+            buffers.put(RenderType.entityTranslucent(FriendEntityRenderer.SMILE_FRIENDLESS_LOCATION),
+                    new BufferBuilder(RenderType.entityTranslucent(FriendEntityRenderer.SMILE_FRIENDLESS_LOCATION).bufferSize()));
+
+            buffers.put(RenderType.entityTranslucent(FriendEntityRenderer.SMILE_LOCATION),
+                    new BufferBuilder(RenderType.entityTranslucent(FriendEntityRenderer.SMILE_LOCATION).bufferSize()));
+            FRIEND_SOURCE=MultiBufferSource.immediateWithBuffers(buffers,new BufferBuilder(256));
+            return FRIEND_SOURCE;
         }
     }
 }

@@ -1,0 +1,144 @@
+// PORT (mechanical): Holder.value() -> RegistryObject.get()
+package net.atired.creaturefeature.entity;
+
+import net.atired.creaturefeature.init.CFSoundInit;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
+public class BulletEntity extends Entity {
+    public LivingEntity ownerUsual = null;
+    public float length=40f;
+
+    public BulletEntity(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
+
+    // PORT: EntityType.Builder eyeHeight(0.2F)/passengerAttachments(0.3125F)/ridingOffset(-0.1F)
+    // (non-living entities: Entity.getEyeHeight(Pose, EntityDimensions) in 1.20.1)
+    @Override
+    protected float getEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return 0.2F;
+    }
+
+    @Override
+    public double getPassengersRidingOffset() {
+        return 0.3125;
+    }
+
+    @Override
+    public double getMyRidingOffset() {
+        return -0.1;
+    }
+    @Override
+    public void tick() {
+        if (tickCount == 0&&level()!=null) {
+            float customPitch = -getXRot();
+            float customYaw = -getYRot();
+            Vec3 godir = new Vec3(0, 0, 1).xRot(customPitch / 180 * 3.14f).yRot(customYaw / 180.0f * 3.14f).scale(24);
+
+            HitResult result = level().clip(new ClipContext(getPosition(1).add(0,0.1,0), getPosition(1).add(0,0.1,0).add(godir), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+            this.length=(float)result.getLocation().distanceTo(this.getPosition(1).add(0,0.1,0));
+        }
+        super.tick();
+        if(level() instanceof ServerLevel serverLevel){
+            if(tickCount==1){
+                playSound(CFSoundInit.SHOT.get(),0.8f,0.6f+(float)Math.random()/2f);
+                float customPitch = -getXRot();
+                float customYaw = -getYRot();
+                Vec3 godir2 = new Vec3(0, 0, 1).xRot(customPitch / 180 * 3.14f).yRot(customYaw / 180.0f * 3.14f).scale(24);
+
+                HitResult result = level().clip(new ClipContext(getPosition(1).add(0,0.1,0), getPosition(1).add(0,0.1,0).add(godir2), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+                this.length=(float)result.getLocation().distanceTo(this.getPosition(1).add(0,0.1,0));
+                Vec3 godir = new Vec3(0,0,1).xRot(customPitch/180*3.14f).yRot(customYaw/180.0f*3.14f).scale(this.length/2f);
+
+                float yawCos = (float) Math.cos(customYaw/180*3.14f);
+                float yawSin = (float) Math.sin(customYaw/180*3.14f);
+                float pitchCos = (float) Math.cos(customPitch/180*3.14f);
+                float pitchSin = (float) Math.sin(customPitch/180*3.14f);
+                for(Entity other : serverLevel.getEntitiesOfClass(Entity.class,getBoundingBox().inflate(this.length),Entity::isAlive)){
+                    if(other==this||this.ownerUsual==other){
+                        continue;
+                    }
+                    double translatedX = other.getX() - (this.getX()+godir.x());
+                    double translatedY = other.getY()+other.getBbHeight()/2 - (this.getY()+0.1+godir.y());
+                    double translatedZ = other.getZ() - (this.getZ()+godir.z());
+                    double x1 = translatedX * yawCos - translatedZ * yawSin;
+                    double z1 = translatedX * yawSin + translatedZ * yawCos;
+                    double y1 = translatedY;
+                    double y2 = y1 * pitchCos - z1 * pitchSin;
+                    double z2 = y1 * pitchSin + z1 * pitchCos;
+                    double x2 = x1;
+                    if((Math.abs(x2) <=0.6) && (Math.abs(y2) <= 0.1+other.getBbHeight()/2) && (Math.abs(z2) <=this.length/2f)){
+                        other.hurt(damageSources().mobProjectile(this,ownerUsual),2.5f);
+                        if(other instanceof LivingEntity i&&this.hasLineOfSight(i)){
+                            i.hurtTime=0;
+                            i.invulnerableTime=0;
+                            i.hurtMarked=false;
+                            i.hurtDuration=0;
+                        }
+                    }
+                }
+            }
+        }
+        if(tickCount>10){
+            discard();
+        }
+    }
+    public boolean hasLineOfSight(Entity entity) {
+        if (entity.level() != this.level()) {
+            return false;
+        } else {
+            Vec3 vec3 = new Vec3(this.getX(), this.getEyeY(), this.getZ());
+            Vec3 vec31 = new Vec3(entity.getX(), entity.getEyeY(), entity.getZ());
+            return vec31.distanceTo(vec3) > 128.0 ? false : this.level().clip(new ClipContext(vec3, vec31, ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
+        }
+    }
+    // PORT: Entity.getAddEntityPacket is abstract in 1.20.1 (in 1.21 the entity tracker builds the packet)
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getAddEntityPacket() {
+        return new net.minecraft.network.protocol.game.ClientboundAddEntityPacket(this);
+    }
+
+    @Override
+    public boolean shouldRender(double x, double y, double z) {
+        return true;
+    }
+
+    @Override
+    public void load(CompoundTag compound) {
+        super.load(compound);
+    }
+
+    @Override
+    public boolean save(CompoundTag compound) {
+        return super.save(compound);
+    }
+
+    // PORT: defineSynchedData(SynchedEntityData.Builder) -> defineSynchedData() + entityData.define
+
+    @Override
+    protected void defineSynchedData() {
+
+    }
+
+    @Override
+    protected void readAdditionalSaveData(CompoundTag compoundTag) {
+
+    }
+
+    @Override
+    protected void addAdditionalSaveData(CompoundTag compoundTag) {
+
+    }
+}

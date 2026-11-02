@@ -18,6 +18,7 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 - Minecraft 1.20.1, **Forge 47.4.10**, mapeos oficiales, Gradle 8.8 + ForgeGradle 6.
 - **Java 17 siempre, por toolchain de Gradle**: la PC solo tiene Java 25 en el `PATH`. El daemon de Gradle se fija en 17 con `gradle/gradle-daemon-jvm.properties` (`toolchainVersion=17`) y la compilación con `java.toolchain` 17 + plugin foojay (descarga el JDK solo si falta; hoy usa el de `%USERPROFILE%\.gradle\jdks`). **No** hace falta tocar `JAVA_HOME`. La primera línea del build imprime `Java: 17...`: si dice otra cosa, frenar.
 - Compilar: `gradlew.bat build --console=plain`. Pruebas automáticas: `gradlew.bat runGameTestServer` (viven en `src/gametest`, conjunto de fuentes solo de desarrollo; lo cargan todas las ejecuciones pero **no entra en el jar**).
+- **El resultado de `runGameTestServer` es la línea `All N required tests passed`**, no el `BUILD SUCCESSFUL` de Gradle: si el mod no carga (excepción en `common_setup`), el servidor de pruebas se cierra y Gradle igual dice BUILD SUCCESSFUL. Buscar también `Exception caught during firing event`.
 - Probar que carga: `gradlew.bat runServer` y leer `run\logs\latest.log` hasta ver `Done` (no esperar la salida de la consola).
 - **Si la fase toca recursos de cliente** (shaders, partículas, modelos, texturas, atlas), además `gradlew.bat runClient` hasta la pantalla de título y buscar en el log errores del mod (`Couldn't compile`, `Redundant texture list`, `Failed to load model`, crash reports). El servidor no carga nada de eso. Cerrar el cliente por su PID (proceso con `forgeclientuserdev` y `C:\cf\port` en la línea de comandos).
 - **El EULA lo acepta el usuario, nunca Claude** (`run\eula.txt`).
@@ -51,4 +52,6 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 - **VertexConsumer 1.20.1:** `vertex(...).color(...).uv(...).overlayCoords(...).uv2(...).normal(...).endVertex()`; `renderToBuffer` recibe `r, g, b, a` como floats (no un `int` ARGB).
 - `EntityType.Builder` no tiene `eyeHeight`/`passengerAttachments`/`ridingOffset`: van como overrides en la entidad. `defineSynchedData()` sin parámetros.
 - Configuración con `ForgeConfigSpec`; registros con `DeferredRegister`/`RegistryObject`.
+- `Item.Properties`: nunca `stacksTo` después de `durability` (en 1.20.1 lanza "Unable to have damage AND stack"); `durability` ya deja el stack en 1.
+- Entidades (ver PORT_MAP §6c): altura de ojos y monturas como overrides; gravedad propia → atributo `ForgeMod.ENTITY_GRAVITY`; `STEP_HEIGHT` → `setMaxUpStep`; huevos con `ForgeSpawnEggItem`; `Entity.getAddEntityPacket()` es abstracto en 1.20.1.
 - Mixins: todo mixin nuevo va en `src/main/resources/creaturefeature.mixins.json`. MixinExtras 0.4.1 está disponible (jarJar). Preferir un evento de Forge a un mixin.

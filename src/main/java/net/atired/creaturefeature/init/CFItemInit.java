@@ -1,6 +1,7 @@
 package net.atired.creaturefeature.init;
 
 import net.atired.creaturefeature.CreatureFeature;
+import net.atired.creaturefeature.items.FlintlockItem;
 import net.atired.creaturefeature.items.NanDiscItem;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -29,6 +30,32 @@ public class CFItemInit {
             ForgeSpawnEggItem(CFEntityInit.BEAUTY,0x629062,0x91344d,new  Item.Properties()));
     public static final RegistryObject<Item> DETRITUS_EGG = ITEMS.register("detritus_spawn_egg", ()->new
             ForgeSpawnEggItem(CFEntityInit.DETRITUS,0xcb67ad,0x7d6a42,new  Item.Properties()));
+    public static final RegistryObject<Item> FIEND_EGG = ITEMS.register("fiend_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.FIEND,0xf58dfc,0xdf52f2,new  Item.Properties()));
+    public static final RegistryObject<Item> FRIEND_EGG = ITEMS.register("friend_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.FRIEND,0xffffff,0x000000,new  Item.Properties()));
+    public static final RegistryObject<Item> FEND_EGG = ITEMS.register("fend_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.FEND,0xffe873,0xf2a574,new  Item.Properties()));
+    public static final RegistryObject<Item> BLITZ_EGG = ITEMS.register("blitz_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.BLITZ,0xeec1db,0xd442dd,new  Item.Properties()));
+    public static final RegistryObject<Item> EEPER_EGG = ITEMS.register("eeper_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.EEPER,0xd1e198,0x5d9b98,new  Item.Properties()));
+    public static final RegistryObject<Item> NOTHING_EGG = ITEMS.register("nothing_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.NOTHING,0xdfce9b,0xdfce9b,new  Item.Properties()));
+    public static final RegistryObject<Item> CANARY_EGG = ITEMS.register("canary_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.CANARY,0xaab5b3,0x99e550,new  Item.Properties()));
+    public static final RegistryObject<Item> VERTIGO_EGG = ITEMS.register("vertigo_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.VERTIGO,0xa97eb6,0x736967,new  Item.Properties()));
+    public static final RegistryObject<Item> COAT_OF_ARMS_EGG = ITEMS.register("coat_of_arms_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.COATOFARMS,0xdcafa7,0x975249,new  Item.Properties()));
+    // PORT: flintlock moved from F6 to F4: the fiend and the coat of arms hold it (renderers) and the fiend's shots
+    // throw its item particles.
+    public static final RegistryObject<Item> FLINTLOCK = ITEMS.register(
+            "flintlock",
+            // PORT: durability(4).stacksTo(1) -> durability(4): in 1.20.1 stacksTo after durability throws
+            // "Unable to have damage AND stack", and durability already makes the stack size 1
+            ()->new FlintlockItem(new Item.Properties().durability(4))
+    );
 
     // PORT: jukebox_song data (1.21) -> RecordItem(comparator output, sound, properties, length in ticks), with the
     // values of data/creaturefeature/jukebox_song: nothing = 15 / 16.3 s, new_age_nevermore = 3 / 71 s.
