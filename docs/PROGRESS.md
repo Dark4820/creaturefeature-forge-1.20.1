@@ -1,7 +1,17 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F2 cerrada (2026-11-02).** Siguiente: F3 (primer lote de criaturas). Las pruebas en el juego de F1 y F2 las hace el usuario juntas.
+**F1 y F2 cerradas y probadas en el juego (2026-11-02).** Siguiente: F3 (primer lote de criaturas).
+
+## Pruebas en el juego de F1 + F2 (2026-11-02) ✅
+El usuario probó el jar real en una instancia aparte (`C:\cf\test`): pestañas, carapacho, gelatina, sleepy, fiendish, comidas, partículas (sleepy, glass_shard, crit_text, spore), discos, recetas, drops y adornos funcionaron. En el `latest.log` de la prueba no hay errores del mod: solo los avisos conocidos (uniforms de shaders, sonido `entity.stained_glass_retreat`) y la corrección de los `.toml` de configuración creados por primera vez.
+
+Falla encontrada y corregida:
+- **El pincel no cambiaba las plumas a mosaico** (ni al bloque ni a la alfombra), aunque salían las partículas. Causa: el cambio de bloque sí se hacía en el servidor, pero las plumas normales y las mosaico usan **el mismo modelo** (igual que en el original) y solo se distinguen por el color (`tintindex`) que ponen los manejadores de color del cliente. Esos manejadores (`registerBlockColors`/`registerItemColors` del original) no se habían portado en F1, así que las cuatro variantes se veían iguales, sin teñir.
+- Arreglo: `blocks/FeatherTints` (nuevo, `// PORT:`) tiene los colores y fórmulas del original sin clases de cliente (`java.awt.Color` → ARGB); `CreatureFeatureClient` registra los manejadores de bloque e ítem para las 4 variantes, como el original.
+- GameTests (`FeathersBrushGameTests`, 2): `brushTogglesMosaicFeathers` usa un pincel real por el mismo camino que un clic derecho en el servidor (`ServerPlayerGameMode.useItemOn` con un `FakePlayer`) sobre el bloque y la alfombra, y comprueba que pasan a mosaico y vuelven. **Pasó también antes del arreglo** (eso confirmó que el servidor estaba bien). `mosaicAndNormalFeathersHaveDifferentTints` comprueba que los tintes de mosaico y normal son distintos, que ninguno queda blanco y que coinciden con los valores del original; antes del arreglo no existía `FeatherTints`. Los manejadores de color en sí son de cliente y no se pueden ejecutar en el servidor de GameTests: se verificaron con `runClient`.
+
+Verificado: `build` OK; `runGameTestServer` 14/14; `runServer` hasta `Done (3.543s)`; `runClient` hasta la pantalla de título sin errores del mod; jar `build\libs\creaturefeature-1.2.3.3-port.0-all.jar` con el arreglo.
 
 ## Decisiones del usuario (2026-11-02)
 - **D1:** base = código fuente de GitHub. F1–F8 portan el contenido publicado en el jar 1.2.3.3. El contenido ★ queda para **F9** y se decide ahí; la idea del usuario es portar **solo el Powder Skull** (con su botín pasado a las **mazmorras**) y dejar afuera **Trichael, Fish Eye y Wraith** por estar inacabados.
