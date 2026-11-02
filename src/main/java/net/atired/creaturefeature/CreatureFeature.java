@@ -1,6 +1,7 @@
 package net.atired.creaturefeature;
 
 import net.atired.creaturefeature.init.*;
+import net.atired.creaturefeature.networking.CFNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -35,7 +36,8 @@ public class CreatureFeature {
         return new ResourceLocation(MODID, string);
     }
 
+    // PORT: the payloads were registered in CFEvents.register (RegisterPayloadHandlersEvent); see CFNetwork
     private void commonSetup(FMLCommonSetupEvent event) {
-
+        event.enqueueWork(CFNetwork::register);
     }
 }

@@ -21,11 +21,18 @@ NS = "creaturefeature"
 EXCLUDED_IDS = {
     "obelisk", "obelisk_inside", "obelisk_inventory", "powder_skull_spawn_egg", "fisheye", "red_powder",
     "runic_stone_bricks", "toadstool", "toadstool_spawn_egg", "ominous_powder_skull",
+    "reveal",  # particles/reveal.json: no particle type is registered for it (1.20.1 fails the reload)
 }
 EXCLUDED_ASSET_PREFIXES = (
-    "particles/", "shaders/",  # phase F2
+    "shaders/post/", "shaders/program/",  # post-processing: phase F7
 )
 STAR_ASSETS = {
+    "shaders/core/rendertype_entity_collumn.fsh", "shaders/core/rendertype_entity_collumn.json",
+    "shaders/core/rendertype_entity_fisheye.fsh", "shaders/core/rendertype_entity_fisheye.json",
+    "shaders/core/rendertype_entity_fisheye_itself.fsh", "shaders/core/rendertype_entity_fisheye_itself.json",
+    "shaders/core/rendertype_entity_red.fsh", "shaders/core/rendertype_entity_red.json",
+    "shaders/core/rendertype_entity_wraith.fsh", "shaders/core/rendertype_entity_wraith.json",
+    "shaders/core/rendertype_entity_wraith.vsh",
     "sounds/fisheye_screech.ogg",
     "textures/block/obelisk.png", "textures/block/obelisk_outside.png",
     "textures/entity/evil.png", "textures/entity/fisheye.png", "textures/entity/fisheye_trail.png",
@@ -33,6 +40,16 @@ STAR_ASSETS = {
     "textures/entity/red_powder_bg.png", "textures/entity/trichael.png", "textures/entity/trichael_overlay.png",
     "textures/entity/trichael_screen.png", "textures/entity/wraith.png", "textures/entity/wraith_cuff.png",
 }
+# Hand-ported files: copied once, then edited for 1.20.1 (see docs/PORT_MAP.md §6b). Never overwritten.
+HAND_EDITED = {
+    "shaders/core/rendertype_entity_fend.vsh", "shaders/core/rendertype_entity_fend.json",
+    "shaders/core/rendertype_entity_silk.vsh", "shaders/core/rendertype_entity_silk.json",
+    "shaders/core/rendertype_armor_cutout_evil_cull.vsh", "shaders/core/rendertype_armor_cutout_evil_cull.json",
+}
+
+
+# music disc item -> jukebox_song id (1.21)
+DISCS = {"music_disc_nothing": "nothing", "music_disc_nan": "new_age_nevermore"}
 
 
 def registered_ids():
@@ -71,8 +88,25 @@ def copy_assets():
             if rel.startswith(EXCLUDED_ASSET_PREFIXES) or rel in STAR_ASSETS or stem in EXCLUDED_IDS:
                 continue
             dst = os.path.join(dst_root, rel)
+            if rel in HAND_EDITED and os.path.exists(dst):
+                continue
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            if rel == "sounds.json":
+            if rel.startswith("lang/") and rel.endswith(".json"):
+                # 1.20.1 RecordItem tooltip reads "item.<ns>.<disc>.desc"; 1.21 reads "jukebox_song.<ns>.<song>"
+                lang = json.load(open(src, encoding="utf-8"))
+                for disc, song in DISCS.items():
+                    key = "jukebox_song.%s.%s" % (NS, song)
+                    if key in lang:
+                        lang["item.%s.%s.desc" % (NS, disc)] = lang[key]
+                write_json(dst, lang)
+            elif rel.startswith("models/") and rel.endswith(".json") and '"neoforge:' in open(src, encoding="utf-8").read():
+                # NeoForge model loaders -> the Forge 1.20.1 ones (same JSON: neoforge:separate_transforms ->
+                # forge:separate_transforms)
+                model = json.load(open(src, encoding="utf-8"))
+                if str(model.get("loader", "")).startswith("neoforge:"):
+                    model["loader"] = "forge:" + model["loader"].split(":", 1)[1]
+                write_json(dst, model)
+            elif rel == "sounds.json":
                 sounds = json.load(open(src, encoding="utf-8"))
                 sounds.pop("entity.fisheye_screech", None)
                 write_json(dst, sounds)

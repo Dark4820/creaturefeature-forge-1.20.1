@@ -1,6 +1,7 @@
 package net.atired.creaturefeature.init;
 
 import net.atired.creaturefeature.CreatureFeature;
+import net.atired.creaturefeature.items.NanDiscItem;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
@@ -11,10 +12,21 @@ import net.minecraftforge.registries.RegistryObject;
 
 // PORT: DeferredRegister.Items/DeferredItem -> DeferredRegister/RegistryObject.
 // Phase F1 registers the items without logic of their own. Still to come (see docs/PORT_MAP.md):
-// spawn eggs (F3-F5), music discs (F2), the items with their own class (F6).
+// spawn eggs (F3-F5), the items with their own class (F6). Music discs: F2.
 public class CFItemInit {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CreatureFeature.MODID);
 
+    // PORT: jukebox_song data (1.21) -> RecordItem(comparator output, sound, properties, length in ticks), with the
+    // values of data/creaturefeature/jukebox_song: nothing = 15 / 16.3 s, new_age_nevermore = 3 / 71 s.
+    // The disc tooltip reads "<item id>.desc" in 1.20.1 (added to the lang files by tools/convert_resources.py).
+    public static final RegistryObject<Item> NOTHING_DISC = ITEMS.register(
+            "music_disc_nothing",
+            ()->new RecordItem(15, CFSoundInit.NOTHING, (new Item.Properties()).stacksTo(1).rarity(Rarity.RARE), 326)
+    );
+    public static final RegistryObject<Item> NEW_AGE_NEVERMORE_DISC = ITEMS.register(
+            "music_disc_nan",
+            ()->new NanDiscItem(3, CFSoundInit.NEW_AGE_NEVERMORE, (new Item.Properties()).stacksTo(1).rarity(Rarity.RARE), 71*20)
+    );
     // PORT: saturationModifier -> saturationMod. INFESTED and OOZING do not exist in 1.20.1: removed (decision D3).
     public static final FoodProperties BLIGHTED_BRAIN_FOOD = (new FoodProperties.Builder()).nutrition(11).saturationMod(0.3F)
             .effect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0), 0.8F).build();

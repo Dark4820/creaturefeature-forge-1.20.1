@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "creaturefeature:music_disc_nothing",
+    "creaturefeature:music_disc_nan"
+  ]
+}

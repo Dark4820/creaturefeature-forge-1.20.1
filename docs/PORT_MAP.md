@@ -44,7 +44,7 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 |---|---|---|
 | Efectos | fiendish (velocidad +10 %), sleepy (velocidad −50 %, `JUMP_STRENGTH` −100 %) | 🔧 jugador no tiene atributo de salto en 1.20.1: usar `LivingJumpEvent` |
 | Partículas (19) | sleepy, crit_text, red_powder★, fisheye★, leaf, casing, glass_shard, glass_shard_sinister, flower, crit, crit_ver, sparkle, sleepy_explode, rabies, toot, cleave, spore, star, spores_spit | ✅/🔧 (las que tengan opciones: `Codec` + `Deserializer`) |
-| Shaders core (16) | armor_cutout_evil_cull, ambush, blossom, fend, friend, monochrome, outlined, silk, star + ★ collumn, fisheye, fisheye_itself, red, wraith | ✅ mismo formato JSON/GLSL 150, `RegisterShadersEvent` existe |
+| Shaders core (14) | armor_cutout_evil_cull, ambush, blossom, fend, friend, monochrome, outlined, silk, star + ★ collumn, fisheye, fisheye_itself, red, wraith | 🔧 mismo formato JSON y GLSL 150, `RegisterShadersEvent` existe; los 3 vertex shaders propios (fend, silk, armor_cutout_evil_cull) cambian de marco de coordenadas (ver §6b) |
 | Posprocesado (9) | bacte, fiend, friend, haze, man, minedflayer, rabies, sleep, sun (`PostChain` vanilla, NO Veil) | ✅ `PostChain`/`PostPass` iguales en 1.20.1 (mixins 🔧) |
 | Sonidos (12) | music_disc.nothing, music_disc.newagenevermore, entity.friend, sinister_hurt/die, fiend_hurt/die, coa_hurt, stained_glass_die, shot, friend_hurt, fisheye_screech★ | ✅ |
 | Recetas (47) | 47 JSON, una es la especial `flower_clone` (serializer `crafting_special_flowerclone`, `FlowerCloneRecipe`) | 🔧 formato 1.20.1, `SimpleCraftingRecipeSerializer` existe |
@@ -72,7 +72,7 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 |---|---|---|---|---|
 | 1 | AbstractBlockMixin | común | `BlockStateBase.isValidSpawn` → evita spawns sobre ciertos bloques | ✅ misma firma |
 | 2 | AbstractContainerMenuMixin | común | `AbstractContainerMenu.stillValid(access, player, block)` (estático) → menús abiertos lejos (`NoBlockContainerLevelAccess`) | ✅ |
-| 3 | JukeBoxPlayableMixin | común (¡llama al cliente!) | `JukeboxPlayable.tryInsertIntoJukebox` → título especial del disco NaN | ⚠️→🔧 `JukeboxPlayable` es 1.21: pasar a `RecordItem.useOn` o al `NanDiscItem` mismo (es nuestro ítem: sin mixin) |
+| 3 | JukeBoxPlayableMixin | común (¡llama al cliente!) | `JukeboxPlayable.tryInsertIntoJukebox` → título especial del disco NaN | ✅ **quitado en F2**: `NanDiscItem extends RecordItem` arranca el título en su `useOn` (cliente, por `DistExecutor` → `CFClientItemHooks`) |
 | 4 | LivingEntityGoopMixin | común | `LivingEntity.hurt/defineSynchedData/aiStep/causeFallDamage` → estado "goop/delay" sincronizado | 🔧 `defineSynchedData()` sin builder, `causeFallDamage(float,float,DamageSource)` |
 | 5 | MonsterEntityMixin | común | `Mob.finalizeSpawn` (HEAD) | 🔧 firma 1.20.1 con `SpawnGroupData, CompoundTag` |
 | 6 | OminousItemSpawnerMixin★ | común | `OminousItemSpawner.spawnItem` (trial chambers) | ⚠️ no existe (1.21) |
@@ -109,7 +109,7 @@ Además hay que corregir: el original usa `java.awt.Color` en un renderer (funci
 | Red | `CustomPacketPayload` + `StreamCodec` + `RegisterPayloadHandlersEvent` | `SimpleChannel` + `encode/decode/handle` | 9 paquetes, ~26 archivos los envían 🔧 |
 | Componentes de ítem | `DataComponentType` (2 propios) + `jukeboxPlayable`, `food`, `attributes` | NBT; `RecordItem`; `FoodProperties` 1.20.1 (`alwaysEat`); `AxeItem(tier, dmg, speed, props)` | ~9 archivos 🔧 |
 | Discos | registro de datos `jukebox_song` | `RecordItem` + duración en ticks | 2 discos 🔧 |
-| Shaders | `RegisterShadersEvent`, `ShaderInstance`, `RenderType.create` | igual | ✅ (accessors con AT/mixin si hace falta) |
+| Shaders | `RegisterShadersEvent`, `ShaderInstance`, `RenderType.create` (5 args), constantes de `RenderStateShard` públicas por el AT de NeoForge; entidades con posiciones alineadas al mundo y `fog_distance(pos, shape)` | `create` de 7 args (`false, false`); `CFRenderTypes extends RenderType` para llegar a las constantes `protected`; posiciones rotadas por la cámara + `IViewRotMat`, `fog_distance(ModelViewMat, pos, shape)` | 🔧 hecho en F2 |
 | Posprocesado | `PostChain` vanilla vía mixin a `GameRenderer` | igual, firmas distintas | 🔧 |
 | Vértices | `addVertex().setColor().setUv()...` | `vertex().color().uv()...endVertex()` | **41 archivos** (mecánico) 🔧 |
 | Modelos | `renderToBuffer(..., int color)` | `renderToBuffer(..., r,g,b,a)` | todos los modelos 🔧 |
@@ -126,6 +126,7 @@ Además hay que corregir: el original usa `java.awt.Color` en un renderer (funci
 | Loot modifiers | `neoforge:add_table` | **no existe**: GLM propio `creaturefeature:add_table` | 🔧 |
 | Pestaña creativa | `BuildCreativeModeTabContentsEvent.insertAfter/insertBefore` (74 usos) | `event.getEntries().putAfter/putBefore` | 🔧 |
 | Config | `ModConfigSpec` + `modContainer.registerConfig` | `ForgeConfigSpec` + `ModLoadingContext.registerConfig` | 🔧 |
+| Pantalla de configuración | `ConfigurationScreen` de NeoForge (botón "Config" en la lista de mods) | Forge 1.20.1 no trae una genérica: el config se edita en `config/creaturefeature-client.toml` y `world/serverconfig/creaturefeature-server.toml` (o con un mod como Configured) | ⚠️ menor, sin código |
 | Contenido vanilla 1.21 usado | `Items.MACE`, `BREEZE_ROD` (posición en pestaña), sonidos `BREEZE_*` (Beauty, Blitz, Coat of Arms), partículas `DUST_PILLAR` (8 usos) e `ITEM_COBWEB`, efectos `INFESTED` y `OOZING` (blighted_brain), trial chambers | no existen | ⚠️ D3 |
 
 ### Biome tags `c:` → 1.20.1 (propuesta, lo decido yo salvo que digas otra cosa)
@@ -183,6 +184,11 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `trim_material/*.json` | sin cambios (mismo formato en 1.20.1) | — |
 | `ru_ru.json`, `en_us.json` | sin cambios (tienen claves de contenido quitado/★: no molestan) | — |
 | Recetas, loot tables, tags | formato y carpetas de 1.20.1 (ver §4) | 1.20.1 |
+| `shaders/core/rendertype_entity_fend.vsh`, `rendertype_entity_silk.vsh`, `rendertype_armor_cutout_evil_cull.vsh` (+ sus `.json`) | `uniform mat3 IViewRotMat` (también en el JSON); `position21 = IViewRotMat * Position` reemplaza a `Position` en los cálculos; `fog_distance(ModelViewMat, …)`; fend vuelve al marco 1.20.1 con `transpose(IViewRotMat)` antes de `gl_Position`. Comentarios `// PORT:` dentro del GLSL | en 1.20.1 los vértices de entidades llegan rotados por la cámara; sin esto el shader no compila (crash del cliente) y los efectos por altura (`OffYPosition`) usarían el eje equivocado. `tools/convert_resources.py` no los vuelve a copiar (`HAND_EDITED`) |
+| `models/item/flintlock.json` | `"loader": "neoforge:separate_transforms"` → `"forge:separate_transforms"` (lo hace el script) | nombre del loader en Forge 1.20.1 (mismo formato) |
+| `data/minecraft/tags/items/music_discs.json` (nuevo) | los 2 discos | en 1.20.1 el tocadiscos solo acepta ítems de `#minecraft:music_discs`; sin el tag el disco se consumía y el tocadiscos quedaba vacío (lo detectó un GameTest) |
+| `lang/*.json` | se agregan `item.creaturefeature.music_disc_*.desc` copiando `jukebox_song.creaturefeature.*` (lo hace el script) | el tooltip del disco en 1.20.1 usa `<id del ítem>.desc` |
+| `particles/reveal.json` y `textures/particle/reveal.png` | no se copian | el original no registra ningún tipo `reveal`; en 1.20.1 un JSON de partícula sin tipo hace fallar la recarga de recursos del cliente |
 
 ---
 
@@ -194,7 +200,7 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 |---|---|---|
 | **F0** ✅ | Análisis, esqueleto Forge 1.20.1 (Java 17 por toolchain, MixinExtras, GameTests) | el mod aparece en la lista de mods |
 | **F1** ✅ | Registros base: sonidos, efectos (lógica simple), bloques y sus ítems, ítems simples (sin lógica de entidades), tags, recetas, loot de bloques, materiales de adorno, idioma, modelos/texturas, pestaña creativa, config | `/give` de bloques e ítems, colocar/romper bloques (drops), recetas en la mesa, adornar armadura con ectoplasma/pergaminos, `/effect give @s creaturefeature:sleepy` |
-| **F2** | Infra: red `SimpleChannel` (8 paquetes), NBT en lugar de componentes, partículas (tipos + providers), `CFRenderTypes` + 16 shaders core registrados, discos (`RecordItem`), accessors | `/particle creaturefeature:...`, discos en el tocadiscos (incl. título del NaN) |
+| **F2** ✅ | Infra: red `SimpleChannel` (8 paquetes), NBT en lugar de componentes, partículas (tipos + providers), `CFRenderTypes` + 9 shaders core registrados (los 5 ★ quedan para F9), discos (`RecordItem`), accessors | `/particle creaturefeature:...`, discos en el tocadiscos (incl. título del NaN) |
 | **F3** | Criaturas lote 1 (las más simples): minds (+part), machination, sinister, beauty, detritus, blossom, coat_of_arms + loot + huevos + atributos + spawn placements | `/summon` y huevos, pelear, drops |
 | **F4** | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo + proyectiles (feather, star, bullet) + efectos fiendish/sleepy completos | idem + efectos visibles |
 | **F5** | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass + kicked_block, spat_block, murky_pearl, vitric_arrow, eep (TNT) | idem |

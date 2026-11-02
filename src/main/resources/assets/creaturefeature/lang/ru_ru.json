@@ -1,52 +1,39 @@
 {
   "modmenu.nameTranslation.creaturefeature": "Бестиарий",
   "modmenu.descriptionTranslation.creaturefeature": "Добавляет дополнительных враждебных существ по всему миру: четыре в Крае, пять в Верхнем мире, одно в Незере.",
-
-
   "lore.creaturefeature.murky": "Делает... ничего.",
-  "lore.creaturefeature.the_pill": "Сбрасывает таймер появления фантомов.",
+  "lore.creaturefeature.the_pill": "Громадная таблетка, развеивающая бессонницу.",
   "lore.creaturefeature.dreamcatcher": "Ловит блоки. Сохраняет всё, кроме хранилища.",
-
-
   "trim_material.creaturefeature.ectoplasm": "Эктоплазма",
   "trim_material.creaturefeature.scroll_pan": "Пан-свиток",
   "trim_material.creaturefeature.scroll_trans": "Транс-свиток",
   "trim_material.creaturefeature.scroll_pride": "Прайд-свиток",
-
   "jukebox_song.creaturefeature.nothing": "Tory Fox — egg.ogg",
   "sound.creaturefeature.nothing": "Ну, здесь никого нет.",
   "sound.creaturefeature.laughter": "Смеховая дорожка",
   "effect.creaturefeature.sleepy": "Сонливость",
-
   "item.creaturefeature.machination_spawn_egg": "Яйцо призыва механатора",
   "item.creaturefeature.beauty_spawn_egg": "Яйцо призыва красы",
   "item.creaturefeature.sinister_spawn_egg": "Яйцо призыва отраженца",
   "item.creaturefeature.minds_spawn_egg": "Яйцо призыва Мертвеца Умова",
-
   "item.creaturefeature.blitz_spawn_egg": "Яйцо призыва блица",
   "item.creaturefeature.eeper_spawn_egg": "Яйцо призыва дремотника",
   "item.creaturefeature.minedflayer_spawn_egg": "Яйцо призыва мозгоглота",
   "item.creaturefeature.nothing_spawn_egg": "Яйцо призыва ничто",
-
   "item.creaturefeature.canary_spawn_egg": "Яйцо призыва канарейки",
   "item.creaturefeature.vertigo_spawn_egg": "Яйцо призыва вертиго",
   "item.creaturefeature.dreamweaver_spawn_egg": "Яйцо призыва ткача снов",
   "item.creaturefeature.runaway_spawn_egg": "Яйцо призыва беглеца",
-
   "item.creaturefeature.fiend_spawn_egg": "Яйцо призыва лютого",
   "item.creaturefeature.fend_spawn_egg": "Яйцо призыва латного",
   "item.creaturefeature.friend_spawn_egg": "Яйцо призыва ласкового",
-
   "item.creaturefeature.the_pill": "Таблетка",
-
   "item.creaturefeature.scroll_pan": "Пан-свиток",
   "item.creaturefeature.scroll_trans": "Транс-свиток",
   "item.creaturefeature.scroll_pride": "Прайд-свиток",
   "item.creaturefeature.scroll_eye": "Свиток глаза",
-
   "item.creaturefeature.sleeping_powder": "Сонный порошок",
   "item.creaturefeature.music_disc_nothing": "Пластинка",
-
   "item.creaturefeature.carapace": "Панцирь",
   "item.creaturefeature.dream_silk": "Сновидческий шёлк",
   "item.creaturefeature.bouquet": "Живой букет",
@@ -62,7 +49,6 @@
   "block.creaturefeature.minedflayer_jelly": "Желе мозгоглота",
   "block.creaturefeature.eep": "EEP",
   "block.creaturefeature.carapace_block": "Блок панциря",
-
   "entity.creaturefeature.eep": "Заряженный дремотник",
   "entity.creaturefeature.kicked_block": "Пнутый блок",
   "entity.creaturefeature.murky_pearl": "Мутная жемчужина",
@@ -82,7 +68,6 @@
   "entity.creaturefeature.canary": "Канарейки",
   "entity.creaturefeature.vertigo": "Вертиго",
   "entity.creaturefeature.canary_part": "Часть канарейки",
-
   "lore.creaturefeature.machination_spawn_egg": "Призывает механатора — неутомимого конструкта.",
   "lore.creaturefeature.beauty_spawn_egg": "Призывает красу, чья внешность обманчива.",
   "lore.creaturefeature.sinister_spawn_egg": "Призывает отраженца, крадущегося в тенях.",
@@ -98,7 +83,6 @@
   "lore.creaturefeature.fiend_spawn_egg": "Призывает лютого — демонического врага.",
   "lore.creaturefeature.fend_spawn_egg": "Призывает латного, закованного в броню.",
   "lore.creaturefeature.friend_spawn_egg": "Призывает ласкового — друга, пока не нападёт.",
-  "lore.creaturefeature.the_pill": "Громадная таблетка, развеивающая бессонницу.",
   "lore.creaturefeature.scroll_pan": "Свиток с узором пана для отделки брони.",
   "lore.creaturefeature.scroll_trans": "Свиток с транс-узором для отделки брони.",
   "lore.creaturefeature.scroll_pride": "Свиток с прайд-узором для отделки брони.",
@@ -139,7 +123,6 @@
   "lore.entity.creaturefeature.canary": "Канарейка, созданная такими жестокими и такими любящами руками.",
   "lore.entity.creaturefeature.vertigo": "Вертиго, чьё присутствие кружит голову.",
   "lore.entity.creaturefeature.canary_part": "Отдельная часть канарейки, всё ещё подвижная.",
-
   "desc.creaturefeature.bouquet": "Клонирует цветы, если соединено с ними.",
   "desc.creaturefeature.living_glass": "Снимает 1 эффект с цели, затем разбивается.",
   "desc.creaturefeature.open_mind": "Откройте свой разум.",
@@ -154,8 +137,6 @@
   "creaturefeature.configuration.remodelmb": "Перемоделировать Пресмешника",
   "creaturefeature.configuration.endreamweaver": "Ткач Снов края",
   "creaturefeature.configuration.depth": "Depth Vista Compat Test",
-
-
   "advancement.creaturefeature.roots": "Найдено.",
   "advancement.creaturefeature.roots.desc": "ДАВАЙ-ЖЕ ВСТРЕТИМСЯ НАД ОПАЛЁННЫМИ ПОЛЯМИ.",
   "advancement.creaturefeature.root": "Creature Feature.",
@@ -174,9 +155,6 @@
   "advancement.creaturefeature.prion.desc": "Используйте рог вертиго.",
   "advancement.creaturefeature.sleepy": "Mimir, Mimir",
   "advancement.creaturefeature.sleepy.desc": "Усните?",
-
-
-
   "sound.creaturefeature.stained_glass_retreat": "Витраж отражается",
   "sound.creaturefeature.stained_glass_die": "Витраж разбивается",
   "sound.creaturefeature.coa_hurt": "Шуборужейник рвётся.",
@@ -185,8 +163,6 @@
   "sound.creaturefeature.fiend_death": "Лютой умирает",
   "sound.creaturefeature.sinister_hurt": "Отраженец кипит",
   "sound.creaturefeature.sinister_death": "Отраженец разваливается",
-
-
   "item.creaturefeature.toadstool_spawn_egg": "Яйцо призыва поганкца",
   "item.creaturefeature.mockingbird_spawn_egg": "Яйцо призыва пресмешника",
   "item.creaturefeature.pathogen_spawn_egg": "Яйцо призыва нуклеоза",
@@ -195,21 +171,15 @@
   "item.creaturefeature.detritus_spawn_egg": "Яйцо призыва остатков",
   "item.creaturefeature.stained_glass_spawn_egg": "Яйцо призыва витража",
   "item.creaturefeature.coat_of_arms_spawn_egg": "Яйцо призыва шуборужейника",
-
   "item.creaturefeature.living_glass_shards": "Живые Осколки",
-
   "item.creaturefeature.flintlock": "Хрупкий Мушкет",
   "item.creaturefeature.bacterium_ball": "Шарик Культур",
   "item.creaturefeature.solar_shard": "Солнечный Осколок",
   "item.creaturefeature.thingamabob": "Вещица",
   "item.creaturefeature.vertigo_chunk": "Странное Мясо",
   "item.creaturefeature.dreamcatcher": "Ловец Мечт",
-
-
-
   "block.creaturefeature.runic_stone_bricks": "Рунические Каменные Кирпичи... ? Шо.",
   "block.creaturefeature.doohickey": "Штуковина",
-
   "entity.creaturefeature.star": "Звезда",
   "entity.creaturefeature.bullet": "Пуля",
   "entity.creaturefeature.feather": "Перо",
@@ -222,5 +192,6 @@
   "entity.creaturefeature.blossom": "Цветущий",
   "entity.creaturefeature.saint_solis": "Святое Солнце",
   "creaturefeature.configuration.pathogen": "Pathogen spawning rework",
-  "creaturefeature.configuration.saint_solis": "Slow down Stars"
+  "creaturefeature.configuration.saint_solis": "Slow down Stars",
+  "item.creaturefeature.music_disc_nothing.desc": "Tory Fox — egg.ogg"
 }

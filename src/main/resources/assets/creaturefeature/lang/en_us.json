@@ -18,8 +18,6 @@
   "creaturefeature.configuration.saint_solis": "Slow down Stars",
   "creaturefeature.configuration.depth": "Depth Vista Compat Test",
   "creaturefeature.configuration.ff_reloaded": "Fiend Folio: RELOADED",
-
-
   "advancement.creaturefeature.roots": "Found.",
   "advancement.creaturefeature.roots.desc": "MEET AGAIN ABOVE THE HEATED PLAINS.",
   "advancement.creaturefeature.root": "Creature Feature.",
@@ -40,25 +38,19 @@
   "advancement.creaturefeature.prion.desc": "Use the vertigo horn.",
   "advancement.creaturefeature.sleepy": "Mimir, Mimir",
   "advancement.creaturefeature.sleepy.desc": "Fall asleep?",
-
   "trim_material.creaturefeature.ectoplasm": "Ectoplasm",
   "trim_material.creaturefeature.scroll_pan": "Pan-scroll",
   "trim_material.creaturefeature.scroll_trans": "Trans-scroll",
   "trim_material.creaturefeature.scroll_pride": "Pride-scroll",
   "trim_material.creaturefeature.scroll_bi": "Bi-scroll",
-
   "jukebox_song.creaturefeature.new_age_nevermore_unused": "the next one is to allow custom attribution VFX",
   "jukebox_song.creaturefeature.new_age_nevermore_2": "",
   "jukebox_song.creaturefeature.new_age_nevermore": "RENREN - New Age Nevermore",
-
-
   "creaturefeature.configuration.title": "Config Feature!",
-
   "creaturefeature.configuration.section.creaturefeature.server.toml.title": "Server Creature!",
   "creaturefeature.configuration.section.creaturefeature.client.toml.title": "Client Creature!",
   "creaturefeature.configuration.section.creaturefeature.server.toml": "Server Config...",
   "creaturefeature.configuration.section.creaturefeature.client.toml": "Client Config...",
-
   "sound.creaturefeature.new_age_nevermore": "NAN, by RENREN",
   "jukebox_song.creaturefeature.nothing": "Tory Fox - egg.ogg",
   "sound.creaturefeature.nothing": "Well, There's not a man here. ",
@@ -74,27 +66,21 @@
   "sound.creaturefeature.sinister_death": "Sinister dies.",
   "effect.creaturefeature.sleepy": "Sleepy",
   "effect.creaturefeature.fiendish": "Fiendish",
-
   "item.creaturefeature.machination_spawn_egg": "Machination Spawn Egg",
   "item.creaturefeature.beauty_spawn_egg": "Beauty Spawn Egg",
   "item.creaturefeature.sinister_spawn_egg": "Sinister Spawn Egg",
   "item.creaturefeature.minds_spawn_egg": "Minds Spawn Egg",
-
   "item.creaturefeature.blitz_spawn_egg": "Blitz Spawn Egg",
   "item.creaturefeature.eeper_spawn_egg": "Eeper Spawn Egg",
   "item.creaturefeature.minedflayer_spawn_egg": "Minedflayer Spawn Egg",
   "item.creaturefeature.nothing_spawn_egg": "NoThing Spawn Egg",
-
   "item.creaturefeature.canary_spawn_egg": "Canary Spawn Egg",
   "item.creaturefeature.vertigo_spawn_egg": "Vertigo Spawn Egg",
   "item.creaturefeature.dreamweaver_spawn_egg": "Dream Weaver Spawn Egg",
   "item.creaturefeature.runaway_spawn_egg": "Runaway Spawn Egg",
-
   "item.creaturefeature.fiend_spawn_egg": "Fiend Spawn Egg",
   "item.creaturefeature.fend_spawn_egg": "Fend Spawn Egg",
   "item.creaturefeature.friend_spawn_egg": "Friend Spawn Egg",
-
-
   "item.creaturefeature.toadstool_spawn_egg": "Toadstool Spawn Egg",
   "item.creaturefeature.mockingbird_spawn_egg": "Mockingbird Spawn Egg",
   "item.creaturefeature.pathogen_spawn_egg": "Pathogen Spawn Egg",
@@ -103,20 +89,16 @@
   "item.creaturefeature.detritus_spawn_egg": "Detritus Spawn Egg",
   "item.creaturefeature.stained_glass_spawn_egg": "Stained Glass Spawn Egg",
   "item.creaturefeature.coat_of_arms_spawn_egg": "Coat Of Arms Spawn Egg",
-
   "item.creaturefeature.the_pill": "The Pill",
-
   "item.creaturefeature.scroll_pan": "Pan Trim Scroll",
   "item.creaturefeature.scroll_trans": "Trans Trim Scroll",
   "item.creaturefeature.scroll_pride": "Pride Trim Scroll",
   "item.creaturefeature.scroll_eye": "Eye Trim Scroll",
   "item.creaturefeature.scroll_bi": "Bi Trim Scroll",
-
   "item.creaturefeature.sleeping_powder": "Sleeping Powder",
   "item.creaturefeature.living_glass_shards": "Living Shards",
   "item.creaturefeature.music_disc_nothing": "Music Disc",
   "item.creaturefeature.music_disc_nan": "Music Disc",
-
   "item.creaturefeature.carapace": "Carapace",
   "item.creaturefeature.flintlock": "Flimsy Flintlock",
   "item.creaturefeature.dream_silk": "Dream Silk",
@@ -140,14 +122,11 @@
   "item.creaturefeature.minedflayer_jelly": "Minedflayer Jelly",
   "item.creaturefeature.blighted_brain": "Blighted Brain",
   "item.creaturefeature.dreamcatcher": "Dreamcatcher",
-
   "block.creaturefeature.minedflayer_jelly": "Minedflayer Jelly",
   "block.creaturefeature.eep": "EEP",
   "block.creaturefeature.runic_stone_bricks": "Runic Stone Bricks... ? Huh",
   "block.creaturefeature.carapace_block": "Carapace Block",
   "block.creaturefeature.doohickey": "Doohickey",
-
-
   "block.creaturefeature.down_feathers_carpet": "Mockingbird Feather Carpet",
   "block.creaturefeature.down_feathers": "Braided Mockingbird Feathers",
   "block.creaturefeature.mosaic_down_feathers_carpet": "Mosaic Mockingbird Feather Carpet",
@@ -164,7 +143,6 @@
   "block.creaturefeature.murky_pearl_tiles": "Murky Pearl Tiles",
   "block.creaturefeature.obelisk": "Obelisk",
   "block.creaturefeature.dream_silk_spool": "Dream Silk Spool",
-
   "entity.creaturefeature.eep": "Primed Eep",
   "entity.creaturefeature.kicked_block": "Punted Block",
   "entity.creaturefeature.star": "Star",
@@ -199,5 +177,7 @@
   "entity.creaturefeature.fisheye": "Fisheye",
   "entity.creaturefeature.wraith": "Wraith",
   "entity.creaturefeature.delay": "Sigil",
-  "entity.creaturefeature.powder_skull": "Powder Skull"
+  "entity.creaturefeature.powder_skull": "Powder Skull",
+  "item.creaturefeature.music_disc_nothing.desc": "Tory Fox - egg.ogg",
+  "item.creaturefeature.music_disc_nan.desc": "RENREN - New Age Nevermore"
 }

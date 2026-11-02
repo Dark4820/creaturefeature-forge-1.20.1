@@ -19,6 +19,7 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 - **Java 17 siempre, por toolchain de Gradle**: la PC solo tiene Java 25 en el `PATH`. El daemon de Gradle se fija en 17 con `gradle/gradle-daemon-jvm.properties` (`toolchainVersion=17`) y la compilación con `java.toolchain` 17 + plugin foojay (descarga el JDK solo si falta; hoy usa el de `%USERPROFILE%\.gradle\jdks`). **No** hace falta tocar `JAVA_HOME`. La primera línea del build imprime `Java: 17...`: si dice otra cosa, frenar.
 - Compilar: `gradlew.bat build --console=plain`. Pruebas automáticas: `gradlew.bat runGameTestServer` (viven en `src/gametest`, conjunto de fuentes solo de desarrollo; lo cargan todas las ejecuciones pero **no entra en el jar**).
 - Probar que carga: `gradlew.bat runServer` y leer `run\logs\latest.log` hasta ver `Done` (no esperar la salida de la consola).
+- **Si la fase toca recursos de cliente** (shaders, partículas, modelos, texturas, atlas), además `gradlew.bat runClient` hasta la pantalla de título y buscar en el log errores del mod (`Couldn't compile`, `Redundant texture list`, `Failed to load model`, crash reports). El servidor no carga nada de eso. Cerrar el cliente por su PID (proceso con `forgeclientuserdev` y `C:\cf\port` en la línea de comandos).
 - **El EULA lo acepta el usuario, nunca Claude** (`run\eula.txt`).
 - Puede haber **otros Claude Code trabajando a la vez en otros proyectos**: NUNCA cerrar procesos por nombre (`java.exe`). Cerrar solo el PID que este proyecto inició y verificar solo ese PID. Si el puerto 25565 está ocupado, usar otro en `run\server.properties`.
 - El jar para el modpack es `build\libs\creaturefeature-<versión>-all.jar` (lleva MixinExtras adentro por jarJar). El jar sin `-all` no sirve en el juego real.
@@ -43,6 +44,10 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 - **Red:** `SimpleChannel` (no `CustomPacketPayload`/`StreamCodec`). Paquetes C2S: validar en el servidor lo que manda el cliente.
 - **Componentes de ítem (1.20.5+) no existen:** usar NBT (`getOrCreateTag()`).
 - **`Holder<>`**: efectos, sonidos y atributos se usan directos (`RegistryObject.get()`). Modificadores de atributo con `UUID`, no `ResourceLocation`.
+- **Shaders de entidad 1.20.1:** las posiciones llegan rotadas por la cámara (`IViewRotMat` las vuelve a ejes del mundo) y `fog_distance(ModelViewMat, pos, shape)` lleva 3 parámetros. Ver PORT_MAP §6b.
+- **Partículas:** todo `particles/<id>.json` necesita su tipo registrado y su provider, o falla la recarga del cliente. `SingleQuadParticle.renderRotatedQuad` no existe: usar `CFTextureSheetParticle`.
+- **Java 17:** nada de APIs de Java 21 (`Math.clamp` → `Mth.clamp`, `List.getFirst()` → `get(0)`, etc.).
+- **Archivos hechos a mano** que el script de recursos no toca: los atlas (`assets/minecraft/atlases`), `data/minecraft/tags/items/music_discs.json` y los de `HAND_EDITED` en el script.
 - **VertexConsumer 1.20.1:** `vertex(...).color(...).uv(...).overlayCoords(...).uv2(...).normal(...).endVertex()`; `renderToBuffer` recibe `r, g, b, a` como floats (no un `int` ARGB).
 - `EntityType.Builder` no tiene `eyeHeight`/`passengerAttachments`/`ridingOffset`: van como overrides en la entidad. `defineSynchedData()` sin parámetros.
 - Configuración con `ForgeConfigSpec`; registros con `DeferredRegister`/`RegistryObject`.

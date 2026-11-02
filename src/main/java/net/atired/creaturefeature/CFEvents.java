@@ -67,6 +67,10 @@ public class CFEvents {
                 insertAfter(event,Items.SOUL_CAMPFIRE, CFBlockInit.CARAPACE_BLOCK.get());
                 insertBefore(event,Items.LODESTONE, CFBlockInit.MINEDFLAYER_JELLY.get());
             }
+            if(event.getTabKey()==CreativeModeTabs.TOOLS_AND_UTILITIES){
+                insertAfter(event,Items.MUSIC_DISC_13, CFItemInit.NOTHING_DISC.get());
+                insertBefore(event,Items.MUSIC_DISC_MALL, CFItemInit.NEW_AGE_NEVERMORE_DISC.get());
+            }
             if(event.getTabKey()==CreativeModeTabs.FOOD_AND_DRINKS){
                 insertBefore(event,Items.SPIDER_EYE, CFItemInit.VERTIGO_CHUNK.get());
                 insertBefore(event,Items.ROTTEN_FLESH, CFItemInit.BLIGHTED_BRAIN.get());

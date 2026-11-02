@@ -1,7 +1,7 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F1 cerrada (2026-11-02).** Siguiente: F2 (red `SimpleChannel`, NBT en lugar de componentes, partículas con dibujo, shaders core, discos).
+**F2 cerrada (2026-11-02).** Siguiente: F3 (primer lote de criaturas). Las pruebas en el juego de F1 y F2 las hace el usuario juntas.
 
 ## Decisiones del usuario (2026-11-02)
 - **D1:** base = código fuente de GitHub. F1–F8 portan el contenido publicado en el jar 1.2.3.3. El contenido ★ queda para **F9** y se decide ahí; la idea del usuario es portar **solo el Powder Skull** (con su botín pasado a las **mazmorras**) y dejar afuera **Trichael, Fish Eye y Wraith** por estar inacabados.
@@ -9,6 +9,23 @@
 - **D3:** sin INFESTED/OOZING en blighted_brain; sonidos de 1.20.1 parecidos en lugar de los de breeze; partícula genérica de bloque/ítem en lugar de DUST_PILLAR/ITEM_COBWEB. Cada cambio con `// PORT:`.
 - **D4:** no se incluye Galena Hats.
 - Cada fase se cierra con `runServer` hasta `Done`.
+
+## F2 - Red, NBT, partículas, shaders core, discos (2026-11-02) ✅
+Hecho:
+- **Red:** `networking/CFNetwork` (`SimpleChannel` "creaturefeature:main", protocolo "1") con los 8 paquetes del original (S→C: VelSync, DeAmp, Rabies, Pathogen, Squashed, GasLeak; C→S: C2SVelSync, C2SMan), mismos campos y tipos. Ayudantes `sendToPlayersTrackingChunk/Entity` y `sendToServer` como los de NeoForge. Lo de cliente está en `client/CFClientPayloadHandler`, llamado por `DistExecutor`. Validaciones nuevas (`// PORT:`): C2SVelSync ignora empujes > 1,7 o no finitos (el cuerno manda 1,66); C2SMan solo afecta al que lo manda.
+- **Accessors** `LivingEntityGoopAccessor` y `PlayerBrainrotAccessor` (interfaces). Los implementan los mixins de F6: hasta entonces los paquetes que los usan no hacen nada.
+- **NBT en lugar de componentes:** `init/CFDataComponentTypeInit` guarda `opened_mind` (int) y `dreamcatcher_contents` (lista de stacks) en el NBT del ítem con los mismos ids; `items/DreamCatcherContents` con `save/load`. Los usan open_mind y dream_catcher en F6.
+- **Partículas:** 17 tipos con dibujo (`CreatureFeatureClient.registerParticleProviders`), 18 clases portadas (`RevealParticle` no se registra, como en el original), JSON y texturas. `CFTextureSheetParticle` (nuevo) recrea `renderRotatedQuad` de 1.21; `Math.clamp` (Java 21) → `Mth.clamp`.
+- **Shaders core:** `client/CFRenderTypes` con 9 render types y 9 shaders (los 5 ★ esperan a F9) + `CFSheets`. Los 3 vertex shaders propios adaptados al marco de coordenadas de 1.20.1 (PORT_MAP §6b).
+- **Discos:** `music_disc_nothing` (`RecordItem`, comparador 15, 16,3 s) y `music_disc_nan` (`NanDiscItem`, comparador 3, 71 s) con el tag `#minecraft:music_discs` y la descripción del tooltip. Pestaña Herramientas, junto a los discos vanilla. El título animado del NaN se dibuja en F7 (CFGuiMixin); en F2 solo se arranca.
+- `tools/convert_resources.py`: copia partículas y shaders core; convierte loaders de modelo `neoforge:` → `forge:`; agrega las claves `.desc` de los discos; no pisa los archivos editados a mano (`HAND_EDITED`).
+- GameTests (`F2GameTests`, 6): ida y vuelta de los 8 paquetes; validación del empuje; NBT del dream catcher y opened_mind (guardando y cargando el stack); 17 tipos de partícula; datos de los discos; los 2 discos entran en un tocadiscos real.
+
+Problemas encontrados y resueltos en la fase:
+- El tocadiscos de 1.20.1 rechazaba los discos (y el disco se perdía) sin el tag `#minecraft:music_discs` → tag agregado (lo detectó el GameTest).
+- `runClient` crasheaba al compilar `rendertype_entity_fend` (`fog_distance` de 1.21) → shaders adaptados. `particles/reveal.json` sin tipo registrado y el loader `neoforge:separate_transforms` también daban error en el cliente → corregidos.
+
+Verificado: `build` OK; `runGameTestServer` 12/12; `runServer` hasta `Done (2.958s)` sin errores del mod; `runClient` hasta la pantalla de título sin errores del mod (9 shaders compilados, atlas de partículas creado). Avisos que quedan y son normales: "could not find uniform …" de los shaders (uniforms declarados que el GLSL no usa; igual que vanilla) y "Missing sound for event: creaturefeature:entity.stained_glass_retreat" (el original registra ese sonido sin entrada en `sounds.json`).
 
 ## F1 - Bloques, ítems simples, sonidos, efectos, recetas, adornos (2026-11-02) ✅
 Hecho:
