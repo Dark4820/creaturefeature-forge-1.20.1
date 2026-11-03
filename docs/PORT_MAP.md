@@ -166,7 +166,7 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 
 ## 6. Decisiones (tomadas por el usuario el 2026-11-02)
 
-- **D1 – Base del port = código fuente de GitHub.** F1–F8 portan el contenido publicado en el jar 1.2.3.3. El contenido ★ se decide en F9 (idea del usuario: solo Powder Skull, con su botín pasado a las mazmorras; Trichael, Fish Eye y Wraith quedan afuera por inacabados).
+- **D1 – Base del port = código fuente de GitHub.** F1–F8 portan el contenido publicado en el jar 1.2.3.3. El contenido ★ se decide en F9 (idea del usuario: solo Powder Skull, con su botín pasado a las mazmorras; Trichael, Fish Eye y Wraith quedan afuera por inacabados). **Resuelto en F9 (2026-11-02): todo el contenido ★ queda fuera, también la Powder Skull** (ver "Contenido quitado").
 - **D2 – Sable: se quita.** Ver "Contenido quitado" abajo.
 - **D3 – Contenido vanilla de 1.21:** se quitan `INFESTED` y `OOZING` de blighted_brain; los sonidos `BREEZE_*` se cambian por sonidos parecidos de 1.20.1; `DUST_PILLAR` → `ParticleTypes.BLOCK` (mismo bloque) e `ITEM_COBWEB` → `ParticleTypes.ITEM` con una telaraña. Cada cambio lleva `// PORT:`.
 - **D4 – Galena Hats: no se incluye.**
@@ -178,11 +178,15 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | Bloque `runic_stone_bricks` (`RunicStoneBricksBlock`) + su loot y modelos | depende de Sable (D2) |
 | `misc/SableCarrier`, todos los `ModList.isLoaded("sable")` | ídem |
 | Galena Hats (jarJar) | D4 |
+| Contenido ★ (solo en la fuente, no en el jar 1.2.3.3): **Powder Skull** (`PowderSkullEntity`, renderer, modelo, capa de ojos, `powder_skull_spawn_egg`, partícula `red_powder`, shader `rendertype_entity_red`, loot `ominous_powder_skull` + su loot modifier y `OminousItemSpawnerMixin`), **Trichael**, **Fish Eye** (`fisheye`, partícula y sonido `fisheye_screech`), **Wraith** (`entityWraithCutout`), bloque `obelisk`, `collumn`, `delay` | inacabado en la fuente (F9). La Powder Skull se revisó: persigue al jugador pero no ataca (sin meta de ataque ni daño), sin sonidos propios, sin botín propio, sin aparición natural ni reglas de aparición (en el original solo sale del spawner ominoso de las trial chambers, 1.21), huevo sin pestaña ni traducción. El usuario decidió dejarla fuera |
 
 ## 6d. Agregados del port (no están en el original; van en el mod publicado)
 | Agregado | Detalle |
 |---|---|
 | Compatibilidad del ectoplasma con **Goety** (pedido del usuario, 2026-11-02) | Tag `data/forge/tags/items/ectoplasm.json` = `creaturefeature:ectoplasm` + `goety:ectoplasm` (opcional, `"required": false`: sin Goety el tag carga solo con el de este mod). Las recetas del mod que usan ectoplasma (`bi/pan/pride/trans_scroll`, `torch`) lo piden por `#forge:ectoplasm`; lo hace `tools/convert_resources.py` (`SHARED_TAGS`), solo en ingredientes. Goety 2.5.59.2: su ectoplasma es `goety:ectoplasm`; lo usan 92 ingredientes en 59 rituales (`goety:ritual`) y 15 recetas de mesa, todos como `{"item": "goety:ectoplasm"}` (sus rituales sí aceptan tags: 275 de 337 ya usan alguno). Decisión del usuario: **recetas de conversión 1:1** en los dos sentidos (`recipes/compat/goety/ectoplasm_from_goety.json` y `ectoplasm_to_goety.json`, hechas a mano), cargadas solo con Goety (`forge:mod_loaded`). Las recetas y rituales de Goety no se tocan |
+| **Opción por criatura** (F10, pedido del usuario) | `[creatures]` en `creaturefeature-server.toml`, una clave por criatura (22), todas `true` = comportamiento del original. Desactivada: se niega la aparición natural (`MobSpawnEvent.SpawnPlacementCheck`), se cancela su entrada al mundo (`EntityJoinLevelEvent`: spawners, otras criaturas del mod, chunks guardados, sin botín) y se descarta en su tick si se desactiva con el mundo andando. Huevos, dispensador con huevo y `/summon` sin NBT marcan la entidad con el tag `creaturefeature_allowed` (en `MobSpawnEvent.FinalizeSpawn`) y siguen funcionando. Los segmentos del canary siguen al canary. `misc/CreatureToggles` |
+| Loot modifier `creaturefeature:add_table` (F8) | ver §6c; Forge 1.20.1 no trae `add_table` |
+| `README.md`, `LICENSE` (MIT), `CHANGES.md` (F10) | créditos a AtiredDev y Team Galena, licencia y lista de cambios; van también dentro del jar (`META-INF`). `mods.toml` con `credits` y `displayURL` al repositorio original |
 | Prueba automática de dibujo `runClientRenderSmoke` (solo desarrollo, `src/gametest/.../client/RenderSmokeTest`, carpeta `run-smoke`) | crea un mundo plano, invoca todas las criaturas frente a la cámara con un jugador en supervivencia que no puede morir, las deja atacar 30 s, saca capturas en `run-smoke/screenshots` y cierra el juego; `CF_RENDER_SMOKE_OK` en el log = ningún renderer crasheó. Reproduce el crash del coat of arms de F4 sin el arreglo |
 
 ## 6c. Criaturas: diferencias de API resueltas (F3+)
@@ -281,8 +285,8 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | **F6** ✅ | Ítems con lógica (el flintlock ya está desde F4 y solar_shard desde F5): vertigo_horn (vuelve con él el botín de cuernos del vertigo), dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
 | **F7** ✅ | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
 | **F8** ✅ | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |
-| **F9** (opcional, según D1) | Contenido ★: powder_skull, trichael, fisheye, wraith, obelisk, collumn, delay | `/summon` |
-| **F10** | Pulido: servidor dedicado con cliente, modpack real (Oculus/Embeddium si están), versión final | sesión de juego normal |
+| **F9** ✅ (vacía) | Contenido ★: se revisó la Powder Skull (incompleta) y el usuario decidió dejar fuera todo lo ★ | — |
+| **F10** ✅ | Opción por criatura (`[creatures]`), versión personal fuera del jar (`C:/cf/personal`), versión `1.2.3.3-forge.1`, créditos, README, LICENSE y CHANGES | tanda final de pruebas (PROGRESS) |
 
 ## 8. Riesgos
 1. **Renderizado**: 41 archivos con la API de vértices nueva y todos los modelos con color `int`: mucho trabajo mecánico; errores dan modelos invisibles/negros, no crashes.

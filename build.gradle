@@ -72,6 +72,8 @@ minecraft {
 
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
+            // PORT: dev-only check of the personal datapack (PersonalPackCheck), off unless -Dcreaturefeature.personalCheck=true
+            property 'creaturefeature.personalCheck', System.getProperty('creaturefeature.personalCheck', 'false')
             args '--nogui'
         }
 
@@ -151,6 +153,16 @@ tasks.named('jar', Jar).configure {
         ])
     }
     finalizedBy 'reobfJar'
+}
+
+// PORT: the MIT license and the credits/changes go inside both jars (the original's license is MIT; its repo has no
+// LICENSE file, so the port ships one)
+['jar', 'jarJar'].each { name ->
+    tasks.named(name, Jar).configure {
+        from(rootProject.file('LICENSE')) { into 'META-INF' }
+        from(rootProject.file('README.md')) { into 'META-INF' ; rename { 'creaturefeature-README.md' } }
+        from(rootProject.file('CHANGES.md')) { into 'META-INF' ; rename { 'creaturefeature-CHANGES.md' } }
+    }
 }
 
 // The distributed jar is the jarJar one (it carries MixinExtras); reobfuscate it too

@@ -8,6 +8,8 @@ version="${mod_version}"
 displayName="${mod_name}"
 logoFile="assets/creaturefeature/icon.png"
 authors="${mod_authors}"
+credits="Creature Feature was created by AtiredDev and Team Galena (MIT license). This is an unofficial Forge 1.20.1 port; all creatures, art, sounds and ideas are theirs."
+displayURL="https://github.com/TerriblyBadCoder/creaturefeature"
 description='''${mod_description}'''
 
 [[dependencies.${mod_id}]]

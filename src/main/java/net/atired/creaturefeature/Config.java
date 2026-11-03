@@ -14,6 +14,12 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue PATHOGEN;
     public static final ForgeConfigSpec.BooleanValue SAINT;
     public static final ForgeConfigSpec.BooleanValue FIEND_FOLIO_RELOADED;
+    // PORT: port-only (F10). One switch per creature in the server config; all true = the original's behaviour.
+    // See misc/CreatureToggles for what "disabled" means.
+    public static final String[] CREATURES = {"minds", "machination", "sinister", "detritus", "beauty", "fiend", "fend",
+            "friend", "blitz", "eeper", "nothing", "canary", "vertigo", "coat_of_arms", "minedflayer", "mockingbird",
+            "pathogen", "blossom", "saint_solis", "stained_glass", "dreamweaver", "cannonball_crab"};
+    public static final java.util.Map<String, ForgeConfigSpec.BooleanValue> CREATURE_ENABLED = new java.util.LinkedHashMap<>();
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         REMODEL_FRIEND = builder
@@ -41,6 +47,15 @@ public class Config {
         FIEND_FOLIO_RELOADED = builder
                 .comment("Gives Fiend a gun.")
                 .define("ff_reloaded", true);
+        // PORT: port-only (F10)
+        builder.comment("Turn single creatures off. A disabled creature never spawns (naturally, from spawners or",
+                        "from other creatures of the mod) and, if it already exists, vanishes without drops.",
+                        "Spawn eggs and /summon still work for admins (with NBT, add Tags:[\"creaturefeature_allowed\"]).")
+                .push("creatures");
+        for (String creature : CREATURES) {
+            CREATURE_ENABLED.put(creature, builder.define(creature, true));
+        }
+        builder.pop();
 
         SPEC2 = builder.build();
     }
