@@ -1,6 +1,35 @@
 package net.atired.creaturefeature.client;
 
 import net.atired.creaturefeature.CreatureFeature;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.atired.creaturefeature.accessors.GameRendererResourceManagerAccessor;
+import net.atired.creaturefeature.accessors.LivingEntityGoopAccessor;
+import net.atired.creaturefeature.accessors.PlayerBrainrotAccessor;
+import net.atired.creaturefeature.accessors.PostChainDepthPassAccessor;
+import net.atired.creaturefeature.init.CFMobEffectInit;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.PostPass;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.RegisterShadersEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
+import net.minecraftforge.event.TickEvent;
+import org.joml.Quaternionf;
+
+import java.io.IOException;
 import net.atired.creaturefeature.client.particles.*;
 import net.atired.creaturefeature.blocks.FeatherTints;
 import net.atired.creaturefeature.client.renderers.*;
@@ -24,8 +53,8 @@ import net.minecraftforge.fml.common.Mod;
  * ConfigurationScreen; Forge 1.20.1 has no built-in config screen, so the config is edited in its file.
  * Filled phase by phase: F1 = feather colour handlers (added after the in-game test), F2 = PROXY and particle
  * providers (shaders are registered in CFRenderTypes), F3-F5 = layers and renderers of the creatures.
- * Still to come: item properties (F6), post chains and render targets (F7), the other layers and renderers (F4-F5)
- * and the client tick (with their content).
+ * F6 = item properties. F7 = post chains (screen effects), render targets, the client render events and the client
+ * tick (game bus: nested ForgeBus).
  */
 @Mod.EventBusSubscriber(modid = CreatureFeature.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CreatureFeatureClient {
@@ -168,5 +197,412 @@ public class CreatureFeatureClient {
         event.registerSpriteSet(CFParticleInit.CASING_PARTICLE.get(), CasingParticle.Provider::new);
         event.registerSpriteSet(CFParticleInit.GLASS_SHARD_PARTICLE.get(), GlassParticle.Provider::new);
         event.registerSpriteSet(CFParticleInit.GLASS_SHARD_SINISTER_PARTICLE.get(), GlassSinisterParticle.Provider::new);
+    }
+
+    // ---------------------------------------------------------------- F7: post-processing (screen effects)
+    public static ResourceLocation EVIL_ASS_MINEDFLAYEREFFECT = CreatureFeature.getId("shaders/post/minedflayer.json");
+    public static ResourceLocation SLEEPYEFFECT = CreatureFeature.getId("shaders/post/sleep.json");
+    public static ResourceLocation RABIESEFFECT = CreatureFeature.getId("shaders/post/rabies.json");
+    public static ResourceLocation HAZEEFFECT = CreatureFeature.getId("shaders/post/haze.json");
+    public static ResourceLocation FRIENDEFFECT = CreatureFeature.getId("shaders/post/friend.json");
+    public static ResourceLocation FIENDEFFECT = CreatureFeature.getId("shaders/post/fiend.json");
+    public static ResourceLocation SUNEFFECT = CreatureFeature.getId("shaders/post/sun.json");
+    public static ResourceLocation BACTEEFFECT = CreatureFeature.getId("shaders/post/bacte.json");
+    public static ResourceLocation MANEFFECT = CreatureFeature.getId("shaders/post/man.json");
+    public static PostChain MINEDFLAYER = null;
+    public static PostChain MAN = null;
+    public static PostChain SLEEP = null;
+    public static PostChain RABIES = null;
+    public static PostChain HAZE = null;
+    public static PostChain BACTE = null;
+    public static PostChain FRIEND = null;
+    public static PostChain FIEND = null;
+    public static PostChain SUN = null;
+
+    public static RenderTarget HAZE_TARGET = null;
+    public static RenderTarget FRIEND_TARGET = null;
+    public static RenderTarget SUN_TARGET = null;
+    public static RenderTarget SUN_TARGET2 = null;
+    public static RenderTarget RABIES_TARGET = null;
+    public static int[] SIZED = {160,90};
+    private static final ResourceLocation CANARY_SMOG_LOCATION = CreatureFeature.getId("textures/entity/canary_smog_bg.png");
+
+    // Same chains, temp targets and sizes as the original (its CreatureFeatureClient.registerShaders)
+    @SubscribeEvent
+    public static void registerPostChains(RegisterShadersEvent event) throws IOException {
+        if(Minecraft.getInstance().gameRenderer instanceof GameRendererResourceManagerAccessor accessor){
+            SIZED= new int[]{Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight()};
+            RABIES= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), RABIESEFFECT);
+            RABIES.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            RABIES.addTempTarget("rabiestargeteheheh",Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            RABIES_TARGET=RABIES.getTempTarget("rabiestargeteheheh");
+            SLEEP= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), SLEEPYEFFECT);
+            SLEEP.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            HAZE= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), HAZEEFFECT);
+            HAZE.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            BACTE= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), BACTEEFFECT);
+            BACTE.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            MAN= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), MANEFFECT);
+            MAN.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            FIEND= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), FIENDEFFECT);
+            FIEND.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            FRIEND= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), FRIENDEFFECT);
+            FRIEND.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            FRIEND.addTempTarget("friendlytarget",Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            FRIEND_TARGET=FRIEND.getTempTarget("friendlytarget");
+
+            SUN= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), SUNEFFECT);
+            SUN.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            SUN.addTempTarget("suntarget",Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            SUN_TARGET=SUN.getTempTarget("suntarget");
+            SUN.addTempTarget("suntarget2",Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            SUN_TARGET2=SUN.getTempTarget("suntarget2");
+
+            MINEDFLAYER= new PostChain(Minecraft.getInstance().getTextureManager(), accessor.creaturefeature$myPrecious(), Minecraft.getInstance().getMainRenderTarget(), EVIL_ASS_MINEDFLAYEREFFECT);
+            MINEDFLAYER.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            // PORT: a resource reload builds new chains: HAZE_TARGET must point at the new one (the original kept the old
+            // reference until the window was resized)
+            HAZE_TARGET=null;
+        }
+    }
+
+    // PORT: PostChain.setUniform(name, value) (1.20.5+) does not exist in 1.20.1: this is its body, the uniform set on
+    // the effect of every pass
+    public static void setUniform(PostChain chain, String name, float value) {
+        if(chain instanceof PostChainDepthPassAccessor accessor){
+            for(PostPass pass : accessor.getDemPostPasses()){
+                pass.getEffect().safeGetUniform(name).set(value);
+            }
+        }
+    }
+
+    // PORT: 1.21 vertex API -> 1.20.1 (vertex/color/uv/overlayCoords/uv2/normal/endVertex)
+    public static void vertex(PoseStack.Pose pose, VertexConsumer consumer, double x, double y, double z, float u, float v, int normalX, int normalY, int normalZ, int packedLight, float alpha) {
+        consumer.vertex(pose.pose(), (float)x, (float)y, (float)z).color(1.0f,1.0f,1.0f,alpha).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(pose.normal(), (float)normalX, (float)normalZ, (float)normalY).endVertex();
+    }
+
+    /**
+     * PORT: the original's game-bus client events. NeoForge's @EventBusSubscriber picks the bus per event; Forge needs
+     * a subscriber per bus, so they live here (Dist.CLIENT, FORGE bus). Same code as the original except where marked.
+     */
+    @Mod.EventBusSubscriber(modid = CreatureFeature.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static class ForgeBus {
+        private static final ResourceLocation GUNK_LOCATION = CreatureFeature.getId("textures/entity/minedflayer_gunk.png");
+        private static final ResourceLocation PATHOGEN_THING_LOCATION = CreatureFeature.getId("textures/entity/pathogen_thing.png");
+        private static final ResourceLocation PATHOGEN_STARS_LOCATION = CreatureFeature.getId("textures/entity/pathogen_stars.png");
+        private static final ResourceLocation BLITZ_TRAIL_LOCATION = CreatureFeature.getId("textures/entity/blitz_trail.png");
+        private static boolean[] SHOULD = {false,false};
+
+        @SubscribeEvent
+        public static void renderModelEvent(RenderLivingEvent.Pre<?, ?> event) {
+            if(event.getEntity() instanceof LivingEntityGoopAccessor accessor&&accessor.getSquashed()>0f){
+                if(SHOULD[1]){
+                    event.getPoseStack().popPose();
+                }
+                float squash = Math.min(0.8f,accessor.getSquashed()*2f-event.getPartialTick()/20.0f);
+                event.getPoseStack().pushPose();
+                event.getPoseStack().scale(1f+squash,1f-squash,1f+squash);
+
+                SHOULD[1]=true;
+            }
+            if(!event.getEntity().isDeadOrDying()&&event.getEntity() instanceof LivingEntityGoopAccessor accessor&&accessor.isFallDamageAmped()){
+
+                if(SHOULD[0]){
+                    event.getPoseStack().popPose();
+                }
+                Vec3 dir = event.getEntity().getDeltaMovement().multiply(1,1,1).normalize();
+                float yaw =(float) Math.atan2(dir.x,dir.z);
+                float pitch =(float) Math.asin(dir.y);
+                VertexConsumer consumer = event.getMultiBufferSource().getBuffer(RenderType.entityTranslucent(BLITZ_TRAIL_LOCATION));
+                PoseStack poseStack = event.getPoseStack();
+                poseStack.pushPose();
+                event.getPoseStack().translate(0,event.getEntity().getBbHeight()/2.0f,0);
+                PoseStack.Pose pose = poseStack.last();
+                Vec3 trDir = new Vec3(0.3,0,0).yRot(yaw);
+                dir = event.getEntity().getDeltaMovement().scale(-3);
+
+                int i = event.getPackedLight();
+                Vec3 yDir = new Vec3(0,0.3,0).xRot(pitch).yRot(yaw);
+                Vec3 trDir1=trDir.add(yDir);
+                Vec3 trDir2=trDir.subtract(yDir);
+
+                vertex(pose,consumer, trDir1.x, trDir1.y,trDir1.z,1,0,0,-1,0,i,1.0f);
+                vertex(pose,consumer, trDir2.x, trDir2.y,trDir2.z,1,1,0,-1,0,i,1.0f);
+                vertex(pose,consumer, trDir2.x+dir.x, trDir2.y+dir.y,trDir2.z+dir.z,0,1,0,-1,0,i,1.0f);
+                vertex(pose,consumer, trDir1.x+dir.x, trDir1.y+dir.y,trDir1.z+dir.z,0,0,0,-1,0,i,1.0f);
+                trDir=trDir.scale(-1);
+                trDir1=trDir.add(yDir);
+                trDir2=trDir.subtract(yDir);
+                vertex(pose,consumer, trDir1.x, trDir1.y,trDir1.z,1,0,0,-1,0,i,1.0f);
+                vertex(pose,consumer, trDir2.x, trDir2.y,trDir2.z,1,1,0,-1,0,i,1.0f);
+                vertex(pose,consumer, trDir2.x+dir.x, trDir2.y+dir.y,trDir2.z+dir.z,0,1,0,-1,0,i,1.0f);
+                vertex(pose,consumer, trDir1.x+dir.x, trDir1.y+dir.y,trDir1.z+dir.z,0,0,0,-1,0,i,1.0f);
+
+
+                poseStack.popPose();
+
+                event.getPoseStack().pushPose();
+                float rot = (event.getEntity().tickCount+event.getPartialTick())/2.0f;
+                event.getPoseStack().translate(0,event.getEntity().getBbHeight()/2.0f,0);
+                event.getPoseStack().mulPose(new Quaternionf().rotationXYZ(0,yaw+3.14f/2.0f,rot));
+                event.getPoseStack().translate(0,-event.getEntity().getBbHeight()/2.0f,0);
+
+                SHOULD[0]=true;
+            }
+        }
+
+        @SubscribeEvent
+        public static void postRenderEntity(RenderLivingEvent.Post<?, ?> event) {
+            if(SHOULD[1]&&event.getEntity() instanceof LivingEntityGoopAccessor accessor&&accessor.getSquashed()>0f){
+                SHOULD[1]=false;
+                event.getPoseStack().popPose();
+            }
+            if(SHOULD[0]&&event.getEntity() instanceof LivingEntityGoopAccessor accessor&&accessor.isFallDamageAmped()&&!event.getEntity().isDeadOrDying()){
+                SHOULD[0]=false;
+                event.getPoseStack().popPose();
+            }
+            if(event.getEntity().level()!=null){
+                LivingEntity living = event.getEntity();
+                if(living instanceof LivingEntityGoopAccessor accessor&&accessor.getDelay()>0){
+                    float modA=1;
+                    // PORT: Math.clamp (Java 21) -> Mth.clamp
+                    float scaled = Mth.sin(Mth.clamp(accessor.getDelay()/4.0f,0f,3.14f/2.0f));
+                    scaled*=Mth.sin(Mth.clamp((30-accessor.getDelay())/4.0f,0f,3.14f/2.0f));
+                    if(CFRenderTypes.AMBUSH_SHADER_INSTANCE.getUniform("Revealness")!=null)
+                        CFRenderTypes.AMBUSH_SHADER_INSTANCE.getUniform("Revealness").set(1.0f);
+                    float yOff = living.getBbHeight()/2.0f;
+                    float pie = (float)Math.PI;
+
+                    VertexConsumer consumer = event.getMultiBufferSource().getBuffer(CFRenderTypes.entityAmbushCutout(PATHOGEN_THING_LOCATION));
+                    PoseStack poseStack = event.getPoseStack();
+                    poseStack.pushPose();
+                    poseStack.translate(0,yOff,0);
+                    PoseStack.Pose pose = poseStack.last();
+
+                    float sinAge = (living.tickCount+event.getPartialTick())/2.0f;
+
+                    Vec3 oldDir = new Vec3(1.01,0,0).scale(living.getBbWidth()).yRot(pie/4.0f+sinAge/4.0f);
+
+                    for (int i = 0; i < 8; i++) {
+                        Vec3 dir2 = new Vec3(1.01,0,0).scale(living.getBbWidth()).yRot(sinAge/4.0f+(i+1)/4.0f*pie+pie/4.0f);
+                        float yOff1 = Mth.sin(i/4.0f*pie+sinAge)/6.0f;
+                        float yOff2 = Mth.sin((i+1)/4.0f*pie+sinAge)/6.0f;
+
+                        vertex(pose,consumer,oldDir.x*1.f,(1.0f+yOff1)*0.5f*scaled,oldDir.z*1.f,(i)/4.0f,0.0f,0,-1,0,event.getPackedLight(),scaled);
+                        vertex(pose,consumer,oldDir.x*0.74f,-(1.0f+yOff1)*0.5f*scaled,oldDir.z*0.74f,(i)/4.0f,1.0f,0,-1,0,event.getPackedLight(),scaled);
+                        vertex(pose,consumer,dir2.x*0.74f,-(1.0f+yOff2)*0.5f*scaled,dir2.z*0.74f,(i+1)/4.0f,1.0f,0,-1,0,event.getPackedLight(),scaled);
+                        vertex(pose,consumer,dir2.x*1.f,(1.0f+yOff2)*0.5f*scaled,dir2.z*1.f,(i+1)/4.0f,0.0f,0,-1,0,event.getPackedLight(),scaled);
+
+                        oldDir=dir2;
+                    }
+                    consumer = event.getMultiBufferSource().getBuffer(CFRenderTypes.entityAmbushCutout(PATHOGEN_STARS_LOCATION));
+                    oldDir = new Vec3(1.01,0,0).scale(living.getBbWidth()).yRot(pie/4.0f+-sinAge/4.0f);
+                    for (int i = 0; i < 8; i++) {
+                        Vec3 dir2 = new Vec3(1.01,0,0).scale(living.getBbWidth()).yRot(-sinAge/4.0f+(i+1)/4.0f*pie+pie/4.0f);
+                        float yOff1 = Mth.sin(i/4.0f*pie-sinAge)/6.0f;
+                        float yOff2 = Mth.sin((i+1)/4.0f*pie-sinAge)/6.0f;
+
+                        vertex(pose,consumer,oldDir.x*1.3f,0,oldDir.z*1.3f,(i)/4.0f,sinAge/4.0f+0.5f,0,-1,0,event.getPackedLight(),scaled);
+                        vertex(pose,consumer,oldDir.x*1.1f,-(1.0f+yOff1)*0.5f*scaled,oldDir.z*1.1f,(i)/4.0f,sinAge/4.0f,0,-1,0,event.getPackedLight(),0);
+                        vertex(pose,consumer,dir2.x*1.1f,-(1.0f+yOff2)*0.5f*scaled,dir2.z*1.1f,(i+1)/4.0f,sinAge/4.0f,0,-1,0,event.getPackedLight(),0);
+                        vertex(pose,consumer,dir2.x*1.3f,0,dir2.z*1.3f,(i+1)/4.0f,sinAge/4.0f+0.5f,0,-1,0,event.getPackedLight(),scaled);
+
+                        vertex(pose,consumer,oldDir.x*1.1f,(1.0f+yOff1)*0.5f*scaled,oldDir.z*1.1f,(i)/4.0f,sinAge/8.0f+1.0f,0,-1,0,event.getPackedLight(),0);
+                        vertex(pose,consumer,oldDir.x*1.3f,0,oldDir.z*1.3f,(i)/4.0f,sinAge/8.0f+0.5f,0,-1,0,event.getPackedLight(),scaled);
+                        vertex(pose,consumer,dir2.x*1.3f,0,dir2.z*1.3f,(i+1)/4.0f,sinAge/8.0f+0.5f,0,-1,0,event.getPackedLight(),scaled);
+                        vertex(pose,consumer,dir2.x*1.1f,(1.0f+yOff2)*0.5f*scaled,dir2.z*1.1f,(i+1)/4.0f,sinAge/8.0f+1.0f,0,-1,0,event.getPackedLight(),0);
+
+                        oldDir=dir2;
+                    }
+                    poseStack.popPose();
+                }
+                if(living instanceof LivingEntityGoopAccessor accessor&&accessor.getGoop()>0.1f){
+                    float modA=accessor.getGoop();
+                    if(CFRenderTypes.AMBUSH_SHADER_INSTANCE.getUniform("Revealness")!=null)
+                        CFRenderTypes.AMBUSH_SHADER_INSTANCE.getUniform("Revealness").set(1.0f);
+                    float yOff = 0.0f;
+                    float pie = (float)Math.PI;
+                    if(!living.onGround()){
+                        Vec3 vec3 = living.getPosition(1);
+                        Vec3 vec31 = vec3.add(new Vec3(0,-5,0));
+                        Level level = living.level();
+                        BlockHitResult result = level.clip(new ClipContext(vec3, vec31, net.minecraft.world.level.ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, living));
+                        yOff=-(float)result.getLocation().distanceTo(living.getPosition(1));
+                    }
+
+                    VertexConsumer consumer = event.getMultiBufferSource().getBuffer(CFRenderTypes.entityAmbushCutout(GUNK_LOCATION));
+                    PoseStack poseStack = event.getPoseStack();
+                    poseStack.pushPose();
+                    poseStack.translate(0,yOff,0);
+                    PoseStack.Pose pose = poseStack.last();
+                    Vec3 norDir = living.getDeltaMovement().multiply(1,0,1).scale(3);
+                    float xScale = (float) (Math.abs(norDir.x));
+                    float zScale = (float) (Math.abs(norDir.z));
+
+                    float sinAge = (living.tickCount+event.getPartialTick())/7.0f;
+
+                    norDir=norDir.scale(0.4);
+
+                    float norLength = Mth.clamp((float)norDir.length()*4.0f,0.0f,1.0f);
+
+                    Vec3 oldDir = new Vec3(1.01,0,0).scale(living.getBbWidth()).yRot(pie/4.0f+sinAge/4.0f)
+                            .multiply(1.0f+xScale,1,1.0f+zScale).add(norDir.x,0,norDir.z);
+                    float oldDot =Mth.lerp(norLength,1.0f,(float)oldDir.normalize().dot(norDir.normalize())/2.0f+0.6f);
+
+                    for (int i = 0; i < 8; i++) {
+                        Vec3 dir2 = new Vec3(1.01,0,0).scale(living.getBbWidth()).yRot(sinAge/4.0f+(i+1)/4.0f*pie+pie/4.0f)
+                                .multiply(1.0f+xScale,1,1.0f+zScale).add(norDir.x,0,norDir.z);
+                        float dot2 = Mth.lerp(norLength,1.0f,(float)dir2.normalize().dot(norDir.normalize())/2.0f+0.6f);
+                        float yOff1 = Mth.sin(i/4.0f*pie+sinAge)/6.0f;
+                        float yOff2 = Mth.sin((i+1)/4.0f*pie+sinAge)/6.0f;
+
+                        vertex(pose,consumer,oldDir.x*1.4f*(1.0f+yOff1),(1.0f+yOff1)*oldDot,oldDir.z*1.4f*(1.0f+yOff1),(i)/2.0f,0.0f,0,-1,0,255,modA);
+                        vertex(pose,consumer,oldDir.x*0.74f,0,oldDir.z*0.74f,(i)/2.0f,1.0f,0,-1,0,event.getPackedLight(),modA);
+                        vertex(pose,consumer,dir2.x*0.74f,0,dir2.z*0.74f,(i+1)/2.0f,1.0f,0,-1,0,event.getPackedLight(),modA);
+                        vertex(pose,consumer,dir2.x*1.4f*(1.0f+yOff2),(1.0f+yOff2)*dot2,dir2.z*1.4f*(1.0f+yOff2),(i+1)/2.0f,0.0f,0,-1,0,255,modA);
+
+                        vertex(pose,consumer,oldDir.x*1.4f,(1.0f+yOff1)*-0.2*oldDot,oldDir.z*1.4f,(i)/2.0f,1.0f,0,-1,0,event.getPackedLight(),0.0f);
+                        vertex(pose,consumer,oldDir.x*0.74f,0,oldDir.z*0.74f,(i)/2.0f,0.8f,0,-1,0,event.getPackedLight(),modA);
+                        vertex(pose,consumer,dir2.x*0.74f,0,dir2.z*0.74f,(i+1)/2.0f,0.8f,0,-1,0,event.getPackedLight(),modA);
+                        vertex(pose,consumer,dir2.x*1.4f,(1.0f+yOff2)*-0.2*dot2,dir2.z*1.4f,(i+1)/2.0f,1.0f,0,-1,0,event.getPackedLight(),0.0f);
+
+                        oldDir=dir2;
+                        oldDot=dot2;
+                    }
+                    poseStack.popPose();
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void clientWorldRenderStage(RenderLevelStageEvent event){
+            if(event.getStage()== RenderLevelStageEvent.Stage.AFTER_ENTITIES&&CreatureFeatureClient.FRIEND_TARGET!=null){
+
+                CreatureFeatureClient.FRIEND_TARGET.bindWrite(false);
+                CFClientProxy.getFriendSource().endBatch();
+                CreatureFeatureClient.FRIEND_TARGET.unbindWrite();
+                if(CreatureFeatureClient.FRIEND instanceof PostChainDepthPassAccessor accessor){
+                    for(PostPass pass : accessor.getDemPostPasses()){
+                        pass.getEffect().setSampler("FriendSampler",CreatureFeatureClient.FRIEND_TARGET::getColorTextureId);
+                        pass.getEffect().setSampler("FriendDepthSampler",CreatureFeatureClient.FRIEND_TARGET::getDepthTextureId);
+
+                    }
+                }
+                Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+                CreatureFeatureClient.SUN_TARGET.bindWrite(false);
+                CFClientProxy.getSunSource().endBatch();
+                CreatureFeatureClient.SUN_TARGET.unbindWrite();
+                if(CreatureFeatureClient.SUN instanceof PostChainDepthPassAccessor accessor){
+                    for(PostPass pass : accessor.getDemPostPasses()){
+                        pass.getEffect().setSampler("SunSampler",CreatureFeatureClient.SUN_TARGET::getColorTextureId);
+                        pass.getEffect().setSampler("SunDepthSampler",CreatureFeatureClient.SUN_TARGET::getDepthTextureId);
+
+                    }
+                }
+                PostChain[] chains = {CreatureFeatureClient.SUN,CreatureFeatureClient.FRIEND,CreatureFeatureClient.MINEDFLAYER,CreatureFeatureClient.HAZE,CreatureFeatureClient.RABIES,CreatureFeatureClient.SLEEP,CreatureFeatureClient.MAN};
+                CreatureFeatureClient.RABIES_TARGET.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
+
+                //RESET
+                Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+                for(PostChain i : chains){
+                    if(i instanceof PostChainDepthPassAccessor accessor){
+                        accessor.depthEmPostPasses();
+                    }
+                }
+
+                Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+
+            }
+        }
+
+        // PORT: ClientTickEvent.Pre -> TickEvent.ClientTickEvent, phase START; Holder<MobEffect> -> .get(); Math.clamp -> Mth.clamp
+        @SubscribeEvent
+        public static void clientTickEvent(TickEvent.ClientTickEvent post) {
+            if(post.phase != TickEvent.Phase.START){
+                return;
+            }
+            if((SIZED[0]!=Minecraft.getInstance().getWindow().getWidth()||
+                    SIZED[1]!=Minecraft.getInstance().getWindow().getHeight())&&
+                    HAZE!=null){
+                SIZED[0]=Minecraft.getInstance().getWindow().getWidth();
+                SIZED[1]=Minecraft.getInstance().getWindow().getHeight();
+                if(RABIES_TARGET!=null)
+                    RABIES_TARGET.resize(SIZED[0],SIZED[1],true);
+                if(HAZE_TARGET==null){
+                    HAZE_TARGET=HAZE.getTempTarget("haze");
+                }
+                RABIES.resize(SIZED[0],SIZED[1]);
+                SLEEP.resize(SIZED[0],SIZED[1]);
+                MAN.resize(SIZED[0],SIZED[1]);
+                MINEDFLAYER.resize(SIZED[0],SIZED[1]);
+                HAZE.resize(SIZED[0],SIZED[1]);
+                FRIEND.resize(SIZED[0],SIZED[1]);
+                FIEND.resize(SIZED[0],SIZED[1]);
+                SUN.resize(SIZED[0],SIZED[1]);
+                BACTE.resize(SIZED[0],SIZED[1]);
+            }
+            if(HAZE_TARGET==null&&HAZE!=null){
+                CreatureFeatureClient.FRIEND_TARGET.setClearColor(0.0f,0.0f,1.0f,0.0f);
+
+                HAZE_TARGET=HAZE.getTempTarget("haze");
+                if(HAZE instanceof PostChainDepthPassAccessor accessor){
+                    AbstractTexture tex = Minecraft.getInstance().getTextureManager().getTexture(CANARY_SMOG_LOCATION);
+                    for(PostPass pass : accessor.getDemPostPasses()){
+
+                        pass.getEffect().setSampler("HazeSampler",tex::getId);
+                    }
+                }
+            }
+            if(Minecraft.getInstance().player!=null&&Minecraft.getInstance().player instanceof PlayerBrainrotAccessor accessor && accessor.getDelayedDamage()>0.0){
+                PROXY.gasLeak=Math.min(1.0f,PROXY.gasLeak+0.33f);
+            }
+            else if(PROXY.gasLeak>0.0f){
+                PROXY.gasLeak=Math.max(0.0f,PROXY.gasLeak-0.1f);
+            }
+            if(PROXY.wobble>0.0f){
+                PROXY.wobble=Math.max(0.0f,PROXY.wobble-0.1f);
+                if (PROXY.wobble<0.05f){
+                    PROXY.wobblyItem=null;
+                    PROXY.wobble=0.0f;
+                }
+            }
+
+            if(PROXY.nan_title>0.0f){
+                PROXY.nan_title=Mth.clamp(PROXY.nan_title-0.015f,0.0f,1.0f);
+                if(Minecraft.getInstance().player!=null&&PROXY.nan_title>0.9f){
+                    Minecraft.getInstance().player.displayClientMessage(Component.empty(),true);
+                }
+            }
+
+            if(PROXY.rabies2>0.0f){
+                PROXY.rabies2=Mth.clamp(PROXY.rabies2-0.04f,0.0f,1.0f);
+            }
+            if(PROXY.fiendish2>0.0f){
+                PROXY.fiendish2=Mth.clamp(PROXY.fiendish2-0.04f,0.0f,1.0f);
+            }
+            if(PROXY.flayed2>0.0f){
+                PROXY.flayed2=Mth.clamp(PROXY.flayed2-0.04f,0.0f,1.0f);
+            }
+            if(Minecraft.getInstance().player!=null&&Minecraft.getInstance().player instanceof LivingEntityGoopAccessor accessor && accessor.getDelay()>0){
+                PROXY.bacterial=Mth.lerp(0.3f,PROXY.bacterial,1.0f);
+            }else{
+                PROXY.bacterial=Mth.clamp(PROXY.bacterial-0.05f,0.0f,1.0f);
+            }
+            if(Minecraft.getInstance().player!=null&&Minecraft.getInstance().player.hasEffect(CFMobEffectInit.FIENDISH.get())){
+                PROXY.fiendish=Math.min(1.0f,PROXY.fiendish+0.02f);
+            }
+            else if(PROXY.fiendish>0.0f){
+                PROXY.fiendish=Mth.clamp(PROXY.fiendish-0.06f,0.0f,1.0f);
+            }
+            if(Minecraft.getInstance().player!=null&&Minecraft.getInstance().player.hasEffect(CFMobEffectInit.SLEEPY.get())){
+                PROXY.eebyDeebyNess=Math.min(1.0f,PROXY.eebyDeebyNess+0.02f);
+            }
+            else if(PROXY.eebyDeebyNess>0.0f){
+                PROXY.eebyDeebyNess=Mth.clamp(PROXY.eebyDeebyNess-0.02f,0.0f,1.0f);
+            }
+            if(PROXY.manShader>0.0f){
+                PROXY.manShader=Mth.clamp(PROXY.manShader-0.002f,0.0f,1.0f);
+            }
+        }
     }
 }

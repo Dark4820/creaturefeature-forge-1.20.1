@@ -23,9 +23,7 @@ EXCLUDED_IDS = {
     "runic_stone_bricks", "toadstool", "toadstool_spawn_egg", "ominous_powder_skull",
     "reveal",  # particles/reveal.json: no particle type is registered for it (1.20.1 fails the reload)
 }
-EXCLUDED_ASSET_PREFIXES = (
-    "shaders/post/", "shaders/program/",  # post-processing: phase F7
-)
+EXCLUDED_ASSET_PREFIXES = ()  # (post-processing shaders were excluded until F7)
 STAR_ASSETS = {
     "shaders/core/rendertype_entity_collumn.fsh", "shaders/core/rendertype_entity_collumn.json",
     "shaders/core/rendertype_entity_fisheye.fsh", "shaders/core/rendertype_entity_fisheye.json",

@@ -7,7 +7,9 @@
   "mixins": [
     "SleepyJumpMixin", "LivingEntitySwingMixin", "AbstractBlockMixin", "AbstractContainerMenuMixin", "LivingEntityGoopMixin", "MonsterEntityMixin", "PlayerAdvancementsMixin", "PlayerMixin", "ShearsItemMixin"
   ],
-  "client": [],
+  "client": [
+    "CFGameRendererMixin", "CFPostChainMixin", "CameraMixin", "CameraTypeMixin", "CFGuiMixin", "GuiGraphicsMixin", "FallingBlockEntityRendererMixin", "HumanoidArmorLayerMixin", "IamActivelyHavingaMigraineMixin", "LivingEntityRendererMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

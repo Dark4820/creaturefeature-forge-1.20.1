@@ -47,11 +47,7 @@ public class FriendEntityRenderer extends EntityRenderer<FriendEntity> {
         if(scaled<1.0f){
             scaled-=0.5f*(Math.max(0.0f,p_entity.tickCount/20.0f-7.5f));
         }
-        // PORT: TODO F7 - outside Fabulous the original draws into CFClientProxy.getFriendSource(), which is flushed into
-        // FRIEND_TARGET and shown only by the "friend" post chain (CreatureFeatureClient.clientWorldRenderStage).
-        // Post chains arrive in F7: until then every graphics mode takes the original's Fabulous path (the normal
-        // buffer), otherwise the friend is invisible.
-        MultiBufferSource source = bufferSource;
+        MultiBufferSource source = (Minecraft.getInstance().options.graphicsMode().get()==GraphicsStatus.FABULOUS?bufferSource:CFClientProxy.getFriendSource());
         scaled*=1.0f-Math.max(0.0f,1.0f-p_entity.tickCount/10.0f);
         poseStack.scale(scaled,scaled,scaled);
         poseStack.pushPose();

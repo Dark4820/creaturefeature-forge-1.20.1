@@ -45,9 +45,7 @@ public class SaintSolisEntityRenderer extends MobRenderer<SaintSolisEntity, Sain
         Vec3 dir = new Vec3(0,0,-0.1).yRot(-Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)/180.0f*3.14f);
         poseStack.translate(dir.x,1.25,dir.z);
         Vector2f divisor = new Vector2f(3.0f,3.0f);
-        // PORT: TODO F7 - outside fixsas the original draws into CFClientProxy.getSunSource(), which only the "sun" post
-        // chain (F7) shows; until then every case takes the original's fixsas path (the normal buffer), as the friend.
-        VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucent(SUN_LOCATION));
+        VertexConsumer consumer = (Config.FIX_SAS.get()?buffer:CFClientProxy.getSunSource()).getBuffer(RenderType.entityTranslucent(SUN_LOCATION));
         IcoSphere sphere = CreatureFeature.ICO;
         float gotten = entity.getOpening();
         float timed = (entity.tickCount+partialTicks+entity.getId()*5.0f)/20.0f;

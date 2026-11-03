@@ -1,9 +1,11 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F6 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F7 (efectos de pantalla y mixins de cliente).
+**F7 cerrada (2026-11-02).** Falta la prueba corta de F7 en el juego. Siguiente: F8 (spawns, loot modifiers, logros + los 2 mixins de logros).
 
 ## Pruebas en el juego pendientes
+- **Prueba corta de F7:** cada efecto de pantalla en Rápidos, Elegantes y Fabulosos (lista y comandos en el mensaje de cierre de F7), más F3+T y cambiar el tamaño de la ventana con un efecto activo.
+- **Shaderpacks (Oculus):** los post chains y render types propios con un shaderpack activo (F10).
 - **Recetas nuevas:** open_mind (lingotes de hierro, cerebro marchito y mesa de crafteo) y heavy_axe (blitz rods y lingote de netherita) en el libro de recetas.
 - **Tanda final, F6:** el cuerno de vertigo como botín (60 % al matarlo un jugador), el disco del fiend, flower_clone en el libro de recetas, las tijeras rápidas en plumas y seda, el aviso del dream catcher con contenedores, el hacha pesada contra un caballo (logro en F8).
 - **Tanda final, F5:** botín, los 8 huevos, sonidos, arrojar murky_pearl/down_feather/solar_shard (también con dispensador), vitric_arrow con arco, solar_shard como combustible (12 800 ticks), eep con mechero, redstone y fuego.
@@ -11,6 +13,16 @@
 - **Murky pearl por dispensador:** sale una perla (no una bola de nieve).
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## F7 - Efectos de pantalla y mixins de cliente (2026-11-02) ✅
+- **Post chains (9):** minedflayer, man, sleep, rabies, haze, bacte, friend, fiend, sun, con sus targets (haze, friendlytarget, suntarget, suntarget2, rabiestargeteheheh). Se crean en `RegisterShadersEvent` (bus del mod). El script de recursos ya copia `shaders/post` y `shaders/program`; los nombres con namespace (`creaturefeature:sleep`) cargan bien en Forge 1.20.1.
+- **Eventos de cliente del bus del juego** en `CreatureFeatureClient.ForgeBus`: aplastado y estela de caída (`RenderLivingEvent.Pre`), anillos del pathogen y charco de goop (`Post`), volcado de los buffers del friend y del sol en sus targets (`RenderLevelStageEvent` AFTER_ENTITIES), tick de cliente (tamaño de ventana, sampler del haze, desvanecido de los valores del `PROXY`).
+- **Mixins de cliente (10):** CFGameRendererMixin, CFPostChainMixin, CameraMixin, CameraTypeMixin, CFGuiMixin, GuiGraphicsMixin, FallingBlockEntityRendererMixin, HumanoidArmorLayerMixin, IamActivelyHavingaMigraineMixin, LivingEntityRendererMixin; 3 accesores nuevos. AdvancementTabMixin y AdvancementWidgetMixin pasan a F8 con los logros.
+- **Friend y sol vuelven al camino del original:** el friend fuera de Fabulosos y el saint solis / star sin `fixsas` se dibujan en su buffer propio y los muestra su post chain (`getSunSource` nuevo).
+- Diferencias (PORT_MAP §3 y §6c): `PostChain.setUniform` → `CreatureFeatureClient.setUniform`; `ClientTickEvent.Pre` → `TickEvent` START; `java.awt.Color` → `Mth.hsvToRgb`; tinte del pathogen con `@WrapOperation` sobre los 4 floats de `renderToBuffer`; `HAZE_TARGET` se reinicia al recargar recursos (el original quedaba con la cadena vieja).
+- **Prueba de dibujo ampliada:** después de las criaturas, recorre Rápidos, Elegantes y Fabulosos y en cada modo fuerza ninguno, sleepy, fiendish, rabies, flayed, gas, bacte, man, nan_title y efectos de entidad (víctima con anillos, goop, aplastado y estela; armadura con los 4 adornos del mod; caparazón cayendo). Saca 30 capturas `cf_fx_<modo>_<efecto>.png`. En 1.20.1 la opción de gráficos no reconstruye nada sola (lo hace el botón del menú): la prueba llama a `levelRenderer.allChanged()`, sin eso Fabulosos crashea por falta de targets.
+
+Verificado: `build` OK (refmap con los nombres SRG de los 10 mixins); `runGameTestServer` 50/50 (los mixins de cliente no se cargan en el servidor); `runServer` hasta `Done (2.911s)` sin errores del mod; `runClientRenderSmoke` OK en los 3 modos, sin errores de shaders, y cada efecto se ve en su captura.
 
 ## Prueba corta de F6 y arreglos de F4 (2026-11-02) ✅
 El usuario probó el jar real: cuerno, atrapasueños, open_mind, ramo, píldora, soda, bola de bacterias, vidrio vivo, hacha pesada, doohickey y tijeras funcionan. Los arreglos de F4 también: el coat of arms ya no crashea (el crash de las 19:56 en `C:\cf\test\crash-reports` era del jar anterior al arreglo, mismas líneas 188/115) y el friend se ve.

@@ -79,18 +79,18 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 | 7 | PlayerAdvancementsMixin | común | `PlayerAdvancements.award` (HEAD) | 🔧 recibe `Advancement`, no `AdvancementHolder` |
 | 8 | PlayerMixin | común | `Player.tick` → "brainrot"/"rabies" del jugador | ✅ (+ datos sincronizados 🔧) |
 | 9 | ShearsItemMixin | común | agrega regla de `Tool` (velocidad 8 en tag `shearable`) y `mineBlock` | 🔧 no hay componente `Tool`: inyectar en `ShearsItem.getDestroySpeed` (y `isCorrectToolForDrops`) |
-| 10 | AdvancementTabMixin | cliente | `AdvancementTab.drawContents` → fondo propio | 🔧 verificar firma de `blit` |
-| 11 | AdvancementWidgetMixin | cliente | `AdvancementWidget.draw/isMouseOver` → dibujo propio de los logros del mod | 🔧 `AdvancementNode` no existe (usar `Advancement`); `@WrapMethod` requiere MixinExtras (ok) |
-| 12 | CameraMixin | cliente | `Camera.setup` y `setRotation` → cámara alterada | 🔧 `setRotation(float,float)`; alternativa Forge `ViewportEvent.ComputeCameraAngles` |
-| 13 | CameraTypeMixin | cliente | `CameraType.isFirstPerson` | ✅ |
-| 14 | CFGameRendererMixin | cliente | `GameRenderer.render/renderLevel` → ejecuta los 9 `PostChain` y copia profundidad | 🔧 firmas `render(float,long,boolean)`, `renderLevel(float,long,PoseStack)`; revisar ordinales |
-| 15 | CFGuiMixin | cliente | `Gui.renderItemHotbar` → hotbar alterada | 🔧 en 1.20.1 es `renderHotbar(float, GuiGraphics)` |
-| 16 | CFPostChainMixin | cliente | accessor de `PostChain.passes` + samplers de profundidad | ✅ |
-| 17 | FallingBlockEntityRendererMixin | cliente | `FallingBlockRenderer.render` (TAIL) | ✅ |
-| 18 | GuiGraphicsMixin | cliente | `GuiGraphics.renderItem(...)` HEAD/RETURN | 🔧 `blitSprite` no existe (sprites son 1.20.2+) |
-| 19 | HumanoidArmorLayerMixin | cliente | `renderTrim` → render type propio para los adornos | 🔧 firma 1.20.1 (`ArmorMaterial`, `boolean innerTexture`) |
-| 20 | IamActivelyHavingaMigraineMixin | cliente | accessor de `PoseStack.poseStack` | ✅ |
-| 21 | LivingEntityRendererMixin | cliente | `@ModifyConstant(-1)` color ARGB en `render` → tinte verde | 🔧 en 1.20.1 son 4 floats: `@ModifyArgs` sobre `renderToBuffer` |
+| 10 | AdvancementTabMixin | cliente | `AdvancementTab.drawContents` → fondo propio | 🔧 verificar firma de `blit` · **pasa a F8** (junto con los logros que dibuja) |
+| 11 | AdvancementWidgetMixin | cliente | `AdvancementWidget.draw/isMouseOver` → dibujo propio de los logros del mod | 🔧 `AdvancementNode` no existe (usar `Advancement`); `@WrapMethod` requiere MixinExtras (ok) · **pasa a F8** |
+| 12 | CameraMixin | cliente | `Camera.setup` y `setRotation` → cámara alterada | ✅ F7: `setRotation(FF)V` (xRot sigue siendo el float de ordinal 1); `hasEffect(SLEEPY.get())` |
+| 13 | CameraTypeMixin | cliente | `CameraType.isFirstPerson` | ✅ F7 |
+| 14 | CFGameRendererMixin | cliente | `GameRenderer.render/renderLevel` → ejecuta los 9 `PostChain` y copia profundidad | ✅ F7: `render(FJZ)V`, mismos anclajes (`doEntityOutline` y primer `bindWrite`, justo después del post effect vanilla); `PostChain.setUniform` (1.20.5+) → `CreatureFeatureClient.setUniform` (uniform en el efecto de cada pase); `getRealtimeDeltaTicks` → `getDeltaFrameTime`; la inyección vacía en `renderLevel` no se porta |
+| 15 | CFGuiMixin | cliente | `Gui.renderItemHotbar` → hotbar alterada | ✅ F7: `renderHotbar(FLGuiGraphics;)V`, mismos anclajes (primer `pushPose`, primer `disableBlend`); `java.awt.Color.getHSBColor` → `Mth.hsvToRgb` |
+| 16 | CFPostChainMixin | cliente | accessor de `PostChain.passes` + samplers de profundidad | ✅ F7 |
+| 17 | FallingBlockEntityRendererMixin | cliente | `FallingBlockRenderer.render` (TAIL) | ✅ F7 (API de vértices 1.20.1; el helper pasa a `@Unique`) |
+| 18 | GuiGraphicsMixin | cliente | `GuiGraphics.renderItem(...)` HEAD/RETURN | ✅ F7: componentes → NBT; las sombras sin uso (`blitSprite`) no se portan |
+| 19 | HumanoidArmorLayerMixin | cliente | `renderTrim` → render type propio para los adornos | ✅ F7: `renderTrim(ArmorMaterial, ...)`; `trim.material().getKey()` → `unwrapKey()` |
+| 20 | IamActivelyHavingaMigraineMixin | cliente | accessor de `PoseStack.poseStack` | ✅ F7 (sin uso en el original) |
+| 21 | LivingEntityRendererMixin | cliente | `@ModifyConstant(-1)` color ARGB en `render` → tinte verde | ✅ F7: 4 floats → `@WrapOperation` sobre `renderToBuffer`, tiñe cuando alfa = 1 (donde el original usaba el -1) |
 
 **Mixins nuevos del port** (no están en el original):
 
@@ -98,6 +98,7 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 |---|---|---|---|
 | SleepyJumpMixin | común | `LivingEntity.getJumpPower` → 0 con el efecto sleepy (reemplaza el modificador de `JUMP_STRENGTH`, que en 1.20.1 no existe para jugadores ni mobs) | F1 |
 | CFClientPlayerHooks (no es mixin) | cliente | la parte "man" de `PlayerMixin.tick` (usa `CreatureFeatureClient.PROXY`), con los contadores por jugador; `PlayerMixin` la llama por `DistExecutor` | F6 |
+| ForgeBus (clase anidada de `CreatureFeatureClient`, no es mixin) | cliente | los eventos del bus del juego del original (`RenderLivingEvent.Pre/Post`, `RenderLevelStageEvent`, tick de cliente): en Forge cada bus necesita su suscriptor | F7 |
 | LivingEntitySwingMixin | común | `LivingEntity.getCurrentSwingDuration` (privado en 1.20.1) ×2 para el canary, como el override del original | F4 |
 
 Además hay que corregir: el original usa `java.awt.Color` en un renderer (funciona pero conviene quitarlo) y llama a `CreatureFeatureClient.PROXY` desde código común (`JukeBoxPlayableMixin`, ítems).
@@ -212,9 +213,12 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `EventHooks.onProjectileImpact` + `hitTargetOrDeflectSelf` | `ForgeEventFactory.onProjectileImpact` + `onHit` |
 | `BREEZE_HURT/DEATH` (blitz), `BREEZE_WHIRL` (coat_of_arms) | `BLAZE_HURT/DEATH` (el blitz_rod ya reemplaza a la vara de breeze), `PLAYER_ATTACK_SWEEP` (D3) |
 | Consumer pedido antes de dibujar otra cosa (coat of arms: la capa antes de los flintlocks) | en 1.20.1 pedir otro render type al buffer compartido cierra el lote anterior y el consumer viejo crashea ("BufferBuilder not started"): se pide justo antes de usarlo. Revisados todos los renderers: solo el coat of arms lo tenía |
-| Friend fuera de Fabulous: buffer propio que se vuelca en `FRIEND_TARGET` y solo lo muestra la post chain "friend" | hasta F7 (post chains) siempre el camino Fabulous del original (buffer normal); sin eso el friend era invisible (`// PORT: TODO F7`) |
+| Friend fuera de Fabulous: buffer propio que se vuelca en `FRIEND_TARGET` y solo lo muestra la post chain "friend" | F4-F6 usaban siempre el camino Fabulous; **F7 vuelve al original** (Fabulous → buffer normal; Rápidos/Elegantes → `getFriendSource()` + post chain) |
 | `Item.Properties().durability(4).stacksTo(1)` (flintlock) | `durability(4)`: en 1.20.1 `stacksTo` después de `durability` lanza "Unable to have damage AND stack" (el mod no cargaba) |
 | `PacketDistributor.sendToPlayer` | `CFNetwork.sendToPlayer` |
+| `PostChain.setUniform(name, value)` (F7) | no existe en 1.20.1: `CreatureFeatureClient.setUniform(chain, name, value)` hace lo mismo pase por pase (`getEffect().safeGetUniform(name).set(value)`) |
+| `ClientTickEvent.Pre` (F7) | `TickEvent.ClientTickEvent` con `phase == START` |
+| Recarga de recursos (F7): el original dejaba `HAZE_TARGET` apuntando a la cadena vieja hasta cambiar el tamaño de la ventana | `registerPostChains` lo pone en null para que el tick lo tome de la cadena nueva |
 | Componentes de ítem (F6): `DREAMCATCHER_CONTENTS`, `OPENED`, `INSTRUMENT`, `BLOCK_ENTITY_DATA`, `DAMAGE` | NBT: helpers de `CFDataComponentTypeInit`, `"instrument"` como el `InstrumentItem` de 1.20.1, `BlockEntityTag` (`BlockItem.getBlockEntityData`, `BlockEntity.load/saveToItem`), `get/setDamageValue` |
 | `FlowerCloneRecipe`: `CraftingInput` recortada (`size()==2` = dos ítems juntos) | `CraftingContainer` completo: se calcula el área ocupada (2 = juntos en fila o columna); `CustomRecipe(id, category)` |
 | `AxeItem(tier, props.attributes(createAttributes(...)))` (heavy_axe), `FoodProperties.Builder.saturationModifier/alwaysEdible` | `AxeItem(tier, daño, velocidad, props)`, `saturationMod/alwaysEat` |
@@ -234,7 +238,7 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `isInLiquid()` (pathogen) | `isInWaterOrBubble() || isInLava()` |
 | `ProjectileItem` (murky_pearl, down_feather, solar_shard, vitric_arrow: el dispensador los dispara) | `DispenserBlock.registerBehavior` con `AbstractProjectileDispenseBehavior` (misma potencia 1,1 y dispersión 6) en `commonSetup` |
 | `ItemStack.consume`, `appendHoverText(…, TooltipContext, …)`, `Block.playerWillDestroy` que devuelve `BlockState`, codec del bloque (eep) | `shrink` si no es creativo, `appendHoverText(…, Level, …)`, `playerWillDestroy` `void`, sin codec |
-| `getSunSource()` (saint_solis, star) fuera de `fixsas` | igual que el friend: hasta F7 siempre el camino `fixsas` del original (buffer normal) (`// PORT: TODO F7`) |
+| `getSunSource()` (saint_solis, star) fuera de `fixsas` | F5-F6 usaban siempre el camino `fixsas`; **F7 vuelve al original** (`getSunSource()` + post chain "sun" salvo con `fixsas = true`) |
 | Murky pearl disparada por dispensador | **error del original corregido** (decisión del usuario): el constructor `(level, x, y, z)` la creaba con el tipo `EntityType.SNOWBALL` (para el cliente y al guardar era una bola de nieve); ahora usa `CFEntityInit.MURKY_PEARL`. GameTest `dispenserShootsMurkyPearls` |
 
 ## 6b. Cambios en archivos JSON (no admiten `// PORT:`)
@@ -269,7 +273,7 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | **F4** ✅ | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo, **coat_of_arms** + `bullet`, **`kicked_block`** (pasó de F5: lo patea el fiend) y el ítem **flintlock** (pasó de F6: lo sostienen fiend y coat_of_arms) | `/summon`, ver y pelear |
 | **F5** ✅ | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass, **blossom** (pasó de F3: escupe `spat_block`) + spat_block, murky_pearl, vitric_arrow, eep (TNT, bloque + entidad), **feather** (mockingbird) y **star** (saint_solis), que estaban en F4, + los ítems arrojables de esas entidades: murky_pearl, vitric_arrow, down_feather y **solar_shard** (pasó de F6: solo arroja stars) | `/summon`, ver y pelear; arrojar los ítems |
 | **F6** ✅ | Ítems con lógica (el flintlock ya está desde F4 y solar_shard desde F5): vertigo_horn (vuelve con él el botín de cuernos del vertigo), dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
-| **F7** | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
+| **F7** ✅ | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
 | **F8** | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |
 | **F9** (opcional, según D1) | Contenido ★: powder_skull, trichael, fisheye, wraith, obelisk, collumn, delay | `/summon` |
 | **F10** | Pulido: servidor dedicado con cliente, modpack real (Oculus/Embeddium si están), versión final | sesión de juego normal |

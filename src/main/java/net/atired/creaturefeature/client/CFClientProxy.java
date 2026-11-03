@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.atired.creaturefeature.CreatureFeature;
 import net.atired.creaturefeature.client.renderers.FriendEntityRenderer;
+import net.atired.creaturefeature.client.renderers.SaintSolisEntityRenderer;
+import net.atired.creaturefeature.client.renderers.StarProjEntityRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -12,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Map;
 
 // PORT: client-only state, as in the original. The cached BufferSources arrive with their creatures:
-// getDetritusSource in F3, getFendSource and getFriendSource in F4, getSunSource in F5.
+// getDetritusSource in F3, getFendSource and getFriendSource in F4, getSunSource in F7 (with the sun post chain).
 public class CFClientProxy {
     public float eebyDeebyNess = 0.0f;
     public float flayed2 = 0.0f;
@@ -62,6 +64,23 @@ public class CFClientProxy {
         }
     }
 
+    public static MultiBufferSource.BufferSource SUN_SOURCE = null;
+
+    // PORT: ByteBufferBuilder -> BufferBuilder (same buffers as the original)
+    public static MultiBufferSource.BufferSource getSunSource(){
+        if(SUN_SOURCE!=null){
+            return SUN_SOURCE;
+        }else{
+            Map<RenderType,BufferBuilder> buffers = new Object2ObjectLinkedOpenHashMap<>();
+            buffers.put(RenderType.entityTranslucent((SaintSolisEntityRenderer.SUN_LOCATION)),
+                    new BufferBuilder(RenderType.entityTranslucent(SaintSolisEntityRenderer.SUN_LOCATION).bufferSize()));
+            buffers.put(RenderType.entityTranslucent(StarProjEntityRenderer.STARPROJ_LOCATION),
+                    new BufferBuilder(RenderType.entityTranslucent(StarProjEntityRenderer.STARPROJ_LOCATION).bufferSize()));
+
+            SUN_SOURCE=MultiBufferSource.immediateWithBuffers(buffers,new BufferBuilder(256));
+            return SUN_SOURCE;
+        }
+    }
     public static MultiBufferSource.BufferSource FRIEND_SOURCE = null;
 
     // PORT: ByteBufferBuilder -> BufferBuilder (same buffers as the original)

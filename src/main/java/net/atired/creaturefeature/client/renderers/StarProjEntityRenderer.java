@@ -62,9 +62,7 @@ public class StarProjEntityRenderer extends EntityRenderer<StarProjEntity> {
             vertex(posed,consumer,-0.2,-0.2,0.1,1,1,0,0,1,packedLight,1);
             vertex(posed,consumer,-0.2,0.2,0.1,1,0,0,0,1,packedLight,1);
 
-            // PORT: TODO F7 - outside fixsas the original draws into CFClientProxy.getSunSource(), which only the "sun" post
-            // chain (F7) shows; until then every case takes the original's fixsas path (the normal buffer), as the friend.
-            consumer = buffer.getBuffer(RenderType.entityTranslucent(STARPROJ_LOCATION));
+            consumer = (Config.FIX_SAS.get()?buffer:CFClientProxy.getSunSource()).getBuffer(RenderType.entityTranslucent(STARPROJ_LOCATION));
             poseStack.popPose();
             poseStack.pushPose();
             poseStack.scale(scaled, scaled, scaled);
