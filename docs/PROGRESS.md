@@ -1,12 +1,23 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F4 cerrada (2026-11-02).** Falta la prueba corta en el juego de F4. Siguiente: F5 (tercer lote de criaturas).
+**F4 cerrada; prueba corta hecha, con 2 errores corregidos (2026-11-02).** Falta volver a probar coat of arms y friend en el juego. Siguiente: F5 (tercer lote de criaturas).
 
 ## Pruebas en el juego pendientes
-- **Prueba corta de F4:** que las 9 criaturas se vean, se animen y ataquen bien (lista en el mensaje de cierre de F4).
+- **Arreglos de F4:** coat of arms (abre la capa y dispara sin crashear) y friend (se ve el cubo, la carita y las copias), en gráficos Rápidos/Detallados y en Fabulosos.
+- **Compat. ectoplasma:** con Goety instalado, las recetas de pergaminos y antorchas aceptan `goety:ectoplasm`.
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## Prueba corta de F4 + arreglos (2026-11-02)
+El usuario probó el jar real: fiend, fend, blitz, eeper, nothing, canary, vertigo y el flintlock funcionan. Dos errores:
+- **Coat of arms crasheaba al dibujarse** ("BufferBuilder not started", `CoatOfArmsEntityRenderer.vertex` línea 188 desde `render` línea 115). No era un buffer propio sin iniciar: el renderer pedía el consumer de la capa al buffer normal, dibujaba los flintlocks con `itemRenderer` (otro render type, que en 1.20.1 cierra el lote anterior) y después escribía en el consumer viejo. Arreglo: pedirlo después de los flintlocks. Revisados los demás renderers: ninguno lo tiene.
+- **Friend invisible:** fuera de Fabulous el original dibuja el friend en un buffer propio que solo muestra la post chain "friend" (F7), y ese buffer nunca se vaciaba. Hasta F7 toma siempre el camino Fabulous del original (`// PORT: TODO F7`). `image_friend` es el nombre del friend en `en_us.json` (sale p. ej. en los mensajes de muerte); no es un problema.
+- Nueva prueba automática de dibujo `runClientRenderSmoke` (PORT_MAP §6d): sin el arreglo reproduce el mismo crash (mismas líneas 188/115); con el arreglo, 14 criaturas dibujadas 30 s sin errores, y en las capturas se ve el friend.
+
+Compatibilidad nueva (agregado del port, PORT_MAP §6d): tag `forge:ectoplasm` (este mod + `goety:ectoplasm` opcional) y las 5 recetas con ectoplasma lo piden por el tag. GameTest `CompatGameTests` (sin Goety: el tag carga con un solo ítem y las 5 recetas lo usan). Pendiente: decisión del usuario sobre cómo hacer que Goety acepte el ectoplasma de este mod.
+
+Verificado: `build` OK; `runGameTestServer` 30/30; `runServer` hasta `Done (2.844s)`; `runClientRenderSmoke` OK (cliente hasta el mundo, sin errores del mod).
 
 ## F4 - Criaturas lote 2 (2026-11-02) ✅
 Lote: **fiend, fend, friend, blitz, eeper, nothing, canary** (+ `canary_part`, los segmentos del cuerpo), **vertigo, coat_of_arms** + la entidad **bullet** (disparo instantáneo de fiend, coat_of_arms y flintlock).

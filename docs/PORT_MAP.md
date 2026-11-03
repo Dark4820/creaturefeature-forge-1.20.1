@@ -177,6 +177,12 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `misc/SableCarrier`, todos los `ModList.isLoaded("sable")` | ídem |
 | Galena Hats (jarJar) | D4 |
 
+## 6d. Agregados del port (no están en el original; van en el mod publicado)
+| Agregado | Detalle |
+|---|---|
+| Compatibilidad del ectoplasma con **Goety** (pedido del usuario, 2026-11-02) | Tag `data/forge/tags/items/ectoplasm.json` = `creaturefeature:ectoplasm` + `goety:ectoplasm` (opcional, `"required": false`: sin Goety el tag carga solo con el de este mod). Las recetas del mod que usan ectoplasma (`bi/pan/pride/trans_scroll`, `torch`) lo piden por `#forge:ectoplasm`; lo hace `tools/convert_resources.py` (`SHARED_TAGS`), solo en ingredientes. Goety 2.5.59.2: su ectoplasma es `goety:ectoplasm`; lo usan 92 ingredientes en 59 rituales (`goety:ritual`) y 15 recetas de mesa, todos como `{"item": "goety:ectoplasm"}` (sus rituales sí aceptan tags: 275 de 337 ya usan alguno). Que Goety acepte el de este mod: pendiente de decisión del usuario |
+| Prueba automática de dibujo `runClientRenderSmoke` (solo desarrollo, `src/gametest/.../client/RenderSmokeTest`, carpeta `run-smoke`) | crea un mundo plano, invoca todas las criaturas frente a la cámara con un jugador en supervivencia que no puede morir, las deja atacar 30 s, saca capturas en `run-smoke/screenshots` y cierra el juego; `CF_RENDER_SMOKE_OK` en el log = ningún renderer crasheó. Reproduce el crash del coat of arms de F4 sin el arreglo |
+
 ## 6c. Criaturas: diferencias de API resueltas (F3+)
 | Original (1.21) | Port (1.20.1) |
 |---|---|
@@ -204,6 +210,8 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `getAddEntityPacket(ServerEntity)` (kicked_block) / sin override (bullet) | `getAddEntityPacket()`; en 1.20.1 es abstracto en `Entity`, así que bullet lo implementa |
 | `EventHooks.onProjectileImpact` + `hitTargetOrDeflectSelf` | `ForgeEventFactory.onProjectileImpact` + `onHit` |
 | `BREEZE_HURT/DEATH` (blitz), `BREEZE_WHIRL` (coat_of_arms) | `BLAZE_HURT/DEATH` (el blitz_rod ya reemplaza a la vara de breeze), `PLAYER_ATTACK_SWEEP` (D3) |
+| Consumer pedido antes de dibujar otra cosa (coat of arms: la capa antes de los flintlocks) | en 1.20.1 pedir otro render type al buffer compartido cierra el lote anterior y el consumer viejo crashea ("BufferBuilder not started"): se pide justo antes de usarlo. Revisados todos los renderers: solo el coat of arms lo tenía |
+| Friend fuera de Fabulous: buffer propio que se vuelca en `FRIEND_TARGET` y solo lo muestra la post chain "friend" | hasta F7 (post chains) siempre el camino Fabulous del original (buffer normal); sin eso el friend era invisible (`// PORT: TODO F7`) |
 | `Item.Properties().durability(4).stacksTo(1)` (flintlock) | `durability(4)`: en 1.20.1 `stacksTo` después de `durability` lanza "Unable to have damage AND stack" (el mod no cargaba) |
 | `PacketDistributor.sendToPlayer` | `CFNetwork.sendToPlayer` |
 

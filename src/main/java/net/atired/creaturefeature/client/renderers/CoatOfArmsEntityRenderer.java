@@ -68,7 +68,6 @@ public class CoatOfArmsEntityRenderer extends MobRenderer<CoatOfArmsEntity, Coat
         poseStack.translate((float)translated.x ,1.4f,(float)translated.z);
         Vec3 pos = entity.getPosition(partialTicks);
         PoseStack.Pose posed = poseStack.last();
-        VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucent(COAT_LOCATION));
         float mulZ=1.0f;
         Vec3 horDir = entity.lerpedDelta.multiply(1,0,1).scale(-1.5);
         if(horDir.length()>horDir.normalize().scale(-1.5).length()){
@@ -94,6 +93,10 @@ public class CoatOfArmsEntityRenderer extends MobRenderer<CoatOfArmsEntity, Coat
 
         }
         aged*=2f;
+        // PORT: the consumer is taken here, after the flintlocks, instead of before them as in the original: in 1.20.1
+        // asking the shared buffer for another render type (the items) ends the previous batch, and writing to the
+        // old consumer crashed with "BufferBuilder not started".
+        VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucent(COAT_LOCATION));
         for (int k = 0; k < 2; k++) {
             for (int i = 0; i < 2; i++) {
                 Vec3 old1 = new Vec3(0.0,0.001,mulZ*-0.34).yRot(yawEd);

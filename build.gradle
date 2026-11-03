@@ -75,6 +75,14 @@ minecraft {
             args '--nogui'
         }
 
+        // PORT: dev-only automatic render test (src/gametest/.../client/RenderSmokeTest): creates a flat world in
+        // run-smoke, summons every creature in front of the camera and closes the game. Look for CF_RENDER_SMOKE_OK.
+        clientRenderSmoke {
+            parent runs.client
+            workingDirectory project.file('run-smoke')
+            property 'creaturefeature.renderSmoke', 'true'
+        }
+
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
         }

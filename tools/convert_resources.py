@@ -169,7 +169,23 @@ def convert_result(result):
     return out
 
 
+# Port addition (PORT_MAP, "Agregados del port"): the recipes take any item of #forge:ectoplasm (this mod's and
+# Goety's), not only creaturefeature:ectoplasm. Only ingredients are changed, never results.
+SHARED_TAGS = {"creaturefeature:ectoplasm": "forge:ectoplasm"}
+
+
+def share_ingredients(node):
+    if isinstance(node, dict):
+        if set(node) == {"item"} and node["item"] in SHARED_TAGS:
+            return {"tag": SHARED_TAGS[node["item"]]}
+        return {k: (v if k == "result" else share_ingredients(v)) for k, v in node.items()}
+    if isinstance(node, list):
+        return [share_ingredients(v) for v in node]
+    return node
+
+
 def convert_recipe(d):
+    d = share_ingredients(d)
     t = d["type"]
     if t in ("minecraft:crafting_shaped", "minecraft:crafting_shapeless"):
         d["result"] = convert_result(d["result"])
