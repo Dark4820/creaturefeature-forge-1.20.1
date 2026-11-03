@@ -1,10 +1,10 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F7 cerrada (2026-11-02).** Falta la prueba corta de F7 en el juego. Siguiente: F8 (spawns, loot modifiers, logros + los 2 mixins de logros).
+**F7 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F8 (apariciones naturales, compatibilidades por datos, logros + los 2 mixins de logros).
 
 ## Pruebas en el juego pendientes
-- **Prueba corta de F7:** cada efecto de pantalla en Rápidos, Elegantes y Fabulosos (lista y comandos en el mensaje de cierre de F7), más F3+T y cambiar el tamaño de la ventana con un efecto activo.
+- **Tanda final, F7:** rabia (vertigo / cuerno), minedflayer (golpes y gelatina), adornos del mod en la armadura, caparazón que cae (muros y aplastado), F3+T con un efecto activo. Y repetir los efectos en **Rápidos y Fabulosos**: la prueba corta quedó en Elegantes (ver abajo).
 - **Shaderpacks (Oculus):** los post chains y render types propios con un shaderpack activo (F10).
 - **Recetas nuevas:** open_mind (lingotes de hierro, cerebro marchito y mesa de crafteo) y heavy_axe (blitz rods y lingote de netherita) en el libro de recetas.
 - **Tanda final, F6:** el cuerno de vertigo como botín (60 % al matarlo un jugador), el disco del fiend, flower_clone en el libro de recetas, las tijeras rápidas en plumas y seda, el aviso del dream catcher con contenedores, el hacha pesada contra un caballo (logro en F8).
@@ -13,6 +13,13 @@
 - **Murky pearl por dispensador:** sale una perla (no una bola de nieve).
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## Prueba corta de F7 (2026-11-02) ✅
+El usuario probó el jar real: sueño, fiend, gas del canary, bacterias, título del disco NaN, friend y saint solis, gelatina y cambio de tamaño de ventana funcionan. El mensaje dejó sin completar el modo gráfico; `C:\cf\test\options.txt` no cambió desde las 15:24 y dice `graphicsMode:1`, o sea **Elegantes** (cambiar el modo desde el menú reescribe ese archivo). Rápidos y Fabulosos van a la tanda final.
+Log (`C:\cf\test\logs\latest.log`, 22:21-22:29) sin errores del mod ni crash reports. Avisos esperables:
+- `could not find sampler/uniform ...` de los shaders del mod (33): son samplers y uniforms declarados en los JSON que el compilador GLSL elimina por no usarse; los JSON son los del original, sin efecto visible.
+- `Missing sound for event: creaturefeature:entity.stained_glass_retreat`: el original registra ese evento pero su `sounds.json` no lo define (error del original, sin efecto).
+- `Object did not get ID it asked for`: el mundo de prueba se creó con una versión anterior del port (con menos ítems); Forge reasigna los IDs numéricos, es normal.
 
 ## F7 - Efectos de pantalla y mixins de cliente (2026-11-02) ✅
 - **Post chains (9):** minedflayer, man, sleep, rabies, haze, bacte, friend, fiend, sun, con sus targets (haze, friendlytarget, suntarget, suntarget2, rabiestargeteheheh). Se crean en `RegisterShadersEvent` (bus del mod). El script de recursos ya copia `shaders/post` y `shaders/program`; los nombres con namespace (`creaturefeature:sleep`) cargan bien en Forge 1.20.1.
