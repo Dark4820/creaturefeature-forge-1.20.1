@@ -1,5 +1,6 @@
 package net.atired.creaturefeature.blocks;
 
+import net.atired.creaturefeature.accessors.LivingEntityGoopAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -30,7 +31,9 @@ public class MinedFlayerJellyBlock extends Block {
                 if(level instanceof ServerLevel serverLevel){
                     serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,entity.getBlockStateOn()),entity.getX(),entity.getY(),entity.getZ(),32,0.4,0,0.4,0.2);
                 }
-                // PORT: TODO F6 - accessor.setGoop(1.0f) comes with LivingEntityGoopMixin
+                if(entity instanceof LivingEntityGoopAccessor accessor){
+                    accessor.setGoop(1.0f);
+                }
                 double add = 1.0f+Math.abs(vec3.y);
                 entity.setDeltaMovement(vec3.x*add, -vec3.y * d0, vec3.z*add);
             }else{
@@ -42,7 +45,9 @@ public class MinedFlayerJellyBlock extends Block {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        // PORT: TODO F6 - accessor.setGoop(accessor.getGoop()+0.15f) comes with LivingEntityGoopMixin
+        if(entity instanceof LivingEntityGoopAccessor accessor){
+            accessor.setGoop(accessor.getGoop()+0.15f);
+        }
         super.stepOn(level, pos, state, entity);
     }
 }

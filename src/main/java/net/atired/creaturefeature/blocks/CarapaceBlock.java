@@ -1,5 +1,9 @@
 package net.atired.creaturefeature.blocks;
 
+import net.atired.creaturefeature.accessors.LivingEntityGoopAccessor;
+import net.atired.creaturefeature.networking.CFNetwork;
+import net.atired.creaturefeature.networking.payloads.SquashedPayload;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -44,7 +48,12 @@ public class CarapaceBlock extends FallingBlock {
             for(LivingEntity living : serverLevel.getEntitiesOfClass(LivingEntity.class,new AABB(pos).inflate(2.8))){
                 if(living.position().subtract(pos.getCenter()).horizontalDistance()<3.2){
                     living.hurt(fallingBlock.damageSources().fallingBlock(fallingBlock),5.5f+fallingBlock.fallDistance);
-                    // PORT: TODO F6 - "squashed" effect (LivingEntityGoopAccessor + SquashedPayload) comes with the goop mixin
+                    if(living instanceof LivingEntityGoopAccessor accessor){
+                        SquashedPayload payload = new SquashedPayload(living.getId());
+                        // PORT: PacketDistributor -> CFNetwork (SimpleChannel)
+                        CFNetwork.sendToPlayersTrackingChunk(serverLevel,level.getChunkAt(pos).getPos(),payload);
+                        accessor.setSquashed(0.8f);
+                    }
                 }
             }
         }

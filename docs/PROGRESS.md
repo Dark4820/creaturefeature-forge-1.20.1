@@ -22,6 +22,9 @@
 - Diferencias (PORT_MAP §3 y §6c): `PostChain.setUniform` → `CreatureFeatureClient.setUniform`; `ClientTickEvent.Pre` → `TickEvent` START; `java.awt.Color` → `Mth.hsvToRgb`; tinte del pathogen con `@WrapOperation` sobre los 4 floats de `renderToBuffer`; `HAZE_TARGET` se reinicia al recargar recursos (el original quedaba con la cadena vieja).
 - **Prueba de dibujo ampliada:** después de las criaturas, recorre Rápidos, Elegantes y Fabulosos y en cada modo fuerza ninguno, sleepy, fiendish, rabies, flayed, gas, bacte, man, nan_title y efectos de entidad (víctima con anillos, goop, aplastado y estela; armadura con los 4 adornos del mod; caparazón cayendo). Saca 30 capturas `cf_fx_<modo>_<efecto>.png`. En 1.20.1 la opción de gráficos no reconstruye nada sola (lo hace el botón del menú): la prueba llama a `levelRenderer.allChanged()`, sin eso Fabulosos crashea por falta de targets.
 
+- **Pendientes olvidados de F6, resueltos en F7:** la gelatina del minedflayer vuelve a dar goop (al caer y al pisarla) y el caparazón que cae vuelve a aplastar (`SquashedPayload`), como en el original. Ya no quedan `TODO` de F1-F7 en el código.
+- `rabies2`, `flayed2` y `fiendish2` del `PROXY` no se asignan en ningún lado, tampoco en el original: no hay nada que portar.
+
 Verificado: `build` OK (refmap con los nombres SRG de los 10 mixins); `runGameTestServer` 50/50 (los mixins de cliente no se cargan en el servidor); `runServer` hasta `Done (2.911s)` sin errores del mod; `runClientRenderSmoke` OK en los 3 modos, sin errores de shaders, y cada efecto se ve en su captura.
 
 ## Prueba corta de F6 y arreglos de F4 (2026-11-02) ✅
