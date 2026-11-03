@@ -9,6 +9,7 @@
     "creaturefeature:solar_block",
     "creaturefeature:solar_bricks",
     "creaturefeature:murky_pearl_tiles",
-    "creaturefeature:murky_pearl_tile_stairs"
+    "creaturefeature:murky_pearl_tile_stairs",
+    "creaturefeature:doohickey"
   ]
 }

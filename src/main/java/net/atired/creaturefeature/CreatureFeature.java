@@ -32,6 +32,8 @@ public class CreatureFeature {
         CFItemInit.ITEMS.register(modEventBus);
         CFBlockInit.BLOCKS.register(modEventBus);
         CFEntityInit.ENTITIES.register(modEventBus);
+        CFBlockEntityInit.BLOCK_ENTITY_TYPES.register(modEventBus);
+        CFRecipeSerialisers.RECIPES.register(modEventBus);
     }
 
     // PORT: ResourceLocation.fromNamespaceAndPath does not exist in 1.20.1

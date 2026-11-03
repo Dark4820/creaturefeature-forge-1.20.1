@@ -10,6 +10,9 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.InstrumentTags;
+import net.minecraft.world.item.InstrumentItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -128,6 +131,8 @@ public class CFEvents {
             if(event.getTabKey()==CreativeModeTabs.COMBAT){
                 insertAfter(event,Items.ARROW,CFItemInit.VITRIC_ARROW.get());
                 insertBefore(event,Items.BOW,CFItemInit.FLINTLOCK.get());
+                // PORT: the original puts it before the MACE (1.21); 1.20.1 has no mace: after the netherite axe
+                insertAfter(event,Items.NETHERITE_AXE,CFItemInit.HEAVY_AXE.get());
             }
             if(event.getTabKey()==CreativeModeTabs.INGREDIENTS){
                 insertBefore(event,Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE,CFItemInit.BI_SCROLL.get());
@@ -143,12 +148,11 @@ public class CFEvents {
                 insertAfter(event,Items.POPPED_CHORUS_FRUIT,CFItemInit.DREAM_SILK.get());
                 insertAfter(event,Items.HONEYCOMB,CFItemInit.DOWN_FEATHER.get());
                 insertAfter(event,Items.HONEYCOMB,CFItemInit.ECTOPLASM.get());
-                insertAfter(event,Items.ENDER_PEARL,CFItemInit.SOLAR_SHARD.get());
-                insertAfter(event,Items.ENDER_PEARL,CFItemInit.MURKY_PEARL.get());
                 insertBefore(event,Items.GHAST_TEAR,CFItemInit.THINGAMABOB.get());
                 insertBefore(event,Items.GHAST_TEAR,CFItemInit.FIENDISH_ESSENCE.get());
                 insertBefore(event,Items.LEATHER,CFItemInit.COAT_SCRAPS.get());
                 insertBefore(event,Items.GUNPOWDER,CFItemInit.SLEEPING_POWDER.get());
+                insertBefore(event,Items.BONE,CFItemInit.LIVING_GLASS_SHARDS.get());
             }
             if(event.getTabKey()==CreativeModeTabs.BUILDING_BLOCKS) {
                 insertBefore(event,Items.GOLD_BLOCK, CFBlockInit.MURKY_PEARL_BLOCK.get());
@@ -176,24 +180,38 @@ public class CFEvents {
             if(event.getTabKey()==CreativeModeTabs.FUNCTIONAL_BLOCKS){
                 insertAfter(event,Items.SOUL_CAMPFIRE, CFBlockInit.CARAPACE_BLOCK.get());
                 insertBefore(event,Items.LODESTONE, CFBlockInit.MINEDFLAYER_JELLY.get());
+                insertAfter(event,Items.JUKEBOX, CFBlockInit.DOOHICKEY.get());
             }
             if(event.getTabKey()==CreativeModeTabs.REDSTONE_BLOCKS){
                 insertBefore(event,Items.TNT,CFBlockInit.EEP.get());
             }
             if(event.getTabKey()==CreativeModeTabs.TOOLS_AND_UTILITIES){
+                // PORT: the goat horn anchor is built as in 1.20.1's tab (InstrumentItem.create with the first #goat_horns)
+                insertBefore(event,InstrumentItem.create(Items.GOAT_HORN, BuiltInRegistries.INSTRUMENT.getTag(InstrumentTags.GOAT_HORNS).get().get(0)),CFItemInit.VERTIGO_HORN.get());
+                insertBefore(event,Items.BRUSH,CFItemInit.OPEN_MIND.get());
+                insertBefore(event,Items.SADDLE,CFItemInit.DREAM_CATCHER.get());
+                insertBefore(event,Items.SADDLE,CFItemInit.BACTERIUM_BALL.get());
+                insertBefore(event,Items.ENDER_PEARL,CFItemInit.BOUQUET.get());
+                // PORT: solar_shard and murky_pearl go here, in the tools tab as in the original (F5 put them in ingredients)
+                insertAfter(event,Items.ENDER_PEARL,CFItemInit.SOLAR_SHARD.get());
+                insertAfter(event,Items.ENDER_PEARL,CFItemInit.MURKY_PEARL.get());
                 insertAfter(event,Items.MUSIC_DISC_13, CFItemInit.NOTHING_DISC.get());
                 insertBefore(event,Items.MUSIC_DISC_MALL, CFItemInit.NEW_AGE_NEVERMORE_DISC.get());
             }
             if(event.getTabKey()==CreativeModeTabs.FOOD_AND_DRINKS){
                 insertBefore(event,Items.SPIDER_EYE, CFItemInit.VERTIGO_CHUNK.get());
                 insertBefore(event,Items.ROTTEN_FLESH, CFItemInit.BLIGHTED_BRAIN.get());
+                insertAfter(event,Items.MILK_BUCKET, CFItemInit.THE_PILL.get());
+                insertBefore(event,Items.CAKE, CFItemInit.FIENDISH_SODA.get());
             }
         }
 
         // PORT: Forge's putBefore/putAfter need the anchor to be in the tab; if it is missing (another mod
         // removed it), the item is added at the end instead of failing.
         private static void insertBefore(BuildCreativeModeTabContentsEvent event, ItemLike anchor, ItemLike item) {
-            ItemStack anchorStack = new ItemStack(anchor);
+            insertBefore(event, new ItemStack(anchor), item);
+        }
+        private static void insertBefore(BuildCreativeModeTabContentsEvent event, ItemStack anchorStack, ItemLike item) {
             if(event.getEntries().contains(anchorStack)){
                 event.getEntries().putBefore(anchorStack, new ItemStack(item), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             }else{

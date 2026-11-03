@@ -97,6 +97,7 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 | Mixin | Lado | Qué hace | Fase |
 |---|---|---|---|
 | SleepyJumpMixin | común | `LivingEntity.getJumpPower` → 0 con el efecto sleepy (reemplaza el modificador de `JUMP_STRENGTH`, que en 1.20.1 no existe para jugadores ni mobs) | F1 |
+| CFClientPlayerHooks (no es mixin) | cliente | la parte "man" de `PlayerMixin.tick` (usa `CreatureFeatureClient.PROXY`), con los contadores por jugador; `PlayerMixin` la llama por `DistExecutor` | F6 |
 | LivingEntitySwingMixin | común | `LivingEntity.getCurrentSwingDuration` (privado en 1.20.1) ×2 para el canary, como el override del original | F4 |
 
 Además hay que corregir: el original usa `java.awt.Color` en un renderer (funciona pero conviene quitarlo) y llama a `CreatureFeatureClient.PROXY` desde código común (`JukeBoxPlayableMixin`, ítems).
@@ -214,6 +215,16 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | Friend fuera de Fabulous: buffer propio que se vuelca en `FRIEND_TARGET` y solo lo muestra la post chain "friend" | hasta F7 (post chains) siempre el camino Fabulous del original (buffer normal); sin eso el friend era invisible (`// PORT: TODO F7`) |
 | `Item.Properties().durability(4).stacksTo(1)` (flintlock) | `durability(4)`: en 1.20.1 `stacksTo` después de `durability` lanza "Unable to have damage AND stack" (el mod no cargaba) |
 | `PacketDistributor.sendToPlayer` | `CFNetwork.sendToPlayer` |
+| Componentes de ítem (F6): `DREAMCATCHER_CONTENTS`, `OPENED`, `INSTRUMENT`, `BLOCK_ENTITY_DATA`, `DAMAGE` | NBT: helpers de `CFDataComponentTypeInit`, `"instrument"` como el `InstrumentItem` de 1.20.1, `BlockEntityTag` (`BlockItem.getBlockEntityData`, `BlockEntity.load/saveToItem`), `get/setDamageValue` |
+| `FlowerCloneRecipe`: `CraftingInput` recortada (`size()==2` = dos ítems juntos) | `CraftingContainer` completo: se calcula el área ocupada (2 = juntos en fila o columna); `CustomRecipe(id, category)` |
+| `AxeItem(tier, props.attributes(createAttributes(...)))` (heavy_axe), `FoodProperties.Builder.saturationModifier/alwaysEdible` | `AxeItem(tier, daño, velocidad, props)`, `saturationMod/alwaysEat` |
+| `postHurtEnemy` (heavy_axe, critical soda) | `hurtEnemy` (1.21 lo llama justo antes; el desgaste de la herramienta en 1.20.1 está en `hurtEnemy`) |
+| `useItemOn` + `useWithoutItem` (doohickey) | `use()`, en el mismo orden (primero colocar, después sacar solo con la mano principal); `getRenderBoundingBox` pasa del renderer a la block entity |
+| `x instanceof BlockEntity b` con `x` ya `BlockEntity` (dream catcher) | patrón de Java 21: en Java 17 se escribe como comprobación de null |
+| `Tags.Biomes.IS_TEMPERATE_OVERWORLD` (MonsterEntityMixin, solo con `pathogen = true`) | Forge 1.20.1 no lo tiene: "overworld y ni cálido ni frío" (`IS_OVERWORLD` sin `IS_HOT_OVERWORLD`/`IS_COLD_OVERWORLD`) |
+| Regla del componente `Tool` de las tijeras (velocidad 8 en `#shearable`, al final de la lista) | `ShearsItemMixin` en `getDestroySpeed`: 8 cuando ninguna regla vanilla aplicó (resultado 1,0) |
+| Pestañas: heavy_axe antes de la maza (1.21) | no hay maza: después del hacha de netherita; solar_shard y murky_pearl van en Herramientas como en el original (en F5 habían quedado en Ingredientes) |
+| **Recetas con ítems vanilla de 1.21** (sin equivalente claro, **decisión pendiente**): `open_mind` usa `minecraft:crafter`, `heavy_axe` usa `minecraft:heavy_core` | el script no las genera (`VANILLA_121_ONLY`); hasta decidir, open_mind y heavy_axe solo salen del modo creativo |
 | Quitar metas mientras se recorre `goalSelector.getAvailableGoals()` (dreamweaver) | en 1.20.1 es un `LinkedHashSet`: `ConcurrentModificationException` al crear el dreamweaver (lo detectó un GameTest). Se recorre una copia |
 | `applyGravity()` de proyectiles (feather, star) | `ThrowableProjectile.getGravity()` |
 | `getDefaultGravity()` variable de `AbstractArrow` (vitric_arrow) | en 1.20.1 las flechas caen 0,05 fijo: `setNoGravity(true)` y la gravedad del original se aplica después de `super.tick()` |
@@ -257,7 +268,7 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | **F3** ✅ | Criaturas lote 1: minds (+part), machination, sinister, beauty, detritus + loot + huevos + atributos + spawn placements (sin spawn natural: F8) | `/summon` y huevos, pelear, drops |
 | **F4** ✅ | Lote 2: fiend, fend, friend, blitz, eeper, nothing, canary (+part), vertigo, **coat_of_arms** + `bullet`, **`kicked_block`** (pasó de F5: lo patea el fiend) y el ítem **flintlock** (pasó de F6: lo sostienen fiend y coat_of_arms) | `/summon`, ver y pelear |
 | **F5** ✅ | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass, **blossom** (pasó de F3: escupe `spat_block`) + spat_block, murky_pearl, vitric_arrow, eep (TNT, bloque + entidad), **feather** (mockingbird) y **star** (saint_solis), que estaban en F4, + los ítems arrojables de esas entidades: murky_pearl, vitric_arrow, down_feather y **solar_shard** (pasó de F6: solo arroja stars) | `/summon`, ver y pelear; arrojar los ítems |
-| **F6** | Ítems con lógica (el flintlock ya está desde F4 y solar_shard desde F5): vertigo_horn (vuelve con él el botín de cuernos del vertigo), dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
+| **F6** ✅ | Ítems con lógica (el flintlock ya está desde F4 y solar_shard desde F5): vertigo_horn (vuelve con él el botín de cuernos del vertigo), dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
 | **F7** | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
 | **F8** | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |
 | **F9** (opcional, según D1) | Contenido ★: powder_skull, trichael, fisheye, wraith, obelisk, collumn, delay | `/summon` |

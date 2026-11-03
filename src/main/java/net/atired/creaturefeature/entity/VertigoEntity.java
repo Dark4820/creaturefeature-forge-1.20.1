@@ -81,8 +81,23 @@ public class VertigoEntity extends Monster {
         super.registerGoals();
     }
 
-    // PORT: TODO F6 - dropCustomDeathLoot/createHorn (60 % chance of a vertigo_horn with a random goat-horn sound when
-    // a player kills it) come back with VertigoHornItem in F6.
+    // PORT: dropCustomDeathLoot(ServerLevel, DamageSource, boolean) -> dropCustomDeathLoot(DamageSource, int looting, boolean)
+    @Override
+    protected void dropCustomDeathLoot(net.minecraft.world.damagesource.DamageSource damageSource, int looting, boolean recentlyHit) {
+        net.minecraft.world.entity.Entity var5 = damageSource.getEntity();
+        if (var5 instanceof Player creeper&&Math.random()>0.4) {
+            this.spawnAtLocation(createHorn());
+        }
+        super.dropCustomDeathLoot(damageSource, looting, recentlyHit);
+    }
+
+    // PORT: InstrumentItem.create writes the 1.20.1 NBT "instrument" (VertigoHornItem reads it)
+    public ItemStack createHorn() {
+        net.minecraft.util.RandomSource randomsource = net.minecraft.util.RandomSource.create((long)this.getUUID().hashCode());
+        net.minecraft.tags.TagKey<net.minecraft.world.item.Instrument> tagkey = Math.random()>0.5 ? net.minecraft.tags.InstrumentTags.SCREAMING_GOAT_HORNS : net.minecraft.tags.InstrumentTags.REGULAR_GOAT_HORNS;
+        net.minecraft.core.HolderSet<net.minecraft.world.item.Instrument> holderset = net.minecraft.core.registries.BuiltInRegistries.INSTRUMENT.getOrCreateTag(tagkey);
+        return net.minecraft.world.item.InstrumentItem.create(CFItemInit.VERTIGO_HORN.get(), (net.minecraft.core.Holder)holderset.getRandomElement(randomsource).get());
+    }
 
     public void setRabies(float spin) {
         entityData.set(RABIES,Mth.clamp(spin,0.0f,2.1f));

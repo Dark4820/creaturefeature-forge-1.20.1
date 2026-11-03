@@ -1,0 +1,219 @@
+package net.atired.creaturefeature.mixin;
+
+import net.minecraft.util.Mth;
+
+import net.atired.creaturefeature.accessors.LivingEntityGoopAccessor;
+import net.atired.creaturefeature.entity.PathogenesisEntity;
+import net.atired.creaturefeature.entity.VertigoEntity;
+import net.atired.creaturefeature.init.CFBlockInit;
+import net.atired.creaturefeature.init.CFEntityInit;
+import net.atired.creaturefeature.init.CFMobEffectInit;
+import net.atired.creaturefeature.init.CFParticleInit;
+import net.atired.creaturefeature.networking.payloads.DeAmpPayload;
+import net.atired.creaturefeature.networking.payloads.VelSyncPayload;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.atired.creaturefeature.networking.CFNetwork;
+import org.checkerframework.checker.units.qual.A;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+@Mixin(LivingEntity.class)
+public abstract class LivingEntityGoopMixin extends Entity implements LivingEntityGoopAccessor {
+    @Shadow public abstract boolean isDeadOrDying();
+
+    @Shadow public abstract void heal(float healAmount);
+
+    @Shadow public abstract float getHealth();
+
+    @Shadow public abstract float getMaxHealth();
+
+    private float goop = 0.0f;
+    private float squashed = 0.0f;
+    private int ampAdd = 0;
+    private float hpNext = 0.0f;
+    private static final EntityDataAccessor<Integer> DELAY = SynchedEntityData.defineId(LivingEntity.class, EntityDataSerializers.INT);
+    private boolean amped=false;
+    private boolean amped2=false;
+
+    public LivingEntityGoopMixin(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
+    @ModifyVariable(method = "hurt", at = @At(value = "HEAD", ordinal = 0), argsOnly = true)
+    private float hurtArgCF(float amount,DamageSource source) {
+        if(source.getEntity()!=null&&level() instanceof  ServerLevel serverLevel&&source.getEntity() instanceof LivingEntity living && living.hasEffect(CFMobEffectInit.FIENDISH.get())) {
+            return amount*1.8f;
+        }
+        return amount;
+    }
+    @Inject(method = "hurt",at=@At("RETURN"))
+    private void hurtCF(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if(cir.getReturnValue()&&!cir.isCancelled()&&source.getEntity()!=null&&level() instanceof  ServerLevel serverLevel&&source.getEntity() instanceof LivingEntity living && living.hasEffect(CFMobEffectInit.FIENDISH.get())){
+            serverLevel.sendParticles(CFParticleInit.CRIT_PARTICLE.get(),getX(),getY(0.5),getZ(),1,0,0,0,0);
+            serverLevel.sendParticles(CFParticleInit.CRIT_VER_PARTICLE.get(),getX(),getY(0.5),getZ(),6,0.2,0.2,0.2,0.4);
+            serverLevel.sendParticles(CFParticleInit.CRIT_TEXT_PARTICLE.get(),getX(),getY(1f),getZ(),1,0,0,0,0);
+            living.removeEffect(CFMobEffectInit.FIENDISH.get());
+            if(getHealth()<1){
+                discard();
+                serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.ROTTEN_FLESH.getDefaultInstance()),getX(),getY(0.5),getZ(),20,0.4,1.2,0.4,0.3);
+                serverLevel.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.BEETROOT.getDefaultInstance()),getX(),getY(0.5),getZ(),50,0.4,1.2,0.4,1.4);
+
+            }
+        }
+    }
+    // PORT: defineSynchedData(SynchedEntityData.Builder) -> defineSynchedData() + entityData.define
+    @Inject(method = "defineSynchedData",at=@At("HEAD"))
+    private void defineSynchedDataCF(CallbackInfo ci) {
+        this.entityData.define(DELAY,0);
+    }
+    @Inject(method = "aiStep",at=@At("HEAD"))
+    private void evilAssAItickOfDoomLowk(CallbackInfo ci){
+        if(this.getDelay()>0){
+            if(level() instanceof  ServerLevel serverLevel&&(!((Entity)this instanceof Monster)||((Entity)this instanceof Monster monster && (monster.getTarget()!=null||getHealth()<getMaxHealth()))||getDelay()>24)){
+                heal(0.1f);
+                this.entityData.set(DELAY,getDelay()-1);
+            }
+            if(level()!=null&&this.tickCount%4==0)
+                level().addParticle(CFParticleInit.SPARKLE_PARTICLE.get(),getX((Math.random()-0.5f)*2.0f),getY(0.5),getZ((Math.random()-0.5f)*2.0f),0.1,0.1,0.1);
+
+            if(this.getDelay()==4){
+                if(level() instanceof ServerLevel serverLevel&&getBacterial()>2){
+                    PathogenesisEntity entity = new PathogenesisEntity(CFEntityInit.PATHOGEN.get(),serverLevel);
+                    entity.setPos(getPosition(1));
+                    entity.setDeltaMovement((Math.random()-0.5),0.2,(Math.random()-0.5));
+                    entity.setHealth(getBacterial()-2);
+                    serverLevel.addFreshEntity(entity);
+                    this.entityData.set(DELAY,getDelay()-1);
+                    serverLevel.sendParticles(CFParticleInit.SPARKLE_PARTICLE.get(),getX(),getY()+0.4f,getZ(),9,0.3,0.3,0.3,0.1);
+                }
+            }
+        }else{
+            this.hpNext=0.0f;
+        }
+        if(getGoop()>0){
+            setGoop(getGoop()-0.05f);
+        }
+        if(getSquashed()>0){
+            setSquashed(getSquashed()-0.025f);
+        }
+        LivingEntity entity = (LivingEntity)(Object)this;
+        if(level()!=null){
+            if(this.isFallDamageAmped()){
+                ampAdd+=1;
+                addDeltaMovement(new Vec3(0,-0.12/200.0f*ampAdd,0));
+            }
+            if(this.isFallDamageAmped()&&(onGround()||ampAdd>200)){
+                if(entity.level() instanceof ServerLevel serverLevel){
+                    setFallDamageAmped(false);
+                    this.amped2=true;
+                    for (int x = -2;x < 2; x++) {
+                        for (int z = -2;z < 2; z++) {
+                            BlockPos pos = entity.getOnPos().offset(x,0,z);
+                            if(!entity.level().getBlockState(pos).isAir()){
+                                BlockState state = entity.level().getBlockState(pos);
+                                Vec3 center = pos.getCenter().add(0,0.5,0);
+                                serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,state),center.x,center.y,center.z,2,0.3,0,0.3,0.3);
+                                // PORT: DUST_PILLAR does not exist in 1.20.1 -> the generic BLOCK particle (decision D3)
+                                serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,state),center.x,center.y,center.z,2,0.3,0,0.3,0.3);
+                            }
+                        }
+                    }
+
+                }
+            }
+            if(this.isFallDamageAmped()&&tickCount%4==0&&getDeltaMovement().length()>0.2&&!isDeadOrDying()){
+
+                Vec3 dir = getDeltaMovement().normalize();
+                level().addParticle(CFParticleInit.CLEAVE_PARTICLE.get(),entity.getX(),entity.getY(0.66),entity.getZ(),dir.x,dir.y,dir.z);
+
+            }
+            if(this.amped2&&level() instanceof ServerLevel serverLevel){
+                this.amped2=false;
+                Vec3 oldDelta = entity.getDeltaMovement();
+                // PORT: PacketDistributor -> CFNetwork (SimpleChannel)
+                CFNetwork.sendToPlayersTrackingEntity(entity,new VelSyncPayload(entity.getId(),-oldDelta.x,0.8-oldDelta.y,-oldDelta.z),new DeAmpPayload(entity.getId(),false));
+                entity.move(MoverType.SELF,new Vec3(0,1.4,0));
+                entity.setDeltaMovement(new Vec3(0,0.8,0));
+            }
+        }
+
+    }
+    @Inject(method = "causeFallDamage",at=@At("RETURN"))
+    private void landEvent(float fallDistance, float multiplier, DamageSource source, CallbackInfoReturnable<Boolean> cir){
+        if(cir.isCancelled()){
+            return;
+        }
+
+    }
+
+    @Override
+    public float getBacterial() {
+        return this.hpNext;
+    }
+
+    @Override
+    public int getDelay() {
+        return entityData.get(DELAY);
+    }
+
+    @Override
+    public void setBacterial(float bacte) {
+        this.hpNext=bacte;
+        this.entityData.set(DELAY,30);
+    }
+
+    @Override
+    public void setGoop(float goop) {
+        this.goop=Mth.clamp(goop,0.0f,1.0f); // PORT: Math.clamp (Java 21) -> Mth.clamp
+    }
+
+    @Override
+    public float getGoop() {
+        return goop;
+    }
+
+    @Override
+    public void setSquashed(float squashed) {
+        this.squashed=Mth.clamp(squashed,0.0f,1.0f);
+    }
+
+    @Override
+    public float getSquashed() {
+        return squashed;
+    }
+
+    @Override
+    public boolean isFallDamageAmped() {
+        return this.amped;
+    }
+
+    @Override
+    public void setFallDamageAmped(boolean fallDamageAmped) {
+        if(!fallDamageAmped){
+            this.ampAdd=0;
+        }
+        this.amped = fallDamageAmped;
+    }
+}

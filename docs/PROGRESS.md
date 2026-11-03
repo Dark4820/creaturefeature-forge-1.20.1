@@ -1,15 +1,28 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F5 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F6 (ítems con lógica y mixins comunes).
+**F6 cerrada (2026-11-02).** Falta la prueba corta de F6 y decidir las recetas de open_mind y heavy_axe. Siguiente: F7 (efectos de pantalla y mixins de cliente).
 
 ## Pruebas en el juego pendientes
+- **Prueba corta de F6:** ítems con lógica, doohickey y efectos de los mixins (lista en el mensaje de cierre de F6).
+- **Tanda final, F6:** el cuerno de vertigo como botín (60 % al matarlo un jugador), el disco del fiend, flower_clone en el libro de recetas, las tijeras rápidas en plumas y seda, el aviso del dream catcher con contenedores, el hacha pesada contra un caballo (logro en F8).
 - **Arreglos de F4:** coat of arms (abre la capa y dispara sin crashear) y friend (se ve el cubo, la carita y las copias), en gráficos Rápidos/Detallados y en Fabulosos.
 - **Tanda final, F5:** botín, los 8 huevos, sonidos, arrojar murky_pearl/down_feather/solar_shard (también con dispensador), vitric_arrow con arco, solar_shard como combustible (12 800 ticks), eep con mechero, redstone y fuego.
 - **Compat. ectoplasma:** con Goety instalado, las recetas de pergaminos y antorchas aceptan `goety:ectoplasm`, y las dos recetas 1:1 convierten un ectoplasma en el otro.
 - **Murky pearl por dispensador:** sale una perla (no una bola de nieve).
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## F6 - Ítems con lógica y mixins comunes (2026-11-02) ✅
+- **Ítems:** vertigo_horn, dream_catcher (`SpawnerCaptureItem`), open_mind, the_pill, bouquet + receta especial `flower_clone` (`FlowerCloneRecipe`, serializer `crafting_special_flowerclone`), fiendish_soda, bacterium_ball, living_glass_shards, heavy_axe y el bloque **doohickey** (block entity + renderer con la esfera de icosfera y el ítem flotando; acepta sleeping_powder, minedflayer_goop, vertigo_horn, bacterium_ball y fiendish_essence). Item properties de cliente (`tooting`, `full`, `open`). El flintlock y el solar_shard ya estaban (F4, F5).
+- **Mixins comunes (7):** `AbstractBlockMixin` (el friend aparece sobre bedrock), `AbstractContainerMenuMixin` (el crafteo del open_mind no se cierra sin mesa), `LivingEntityGoopMixin` (fiendish ×1,8 y se consume; infección "bacterial" → pathogen; caída amplificada del hacha pesada; goop/aplastado), `MonsterEntityMixin` (8 % de no-muertos infectados), `PlayerAdvancementsMixin`, `PlayerMixin` (daño diferido del canary, rabia, brainrot; la parte de cliente "man" pasó a `CFClientPlayerHooks`), `ShearsItemMixin` (velocidad 8 en `#shearable`). Los 9 mixins se aplican (los 8 primeros al arrancar, `PlayerAdvancementsMixin` al entrar un jugador).
+- Vuelve el botín de cuernos del vertigo (era `TODO F6`).
+- Cliente fuera del código común: el dash del cuerno (`LocalPlayer`) y el sonido/temblor del open_mind pasan a `CFClientItemHooks` por `DistExecutor` (el original los tenía en los ítems). El temblor y los efectos de pantalla (`PROXY`) se ven en F7.
+- **Decisión pendiente:** las recetas de `open_mind` (usa `minecraft:crafter`) y `heavy_axe` (usa `minecraft:heavy_core`) llevan ítems de 1.21 sin equivalente claro: no se generan hasta que el usuario decida (PORT_MAP §6c). Lo detectó el log de `runServer` ("Parsing error loading recipe"); nuevo GameTest `f6EveryRecipeFileLoads` para que no se repita.
+- Corregido de F5: solar_shard y murky_pearl van en la pestaña Herramientas, como en el original.
+- GameTests (`F6GameTests`, 12): todas las recetas cargan; tijeras y bedrock; flower_clone (juntos sí, en diagonal no, el ramo pierde durabilidad); el dream catcher mueve un spawner de blaze con su mob; el crafteo del open_mind sigue válido sin mesa; fiendish ×1,8 y se consume; un zombi infectado suelta un pathogen; ≈ 8 % de no-muertos infectados; ticks de `PlayerMixin` (rabia y brainrot bajan); la píldora, la soda, el vidrio vivo y la bola de bacterias; el cuerno trae instrumento, enfría y da rabia; el doohickey toma el ítem y lo guarda.
+
+Verificado: `build` OK; `runGameTestServer` 50/50; `runServer` hasta `Done (2.571s)` sin errores del mod (con las recetas de 1.21 fuera); `runClientRenderSmoke` OK (22 criaturas + doohickey; `PlayerAdvancementsMixin` aplicado al entrar).
 
 ## Prueba corta de F5, decisiones y análisis de rendimiento (2026-11-02)
 - El usuario probó F5 en el jar real: todo funciona. `latest.log` sin errores del mod (solo los avisos conocidos y la renumeración de IDs de los ítems nuevos).

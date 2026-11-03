@@ -3,6 +3,7 @@ package net.atired.creaturefeature.init;
 import net.atired.creaturefeature.CreatureFeature;
 import net.atired.creaturefeature.items.*;
 import net.atired.creaturefeature.items.NanDiscItem;
+import net.minecraft.tags.InstrumentTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.food.FoodProperties;
@@ -14,7 +15,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 // PORT: DeferredRegister.Items/DeferredItem -> DeferredRegister/RegistryObject.
 // Phase F1 registers the items without logic of their own. Still to come (see docs/PORT_MAP.md):
-// spawn eggs of the later creatures (F4-F5), the items with their own class (F6). Music discs: F2. Eggs: F3+.
+// eggs F3-F5, items with their own class F4-F6 (see docs/PORT_MAP.md). Music discs: F2.
 public class CFItemInit {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CreatureFeature.MODID);
 
@@ -169,4 +170,50 @@ public class CFItemInit {
             ()->new Item(new Item.Properties())
     );
 
+
+    // ---- F6: items with their own logic
+    // PORT: durability(8).stacksTo(1) -> durability(8): stacksTo after durability throws in 1.20.1 (durability already makes it 1)
+    public static final RegistryObject<Item> BOUQUET = ITEMS.register(
+            "bouquet",
+            ()->new BouquetItem(new Item.Properties().durability(8))
+    );
+    // PORT: saturationModifier/alwaysEdible -> saturationMod/alwaysEat; effect(Supplier, chance) is the same in Forge
+    public static final FoodProperties FIEND_FOOD = (new FoodProperties.Builder()).nutrition(-1).saturationMod(0.0F).alwaysEat().fast()
+            .effect(()->{return new MobEffectInstance(CFMobEffectInit.FIENDISH.get(),300,0);},1f).build();
+    public static final RegistryObject<Item> FIENDISH_SODA = ITEMS.register(
+            "fiendish_soda",
+            ()->new CriticalSodaItem(new Item.Properties().food(FIEND_FOOD))
+    );
+    public static final RegistryObject<Item> LIVING_GLASS_SHARDS = ITEMS.register(
+            "living_glass_shards",
+            ()->new LivingGlassItem(new Item.Properties())
+    );
+    public static final RegistryObject<Item> BACTERIUM_BALL = ITEMS.register(
+            "bacterium_ball",
+            ()->new BacteriumBallItem(new Item.Properties())
+    );
+    // PORT: .component(DREAMCATCHER_CONTENTS, EMPTY) -> nothing: the NBT helper returns EMPTY when the tag is missing
+    public static final RegistryObject<Item> DREAM_CATCHER = ITEMS.register(
+            "dream_catcher",
+            ()->new SpawnerCaptureItem(new Item.Properties().stacksTo(1))
+    );
+    public static final FoodProperties PILL_FOOD = (new FoodProperties.Builder()).nutrition(0).alwaysEat().saturationMod(0.01F)
+            .effect(()->{return new MobEffectInstance(CFMobEffectInit.SLEEPY.get(),20,0);}, 1.0f).fast().build();
+    public static final RegistryObject<Item> THE_PILL = ITEMS.register(
+            "the_pill",
+            ()->new ThePillItem(new Item.Properties().food(PILL_FOOD))
+    );
+    public static final RegistryObject<Item> OPEN_MIND = ITEMS.register(
+            "open_mind",
+            ()->new OpenMindItem(new Item.Properties().stacksTo(1))
+    );
+    public static final RegistryObject<Item> VERTIGO_HORN = ITEMS.register(
+            "vertigo_horn",
+            ()->new VertigoHornItem((new Item.Properties()).stacksTo(1), InstrumentTags.GOAT_HORNS)
+    );
+    // PORT: AxeItem.createAttributes(DIAMOND, 5, -3.6) in the properties -> the 1.20.1 constructor (DIAMOND, 5, -3.6)
+    public static final RegistryObject<Item> HEAVY_AXE = ITEMS.register(
+            "heavy_axe",
+            ()->new HeavyAxeItem(Tiers.DIAMOND, 5.0F, -3.6F, (new Item.Properties()).rarity(Rarity.EPIC))
+    );
 }

@@ -36,6 +36,9 @@ public class CFBlockInit {
             () -> new CarapaceBlock(0xFF7b775f,BlockBehaviour.Properties.copy(Blocks.PACKED_MUD)));
     public static final RegistryObject<Block> EEP = registerBlock("eep",
             () -> new EepBlock(BlockBehaviour.Properties.copy(Blocks.TNT)));
+    // PORT: registerDoohickeyBlock (block + DoohickeyBlockItem, for its tooltip) as in the original
+    public static final RegistryObject<Block> DOOHICKEY = registerDoohickeyBlock("doohickey",
+            () -> new DoohickeyBlock(BlockBehaviour.Properties.copy(Blocks.GOLD_BLOCK).noOcclusion()));
     public static final RegistryObject<Block> CARAPACE_BRICKS = registerBlock("carapace_bricks",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS)));
     // PORT: Forge's StairBlock(Supplier<BlockState>, Properties) because CARAPACE_BRICKS is not built yet here
@@ -68,4 +71,10 @@ public class CFBlockInit {
     public static final RegistryObject<Block> SOLAR_BRICKS = registerBlock("solar_bricks",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.SHROOMLIGHT)));
 
+
+    public static <T extends Block> RegistryObject<T> registerDoohickeyBlock(String name, Supplier<T> block) {
+        RegistryObject<T> toReturn = BLOCKS.register(name,block);
+        CFItemInit.ITEMS.register(name, () -> new net.atired.creaturefeature.items.DoohickeyBlockItem(toReturn.get(),new Item.Properties()));
+        return toReturn;
+    }
 }

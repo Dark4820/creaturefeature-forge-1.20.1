@@ -49,6 +49,32 @@ public class CreatureFeatureClient {
                 CFBlockInit.DOWN_FEATHERS.get(), CFBlockInit.DOWN_FEATHERS_CARPET.get());
     }
 
+    // PORT: ItemProperties as in the original's onClientSetup; ResourceLocation.withDefaultNamespace -> new ResourceLocation
+    // (minecraft namespace), data components -> the NBT helpers of CFDataComponentTypeInit
+    @SubscribeEvent
+    public static void onClientSetup(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
+        event.enqueueWork(()->{
+            net.minecraft.client.renderer.item.ItemProperties.register(net.atired.creaturefeature.init.CFItemInit.VERTIGO_HORN.get(), new net.minecraft.resources.ResourceLocation("tooting"), (stack, level, entity, seed) -> {
+                if(entity!=null&&entity.isUsingItem()){
+                    return 1;
+                }
+                return 0;
+            });
+            net.minecraft.client.renderer.item.ItemProperties.register(net.atired.creaturefeature.init.CFItemInit.DREAM_CATCHER.get(), new net.minecraft.resources.ResourceLocation("full"), (stack, level, entity, seed) -> {
+                if(net.atired.creaturefeature.init.CFDataComponentTypeInit.getDreamcatcherContents(stack).items().iterator().hasNext()){
+                    return 1;
+                }
+                return 0;
+            });
+            net.minecraft.client.renderer.item.ItemProperties.register(net.atired.creaturefeature.init.CFItemInit.OPEN_MIND.get(), new net.minecraft.resources.ResourceLocation("open"), (stack, level, entity, seed) -> {
+                if(net.atired.creaturefeature.init.CFDataComponentTypeInit.getOpened(stack)!=0&&entity!=null){
+                    return 1;
+                }
+                return 0;
+            });
+        });
+    }
+
     // PORT: only the creatures already ported (F3: minds, machination, sinister, beauty, detritus;
     // F4: fiend, fend, friend, blitz, eeper, nothing, canary, vertigo, coat_of_arms + bullet, kicked_block;
     // F5: minedflayer, cannonball_crab, dreamweaver, mockingbird, pathogen, blossom, saint_solis, stained_glass +
@@ -105,6 +131,7 @@ public class CreatureFeatureClient {
         event.registerEntityRenderer(CFEntityInit.FEND.get(), FendEntityRenderer::new);
         event.registerEntityRenderer(CFEntityInit.BULLET.get(), BulletEntityRenderer::new);
         event.registerEntityRenderer(CFEntityInit.KICKED_BLOCK.get(), KickedBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(net.atired.creaturefeature.init.CFBlockEntityInit.DOOHICKEY.get(), net.atired.creaturefeature.client.renderers.blockentity.DoohickeyBlockEntityRenderer::new);
         event.registerEntityRenderer(CFEntityInit.MINEDFLAYER.get(), MinedFlayerEntityRenderer::new);
         event.registerEntityRenderer(CFEntityInit.CANNONBALL_CRAB.get(), CannonballCrabEntityRenderer::new);
         event.registerEntityRenderer(CFEntityInit.DREAMWEAVER.get(), DreamWeaverEntityRenderer::new);

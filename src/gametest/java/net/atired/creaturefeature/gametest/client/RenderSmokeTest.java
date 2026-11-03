@@ -102,6 +102,8 @@ public class RenderSmokeTest {
         summoned = i;
         // The projectiles and auxiliary entities are drawn by their own renderers too
         run(server, player, "give @s creaturefeature:flintlock");
+        // F6: a doohickey holding an item draws its sphere and the floating item
+        run(server, player, "setblock 2 -60 3 creaturefeature:doohickey{doohickey_item:{id:\"creaturefeature:sleeping_powder\",Count:1b}}");
         LOGGER.info("CF_RENDER_SMOKE summoned {} creatures", i);
     }
 

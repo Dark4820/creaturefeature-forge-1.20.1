@@ -1,5 +1,26 @@
 {
   "type": "minecraft:entity",
-  "pools": [],
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:killed_by_player"
+        },
+        {
+          "condition": "minecraft:random_chance_with_looting",
+          "chance": 0.41,
+          "looting_multiplier": 0.02
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "creaturefeature:bacterium_ball"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
   "random_sequence": "creaturefeature:entities/pathogen"
 }

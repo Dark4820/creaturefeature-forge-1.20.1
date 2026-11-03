@@ -48,16 +48,21 @@ HAND_EDITED = {
 }
 
 
+# vanilla items added after 1.20.1 that some recipes of the original use
+VANILLA_121_ONLY = {"crafter", "heavy_core", "mace", "breeze_rod", "wind_charge", "trial_key", "ominous_trial_key",
+                    "ominous_bottle", "armadillo_scute", "wolf_armor", "trial_spawner", "vault", "copper_bulb", "tuff_bricks"}
+
+
 # music disc item -> jukebox_song id (1.21)
 DISCS = {"music_disc_nothing": "nothing", "music_disc_nan": "new_age_nevermore"}
 
 
 def registered_ids():
     ids = set()
-    for name in ("init/CFItemInit.java", "init/CFBlockInit.java", "init/CFEntityInit.java"):
+    for name in ("init/CFItemInit.java", "init/CFBlockInit.java", "init/CFEntityInit.java", "init/CFRecipeSerialisers.java"):
         path = os.path.join(JAVA, name)
         if os.path.exists(path):
-            ids.update(re.findall(r'register(?:Block)?\(\s*"([a-z0-9_]+)"', open(path, encoding="utf-8").read()))
+            ids.update(re.findall(r'register\w*\(\s*"([a-z0-9_]+)"', open(path, encoding="utf-8").read()))
     return ids
 
 
@@ -233,12 +238,18 @@ def convert_data(ids):
     # recipes (1.21 "recipe" -> 1.20.1 "recipes")
     for fn in sorted(os.listdir(os.path.join(data, NS, "recipe"))):
         d = json.load(open(os.path.join(data, NS, "recipe", fn), encoding="utf-8"))
-        if d["type"].startswith(NS + ":"):
-            skipped.append(("recipe (special serializer, F6)", fn))
-            continue
+        # the mod's own serializer (crafting_special_flowerclone, F6) has the same JSON in 1.20.1 ({type, category})
         miss = missing(d, ids)
         if miss:
             skipped.append(("recipe", fn + " needs " + ",".join(sorted(miss))))
+            continue
+        newer = sorted(i for i in VANILLA_121_ONLY if '"minecraft:' + i + '"' in json.dumps(d))
+        if newer:
+            # no clear 1.20.1 equivalent: the replacement is the user's decision (PORT_MAP, recipes with 1.21 items)
+            skipped.append(("recipe (1.21 vanilla item, decision pending)", fn + " uses " + ",".join(newer)))
+            dst = os.path.join(out, NS, "recipes", fn)
+            if os.path.exists(dst):
+                os.remove(dst)
             continue
         write_json(os.path.join(out, NS, "recipes", fn), convert_recipe(d))
 

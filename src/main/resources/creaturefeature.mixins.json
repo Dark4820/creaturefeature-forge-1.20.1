@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "creaturefeature.refmap.json",
   "mixins": [
-    "SleepyJumpMixin", "LivingEntitySwingMixin"
+    "SleepyJumpMixin", "LivingEntitySwingMixin", "AbstractBlockMixin", "AbstractContainerMenuMixin", "LivingEntityGoopMixin", "MonsterEntityMixin", "PlayerAdvancementsMixin", "PlayerMixin", "ShearsItemMixin"
   ],
   "client": [],
   "injectors": {
