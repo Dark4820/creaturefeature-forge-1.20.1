@@ -1,15 +1,31 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F5 cerrada (2026-11-02).** Falta la prueba corta de F5 y volver a probar coat of arms y friend. Siguiente: F6 (ítems con lógica y mixins comunes).
+**F5 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F6 (ítems con lógica y mixins comunes).
 
 ## Pruebas en el juego pendientes
 - **Arreglos de F4:** coat of arms (abre la capa y dispara sin crashear) y friend (se ve el cubo, la carita y las copias), en gráficos Rápidos/Detallados y en Fabulosos.
-- **Prueba corta de F5:** que las 8 criaturas, los proyectiles y el eep se vean, se animen y ataquen bien (lista en el mensaje de cierre de F5).
 - **Tanda final, F5:** botín, los 8 huevos, sonidos, arrojar murky_pearl/down_feather/solar_shard (también con dispensador), vitric_arrow con arco, solar_shard como combustible (12 800 ticks), eep con mechero, redstone y fuego.
-- **Compat. ectoplasma:** con Goety instalado, las recetas de pergaminos y antorchas aceptan `goety:ectoplasm`.
+- **Compat. ectoplasma:** con Goety instalado, las recetas de pergaminos y antorchas aceptan `goety:ectoplasm`, y las dos recetas 1:1 convierten un ectoplasma en el otro.
+- **Murky pearl por dispensador:** sale una perla (no una bola de nieve).
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## Prueba corta de F5, decisiones y análisis de rendimiento (2026-11-02)
+- El usuario probó F5 en el jar real: todo funciona. `latest.log` sin errores del mod (solo los avisos conocidos y la renumeración de IDs de los ítems nuevos).
+- Decisiones aplicadas: recetas de conversión 1:1 con Goety, solo con Goety instalado (PORT_MAP §6d; GameTest: sin Goety no se cargan y no hay errores de recetas en el log). Error del original corregido: la murky pearl del dispensador ya no es una bola de nieve (`// PORT:`, GameTest).
+- **Rendimiento (solo análisis, sin cambios en el mod).** `PerfGameTests` (solo desarrollo, `-Dcreaturefeature.perf=true`): 1/10/30 de cada uno alrededor de un jugador (FakePlayer agregado al nivel), de noche, 100 ticks medidos después de 40 de asentamiento, segunda pasada (la primera calienta el JIT). Tiempo del tick del nivel, línea base vacía 4,8-5,1 ms (ruido ≈ ±0,3 ms):
+
+  | | ×1 | ×10 | ×30 |
+  |---|---|---|---|
+  | zombi | 4,66 | 4,80 | 4,50 |
+  | pathogen | 4,94 | 4,72 | 4,98 |
+  | blossom | 4,60 | 5,48 | 5,80 (22 spat_blocks volando) |
+
+  Zombis y pathogens: sin diferencia medible con la base. Blossom: ≈ +0,7 ms con 10 y ≈ +1 ms con 30 (≈ 30 µs cada uno), por el escupitajo cada 50 ticks cuando su objetivo está a menos de 5 bloques y los spat_blocks en vuelo (cada uno mira colisiones por tick y, al caer, busca entidades en ±4 bloques). El TimeTracker por entidad de Forge no registró nada en el servidor de GameTests; por eso se mide el tick del nivel.
+  - Cliente (estimado del código): el blossom agrega ≈ 40 cuadriláteros por cuadro (pétalos 6×6 + esporas 4; un zombi son ≈ 36); cada spat_block suelta 3 partículas `spore` por tick (viven 40 ticks) y al caer 16 `spore` + 1 `spit` (60 ticks): con 30 blossoms atacando (≈ 22 en vuelo) son ≈ 2 600 partículas vivas, con 10 ≈ 850 (el límite de Minecraft es 16 384). El pathogen solo suelta `sparkle` al infectar y dibuja su modelo y 2 cuadriláteros.
+  - **De dónde salen los pathogens:** no tienen aparición natural. El 8 % de los no-muertos que aparecen (`MonsterEntityMixin`, en `finalizeSpawn`; con `pathogen = true` en la config, solo en biomas templados) queda "bacterial"; cuando está en combate o herido, al bajar su contador suelta un pathogen con 7 de vida (`LivingEntityGoopMixin`). El pathogen vuela hacia monstruos heridos y al golpearlos los infecta (cadena). También infecta la `bacterium_ball`. Esos mixins e ítem llegan en F6: hasta entonces solo salen del huevo o `/summon`.
+- **Zombiflore (Skarrier Mobs 1.1.2, solo lectura):** aparece en jungle, sparse_jungle y lush_caves (peso 20, 1-2 por grupo; más una condición propia con la luz de bloques); el blossom del original aparece en `#c:is_jungle` con peso 30, 1-3 (spawns naturales en F8). Es un `Monster` (no un zombi): 20 de vida, daño 3, velocidad 0,15, rango 32. Por tick, su procedimiento de MCreator lee y escribe ≈ 10 valores en el NBT persistente y hace **siempre** una búsqueda de `FloreHeadEntity` en una caja de 32 bloques; si no tiene cabezas, además busca todas las entidades en ±16 bloques y las ordena por distancia. Cada 140 ticks, con objetivo, lanza cabezas (`FloreHeadEntity`, máx. 2; enfriamiento de 240 ticks). Comparado: el blossom no busca entidades por tick (solo la búsqueda de objetivo vanilla de zombi y la de ±4 bloques al caer cada spat_block); por tick el zombiflore probablemente es más caro con muchas entidades cerca, y el blossom más caro en partículas del lado del cliente cuando escupe.
 
 ## F5 - Criaturas lote 3 (2026-11-02) ✅
 Lote: **minedflayer, dreamweaver, cannonball_crab** (huevo `runaway_spawn_egg`), **mockingbird, pathogen, blossom, saint_solis, stained_glass** + entidades **spat_block** (lo escupe el blossom), **murky_pearl, feather** (las tira el mockingbird), **vitric_arrow, star** (las tira el saint solis), **eep** (TNT de sueño: bloque `eep` + entidad) y los ítems arrojables de esas entidades: **murky_pearl, vitric_arrow, down_feather, solar_shard** (este último adelantado de F6: solo arroja stars; también es combustible).

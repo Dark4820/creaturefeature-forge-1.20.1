@@ -29,6 +29,15 @@ public class CompatGameTests {
     private static final TagKey<Item> ECTOPLASM = TagKey.create(Registries.ITEM, new ResourceLocation("forge", "ectoplasm"));
 
     @GameTest(template = TEMPLATE)
+    public static void goetyConversionRecipesNeedGoety(GameTestHelper helper) {
+        // forge:mod_loaded goety: without Goety (dev environment) the 1:1 conversion recipes are not loaded
+        for (String id : List.of("compat/goety/ectoplasm_from_goety", "compat/goety/ectoplasm_to_goety")) {
+            helper.assertTrue(helper.getLevel().getRecipeManager().byKey(CreatureFeature.getId(id)).isEmpty(), id + " loaded without Goety");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE)
     public static void ectoplasmRecipesUseTheSharedTag(GameTestHelper helper) {
         ItemStack ectoplasm = new ItemStack(CFItemInit.ECTOPLASM.get());
         helper.assertTrue(ectoplasm.is(ECTOPLASM), "creaturefeature:ectoplasm is not in #forge:ectoplasm");

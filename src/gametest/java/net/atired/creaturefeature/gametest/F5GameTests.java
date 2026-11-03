@@ -162,8 +162,10 @@ public class F5GameTests {
         AABB around = new AABB(helper.absolutePos(pos)).inflate(40);
         helper.succeedWhen(() -> {
             helper.assertTrue(dispenser.isEmpty(), "the dispenser did not fire");
-            // the original's dispenser constructor (x, y, z) gives the pearl the SNOWBALL entity type: look for the class
-            helper.assertTrue(helper.getLevel().getEntitiesOfClass(MurkyPearlEntity.class, around).size() == 1, "no murky pearl entity");
+            // the original's dispenser constructor gave the pearl the SNOWBALL type (fixed in the port): it must be a
+            // murky_pearl entity, and there must be no snowball
+            helper.assertTrue(helper.getLevel().getEntities(CFEntityInit.MURKY_PEARL.get(), around, e -> true).size() == 1, "no murky pearl entity");
+            helper.assertTrue(helper.getLevel().getEntities(EntityType.SNOWBALL, around, e -> true).isEmpty(), "the dispenser shot a snowball");
             helper.assertTrue(helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, around).isEmpty(), "the pearl was dropped as an item");
         });
     }

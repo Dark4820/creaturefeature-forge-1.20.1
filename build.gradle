@@ -85,6 +85,8 @@ minecraft {
 
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
+            // PORT: dev-only performance measurement (PerfGameTests), off unless -Dcreaturefeature.perf=true
+            property 'creaturefeature.perf', System.getProperty('creaturefeature.perf', 'false')
         }
 
         data {

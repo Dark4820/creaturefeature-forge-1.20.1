@@ -49,8 +49,10 @@ public class MurkyPearlEntity  extends ThrowableItemProjectile {
         super(CFEntityInit.MURKY_PEARL.get(), shooter, level);
     }
 
+    // PORT: bug of the original fixed (user decision): this constructor (used by the dispenser) passed
+    // EntityType.SNOWBALL, so a dispensed murky pearl was a snowball for the client and when saved
     public MurkyPearlEntity(Level level, double x, double y, double z) {
-        super(EntityType.SNOWBALL, x, y, z, level);
+        super(CFEntityInit.MURKY_PEARL.get(), x, y, z, level);
     }
 
     @Override
