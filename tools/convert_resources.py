@@ -53,6 +53,13 @@ VANILLA_121_ONLY = {"crafter", "heavy_core", "mace", "breeze_rod", "wind_charge"
                     "ominous_bottle", "armadillo_scute", "wolf_armor", "trial_spawner", "vault", "copper_bulb", "tuff_bricks"}
 
 
+# PORT: user decision (2026-11-02): replacements for 1.21 vanilla items that have no 1.20.1 equivalent
+RECIPE_REPLACEMENTS = {
+    "open_mind.json": {"minecraft:crafter": "minecraft:crafting_table"},
+    "heavy_axe.json": {"minecraft:heavy_core": "minecraft:netherite_ingot"},
+}
+
+
 # music disc item -> jukebox_song id (1.21)
 DISCS = {"music_disc_nothing": "nothing", "music_disc_nan": "new_age_nevermore"}
 
@@ -243,6 +250,9 @@ def convert_data(ids):
         if miss:
             skipped.append(("recipe", fn + " needs " + ",".join(sorted(miss))))
             continue
+        # PORT: 1.21 vanilla items replaced by user decision (PORT_MAP §6c), only in the listed recipes
+        for old, new in RECIPE_REPLACEMENTS.get(fn, {}).items():
+            d = json.loads(json.dumps(d).replace('"' + old + '"', '"' + new + '"'))
         newer = sorted(i for i in VANILLA_121_ONLY if '"minecraft:' + i + '"' in json.dumps(d))
         if newer:
             # no clear 1.20.1 equivalent: the replacement is the user's decision (PORT_MAP, recipes with 1.21 items)

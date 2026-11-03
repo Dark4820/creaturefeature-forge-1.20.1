@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:crafting_table"
+    },
+    "B": {
+      "item": "minecraft:iron_ingot"
+    },
+    "A": {
+      "item": "creaturefeature:blighted_brain"
+    }
+  },
+  "pattern": [
+    "BAB",
+    "B#B"
+  ],
+  "result": {
+    "item": "creaturefeature:open_mind"
+  }
+}

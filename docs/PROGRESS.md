@@ -1,10 +1,11 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F6 cerrada (2026-11-02).** Falta la prueba corta de F6 y decidir las recetas de open_mind y heavy_axe. Siguiente: F7 (efectos de pantalla y mixins de cliente).
+**F6 cerrada (2026-11-02).** Recetas de open_mind y heavy_axe decididas. Falta el resultado de la prueba corta de F6 para empezar F7 (efectos de pantalla y mixins de cliente).
 
 ## Pruebas en el juego pendientes
 - **Prueba corta de F6:** ítems con lógica, doohickey y efectos de los mixins (lista en el mensaje de cierre de F6).
+- **Recetas nuevas:** open_mind (lingotes de hierro, cerebro marchito y mesa de crafteo) y heavy_axe (blitz rods y lingote de netherita) en el libro de recetas.
 - **Tanda final, F6:** el cuerno de vertigo como botín (60 % al matarlo un jugador), el disco del fiend, flower_clone en el libro de recetas, las tijeras rápidas en plumas y seda, el aviso del dream catcher con contenedores, el hacha pesada contra un caballo (logro en F8).
 - **Arreglos de F4:** coat of arms (abre la capa y dispara sin crashear) y friend (se ve el cubo, la carita y las copias), en gráficos Rápidos/Detallados y en Fabulosos.
 - **Tanda final, F5:** botín, los 8 huevos, sonidos, arrojar murky_pearl/down_feather/solar_shard (también con dispensador), vitric_arrow con arco, solar_shard como combustible (12 800 ticks), eep con mechero, redstone y fuego.
@@ -18,7 +19,7 @@
 - **Mixins comunes (7):** `AbstractBlockMixin` (el friend aparece sobre bedrock), `AbstractContainerMenuMixin` (el crafteo del open_mind no se cierra sin mesa), `LivingEntityGoopMixin` (fiendish ×1,8 y se consume; infección "bacterial" → pathogen; caída amplificada del hacha pesada; goop/aplastado), `MonsterEntityMixin` (8 % de no-muertos infectados), `PlayerAdvancementsMixin`, `PlayerMixin` (daño diferido del canary, rabia, brainrot; la parte de cliente "man" pasó a `CFClientPlayerHooks`), `ShearsItemMixin` (velocidad 8 en `#shearable`). Los 9 mixins se aplican (los 8 primeros al arrancar, `PlayerAdvancementsMixin` al entrar un jugador).
 - Vuelve el botín de cuernos del vertigo (era `TODO F6`).
 - Cliente fuera del código común: el dash del cuerno (`LocalPlayer`) y el sonido/temblor del open_mind pasan a `CFClientItemHooks` por `DistExecutor` (el original los tenía en los ítems). El temblor y los efectos de pantalla (`PROXY`) se ven en F7.
-- **Decisión pendiente:** las recetas de `open_mind` (usa `minecraft:crafter`) y `heavy_axe` (usa `minecraft:heavy_core`) llevan ítems de 1.21 sin equivalente claro: no se generan hasta que el usuario decida (PORT_MAP §6c). Lo detectó el log de `runServer` ("Parsing error loading recipe"); nuevo GameTest `f6EveryRecipeFileLoads` para que no se repita.
+- **Recetas con ítems de 1.21:** `open_mind` (`minecraft:crafter`) y `heavy_axe` (`minecraft:heavy_core`) no tienen equivalente claro. Decisión del usuario: mesa de crafteo y lingote de netherita (PORT_MAP §6c; las aplica el script). Lo detectó el log de `runServer` ("Parsing error loading recipe"); nuevo GameTest `f6EveryRecipeFileLoads` para que no se repita.
 - Corregido de F5: solar_shard y murky_pearl van en la pestaña Herramientas, como en el original.
 - GameTests (`F6GameTests`, 12): todas las recetas cargan; tijeras y bedrock; flower_clone (juntos sí, en diagonal no, el ramo pierde durabilidad); el dream catcher mueve un spawner de blaze con su mob; el crafteo del open_mind sigue válido sin mesa; fiendish ×1,8 y se consume; un zombi infectado suelta un pathogen; ≈ 8 % de no-muertos infectados; ticks de `PlayerMixin` (rabia y brainrot bajan); la píldora, la soda, el vidrio vivo y la bola de bacterias; el cuerno trae instrumento, enfría y da rabia; el doohickey toma el ítem y lo guarda.
 
