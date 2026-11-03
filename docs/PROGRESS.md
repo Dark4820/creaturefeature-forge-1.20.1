@@ -1,18 +1,19 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F6 cerrada (2026-11-02).** Recetas de open_mind y heavy_axe decididas. Falta el resultado de la prueba corta de F6 para empezar F7 (efectos de pantalla y mixins de cliente).
+**F6 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F7 (efectos de pantalla y mixins de cliente).
 
 ## Pruebas en el juego pendientes
-- **Prueba corta de F6:** ítems con lógica, doohickey y efectos de los mixins (lista en el mensaje de cierre de F6).
 - **Recetas nuevas:** open_mind (lingotes de hierro, cerebro marchito y mesa de crafteo) y heavy_axe (blitz rods y lingote de netherita) en el libro de recetas.
 - **Tanda final, F6:** el cuerno de vertigo como botín (60 % al matarlo un jugador), el disco del fiend, flower_clone en el libro de recetas, las tijeras rápidas en plumas y seda, el aviso del dream catcher con contenedores, el hacha pesada contra un caballo (logro en F8).
-- **Arreglos de F4:** coat of arms (abre la capa y dispara sin crashear) y friend (se ve el cubo, la carita y las copias), en gráficos Rápidos/Detallados y en Fabulosos.
 - **Tanda final, F5:** botín, los 8 huevos, sonidos, arrojar murky_pearl/down_feather/solar_shard (también con dispensador), vitric_arrow con arco, solar_shard como combustible (12 800 ticks), eep con mechero, redstone y fuego.
 - **Compat. ectoplasma:** con Goety instalado, las recetas de pergaminos y antorchas aceptan `goety:ectoplasm`, y las dos recetas 1:1 convierten un ectoplasma en el otro.
 - **Murky pearl por dispensador:** sale una perla (no una bola de nieve).
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## Prueba corta de F6 y arreglos de F4 (2026-11-02) ✅
+El usuario probó el jar real: cuerno, atrapasueños, open_mind, ramo, píldora, soda, bola de bacterias, vidrio vivo, hacha pesada, doohickey y tijeras funcionan. Los arreglos de F4 también: el coat of arms ya no crashea (el crash de las 19:56 en `C:\cf\test\crash-reports` era del jar anterior al arreglo, mismas líneas 188/115) y el friend se ve.
 
 ## F6 - Ítems con lógica y mixins comunes (2026-11-02) ✅
 - **Ítems:** vertigo_horn, dream_catcher (`SpawnerCaptureItem`), open_mind, the_pill, bouquet + receta especial `flower_clone` (`FlowerCloneRecipe`, serializer `crafting_special_flowerclone`), fiendish_soda, bacterium_ball, living_glass_shards, heavy_axe y el bloque **doohickey** (block entity + renderer con la esfera de icosfera y el ítem flotando; acepta sleeping_powder, minedflayer_goop, vertigo_horn, bacterium_ball y fiendish_essence). Item properties de cliente (`tooting`, `full`, `open`). El flintlock y el solar_shard ya estaban (F4, F5).
