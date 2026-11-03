@@ -1,9 +1,10 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F8 cerrada (2026-11-02).** Falta la prueba corta de F8 en el juego. Siguiente: F9 (contenido ★: solo Powder Skull, D1).
+**F8 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F9 (contenido ★: solo Powder Skull, D1).
 
 ## Pruebas en el juego pendientes
+- **Tanda final, F8:** el resto de las apariciones (beauty en lush_caves, minds en sabana, blossom en jungla, vertigo en taiga y dark_forest, coat of arms en pantano, fend en biomas floridos, mockingbird en picos, stained glass en desierto, sinister/detritus/canary en el Overworld y ninguno en mushroom_fields, friend en el Nether, machination en warped_forest, las 6 criaturas del End en las islas exteriores), los logros horse, friendless, sinister, gas y renovation, y la compat con Oreganized / Caverns and Chasms si se instalan.
 - **Tanda final, F7:** rabia (vertigo / cuerno), minedflayer (golpes y gelatina), adornos del mod en la armadura, caparazón que cae (muros y aplastado), F3+T con un efecto activo. Y repetir los efectos en **Rápidos y Fabulosos**: la prueba corta quedó en Elegantes (ver abajo).
 - **Shaderpacks (Oculus):** los post chains y render types propios con un shaderpack activo (F10).
 - **Recetas nuevas:** open_mind (lingotes de hierro, cerebro marchito y mesa de crafteo) y heavy_axe (blitz rods y lingote de netherita) en el libro de recetas.
@@ -13,6 +14,10 @@
 - **Murky pearl por dispensador:** sale una perla (no una bola de nieve).
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## Prueba corta de F8 (2026-11-02) ✅
+El usuario probó el jar real: árbol de logros con el fondo animado, logros sleepy y pill, el efecto "man" (y roots_man), fiends en nether_wastes, cangrejos en la playa y el cangrejo bajo el agua sin ahogarse. Confirmó que la prueba de F7 fue en Elegantes.
+Log (`C:\cf\test\logs\latest.log`, 22:48-22:51, solo la última sesión) sin errores del mod ni crash reports nuevos. Avisos: los ya conocidos de F7 (shaders, `stained_glass_retreat`) y 3 `Received passengers for unknown entity` al llegar a nether_wastes: los fiends que aparecen con un esqueleto montado (1 de cada 12) se arman igual que la araña jinete vanilla (`startRiding` en `finalizeSpawn`, mismo código que el original) y vanilla da el mismo aviso; sin efecto.
 
 ## F8 - Apariciones, compatibilidades por datos y logros (2026-11-02) ✅
 - **Apariciones naturales:** 26 biome modifiers del original (23 `add_spawns` + 3 `remove_spawns`) con los mismos biomas, pesos y tamaños de grupo; `toadstool` fuera (D2). Los tags `c:` se traducen según PORT_MAP §4. Las 21 criaturas ya tenían su `SpawnPlacement` igual que el original.
