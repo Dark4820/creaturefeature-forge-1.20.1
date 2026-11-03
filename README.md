@@ -1,7 +1,8 @@
 # Creature Feature — Forge 1.20.1 port
 
 An **unofficial** port of [Creature Feature](https://github.com/TerriblyBadCoder/creaturefeature) to
-**Minecraft 1.20.1 / Forge 47.4+**.
+**Minecraft 1.20.1 / Forge 47.4+**. In the mod list and in JEI it shows as **Creature Feature**, like the original;
+the mod description and credits say it is this unofficial port.
 
 ## Credits
 
