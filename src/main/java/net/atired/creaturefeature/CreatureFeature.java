@@ -34,6 +34,8 @@ public class CreatureFeature {
         CFEntityInit.ENTITIES.register(modEventBus);
         CFBlockEntityInit.BLOCK_ENTITY_TYPES.register(modEventBus);
         CFRecipeSerialisers.RECIPES.register(modEventBus);
+        // PORT: port-only add_table loot modifier (Forge 1.20.1 has none) for the Oreganized / C&C compat data
+        net.atired.creaturefeature.init.CFLootModifiers.LOOT_MODIFIER_SERIALIZERS.register(modEventBus);
     }
 
     // PORT: ResourceLocation.fromNamespaceAndPath does not exist in 1.20.1

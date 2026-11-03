@@ -58,6 +58,48 @@ RECIPE_REPLACEMENTS = {
 }
 
 
+# PORT: 1.21 "c:" biome tags -> Forge 1.20.1 (PORT_MAP §4). A list = the biomes of the 1.21 tag (no 1.20.1 tag)
+BIOME_TAGS = {
+    "#c:is_overworld": "#minecraft:is_overworld",
+    "#c:is_jungle": "#minecraft:is_jungle",
+    "#c:is_savanna": "#minecraft:is_savanna",
+    "#c:is_taiga": "#minecraft:is_taiga",
+    "#c:is_beach": "#minecraft:is_beach",
+    "#c:is_nether": "#minecraft:is_nether",
+    "#c:is_mountain": "#forge:is_mountain",
+    "#c:is_desert": "#forge:is_desert",
+    "#c:is_plains": "#forge:is_plains",
+    "#c:is_outer_end_island": ["minecraft:end_highlands", "minecraft:end_midlands", "minecraft:small_end_islands",
+                               "minecraft:end_barrens"],
+    "#c:is_floral": ["minecraft:flower_forest", "minecraft:sunflower_plains", "minecraft:meadow", "minecraft:cherry_grove"],
+    "#c:no_default_monsters": ["minecraft:mushroom_fields", "minecraft:deep_dark"],
+}
+
+# loot tables of entities/ that are not creatures (advancement rewards)
+EXTRA_ENTITY_TABLES = {"one_egg"}
+
+
+def convert_biome_modifier(d):
+    # neoforge:add_spawns / remove_spawns -> forge:add_spawns / remove_spawns (same fields)
+    d = dict(d)
+    d["type"] = d["type"].replace("neoforge:", "forge:")
+    biomes = d["biomes"]
+    if isinstance(biomes, str) and biomes.startswith("#c:"):
+        if biomes not in BIOME_TAGS:
+            raise SystemExit("no 1.20.1 equivalent for biome tag " + biomes)
+        d["biomes"] = BIOME_TAGS[biomes]
+    return d
+
+
+def convert_advancement(d):
+    # icon {"id", "count"} (1.20.5+) -> {"item"}
+    d = json.loads(json.dumps(d))
+    icon = d.get("display", {}).get("icon")
+    if icon and "id" in icon:
+        d["display"]["icon"] = {"item": icon["id"]}
+    return d
+
+
 # music disc item -> jukebox_song id (1.21)
 DISCS = {"music_disc_nothing": "nothing", "music_disc_nan": "new_age_nevermore"}
 
@@ -275,7 +317,7 @@ def convert_data(ids):
     # entity loot tables (only the creatures already registered)
     for fn in sorted(os.listdir(os.path.join(data, NS, "loot_table", "entities"))):
         stem = os.path.splitext(fn)[0]
-        if stem in EXCLUDED_IDS or stem not in ids:
+        if stem in EXCLUDED_IDS or (stem not in ids and stem not in EXTRA_ENTITY_TABLES):
             continue
         d = json.load(open(os.path.join(data, NS, "loot_table", "entities", fn), encoding="utf-8"))
         dropped = []
@@ -314,6 +356,27 @@ def convert_data(ids):
             if os.path.isdir(os.path.join(out, NS, "trim_material")) else (
             os.makedirs(os.path.join(out, NS, "trim_material")),
             shutil.copyfile(os.path.join(data, NS, "trim_material", fn), os.path.join(out, NS, "trim_material", fn)))
+    # F8: natural spawns (neoforge/biome_modifier -> forge/biome_modifier)
+    src = os.path.join(data, NS, "neoforge", "biome_modifier")
+    for fn in sorted(os.listdir(src)):
+        d = json.load(open(os.path.join(src, fn), encoding="utf-8"))
+        miss = missing(d, ids)
+        if os.path.splitext(fn)[0] in EXCLUDED_IDS or miss:
+            skipped.append(("biome modifier", fn + (" needs " + ",".join(sorted(miss)) if miss else " (excluded)")))
+            continue
+        write_json(os.path.join(out, NS, "forge", "biome_modifier", fn), convert_biome_modifier(d))
+
+    # F8: advancements ("advancement" -> "advancements")
+    src = os.path.join(data, NS, "advancement")
+    for fn in sorted(os.listdir(src)):
+        d = json.load(open(os.path.join(src, fn), encoding="utf-8"))
+        # only the icon is an item: parents and triggers are advancement / trigger ids
+        miss = missing(d.get("display", {}).get("icon", {}), ids)
+        if miss:
+            skipped.append(("advancement", fn + " needs " + ",".join(sorted(miss))))
+            continue
+        write_json(os.path.join(out, NS, "advancements", fn), convert_advancement(d))
+
     bp = os.path.join("blueprint", "tags", "trim_material", "generates_overrides.json")
     os.makedirs(os.path.dirname(os.path.join(out, bp)), exist_ok=True)
     shutil.copyfile(os.path.join(data, bp), os.path.join(out, bp))

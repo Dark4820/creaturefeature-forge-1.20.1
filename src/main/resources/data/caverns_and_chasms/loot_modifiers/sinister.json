@@ -1,0 +1,14 @@
+{
+  "type": "creaturefeature:add_table",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "creaturefeature:entities/sinister"
+    },
+    {
+      "condition": "minecraft:random_chance",
+      "chance": 0.75
+    }
+  ],
+  "table": "caverns_and_chasms:entities/extra_sinister"
+}

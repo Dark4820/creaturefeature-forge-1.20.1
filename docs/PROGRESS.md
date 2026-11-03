@@ -1,7 +1,7 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F7 cerrada y con prueba corta en el juego (2026-11-02).** En curso: F8 (apariciones naturales, compatibilidades por datos, logros + los 2 mixins de logros).
+**F8 cerrada (2026-11-02).** Falta la prueba corta de F8 en el juego. Siguiente: F9 (contenido ★: solo Powder Skull, D1).
 
 ## Pruebas en el juego pendientes
 - **Tanda final, F7:** rabia (vertigo / cuerno), minedflayer (golpes y gelatina), adornos del mod en la armadura, caparazón que cae (muros y aplastado), F3+T con un efecto activo. Y repetir los efectos en **Rápidos y Fabulosos**: la prueba corta quedó en Elegantes (ver abajo).
@@ -13,6 +13,19 @@
 - **Murky pearl por dispensador:** sale una perla (no una bola de nieve).
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## F8 - Apariciones, compatibilidades por datos y logros (2026-11-02) ✅
+- **Apariciones naturales:** 26 biome modifiers del original (23 `add_spawns` + 3 `remove_spawns`) con los mismos biomas, pesos y tamaños de grupo; `toadstool` fuera (D2). Los tags `c:` se traducen según PORT_MAP §4. Las 21 criaturas ya tenían su `SpawnPlacement` igual que el original.
+- **Compatibilidades por datos:**
+  - Oreganized (machination → pepita de electrum; minds → pepita de plomo, 75 %; sinister → lingote de plata, 75 %) y Caverns and Chasms (sinister → lingote de plata, 75 %), todo con 0-2 + Botín. Loot modifier propio `creaturefeature:add_table` (Forge 1.20.1 no lo trae). Los ítems de los otros mods van por tags opcionales: sin esos mods no cae nada y no hay errores de carga.
+  - Blueprint (`blueprint:generates_overrides` de los adornos): ya estaba desde F4; confirmado que Blueprint 1.20.1 (7.1.4) usa ese tag.
+  - `ominous_powder_skull` no se porta (trial chambers, 1.21).
+- **Logros:** los 9 del original (root, sleepy, pill, horse, friendless, sinister, gas, renovation, roots_man con su huevo de recompensa `one_egg`). Los triggers ya estaban desde F1-F6. Mixins de pestaña: `AdvancementTabMixin` (fondo animado de 64 px) y `AdvancementWidgetMixin` (el logro del "man": arranca la búsqueda al pasar el mouse).
+- **Pendiente olvidado de F5, resuelto:** el cangrejo respira bajo el agua y es acuático (los tags de entidad de 1.21 no existen en 1.20.1).
+- GameTests (`F8GameTests`, 6): biomas de cada tipo de traducción con peso y grupo; nada en mushroom_fields/deep_dark ni dreamweaver en la isla principal; los 26 modifiers cargan; los 9 logros con su árbol y triggers; `add_table` agrega la tabla; las tablas de compat cargan y los tags quedan vacíos sin los mods; el cangrejo.
+- Prueba de dibujo: al final abre la pantalla de logros en la pestaña del mod (`cf_advancements.png`).
+
+Verificado: `build` OK; `runGameTestServer` 56/56 sin errores de datos; `runServer` hasta `Done (2.943s)`; `runClientRenderSmoke` OK (criaturas, efectos en 3 modos y pantalla de logros).
 
 ## Prueba corta de F7 (2026-11-02) ✅
 El usuario probó el jar real: sueño, fiend, gas del canary, bacterias, título del disco NaN, friend y saint solis, gelatina y cambio de tamaño de ventana funcionan. El mensaje dejó sin completar el modo gráfico; `C:\cf\test\options.txt` no cambió desde las 15:24 y dice `graphicsMode:1`, o sea **Elegantes** (cambiar el modo desde el menú reescribe ese archivo). Rápidos y Fabulosos van a la tanda final.

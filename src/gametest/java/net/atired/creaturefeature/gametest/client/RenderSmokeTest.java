@@ -48,7 +48,9 @@ public class RenderSmokeTest {
     private static final int SLOT = 50;
     private static final String[] EFFECTS = {"none", "sleepy", "fiendish", "rabies", "flayed", "gas", "bacte", "man", "nan_title", "entity_fx"};
     private static final GraphicsStatus[] MODES = {GraphicsStatus.FAST, GraphicsStatus.FANCY, GraphicsStatus.FABULOUS};
-    private static final int STOP_AT = EFFECTS_AT + MODES.length * EFFECTS.length * SLOT + 5;
+    // F8: then the advancements screen on the mod's tab (AdvancementTabMixin / AdvancementWidgetMixin)
+    private static final int ADV_AT = EFFECTS_AT + MODES.length * EFFECTS.length * SLOT;
+    private static final int STOP_AT = ADV_AT + 60;
     private static boolean worldRequested = false;
     private static int ticksInWorld = 0;
     private static int summoned = 0;
@@ -77,11 +79,27 @@ public class RenderSmokeTest {
             server.execute(() -> summonEverything(server));
         }
         // Screenshots in run-smoke/screenshots, to look at what was drawn (an invisible creature does not crash)
-        if (ticksInWorld >= EFFECTS_AT && ticksInWorld < STOP_AT - 5) {
+        if (ticksInWorld >= EFFECTS_AT && ticksInWorld < ADV_AT) {
             effectTick(mc, server, ticksInWorld - EFFECTS_AT);
         }
         if (ticksInWorld == SUMMON_AT + 40 || ticksInWorld == SUMMON_AT + 200 || ticksInWorld == STOP_AT - 5) {
             net.minecraft.client.Screenshot.grab(mc.gameDirectory, "cf_smoke_" + ticksInWorld + ".png", mc.getMainRenderTarget(),
+                    message -> LOGGER.info("CF_RENDER_SMOKE screenshot {}", message.getString()));
+        }
+        if (ticksInWorld == ADV_AT) {
+            server.execute(() -> run(server, server.getPlayerList().getPlayers().get(0), "advancement grant @s only creaturefeature:root"));
+        }
+        if (ticksInWorld == ADV_AT + 20) {
+            var advancements = mc.player.connection.getAdvancements();
+            mc.setScreen(new net.minecraft.client.gui.screens.advancements.AdvancementsScreen(advancements));
+            var root = advancements.getAdvancements().get(CreatureFeature.getId("root"));
+            LOGGER.info("CF_RENDER_SMOKE advancements tab root present: {}", root != null);
+            if (root != null) {
+                advancements.setSelectedTab(root, true);
+            }
+        }
+        if (ticksInWorld == ADV_AT + 50) {
+            net.minecraft.client.Screenshot.grab(mc.gameDirectory, "cf_advancements.png", mc.getMainRenderTarget(),
                     message -> LOGGER.info("CF_RENDER_SMOKE screenshot {}", message.getString()));
         }
         if (ticksInWorld == STOP_AT) {

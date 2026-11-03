@@ -46,6 +46,19 @@ public class CannonballCrabEntity extends Monster {
         this.moveControl=new CannonBallMoveControl(this);
     }
 
+    // PORT: the original puts the crab in the entity tags minecraft:can_breathe_under_water and minecraft:aquatic,
+    // which do not exist in 1.20.1 (1.20.5+): the same behaviour comes from these overrides (no drowning; aquatic
+    // mob type, so Impaling hits it). Missed in F5, added in F8 with the rest of the tag compat.
+    @Override
+    public boolean canBreatheUnderwater() {
+        return true;
+    }
+
+    @Override
+    public net.minecraft.world.entity.MobType getMobType() {
+        return net.minecraft.world.entity.MobType.WATER;
+    }
+
     // PORT: EntityType.Builder eyeHeight(1.1F)/passengerAttachments(0.3125F)/ridingOffset(-0.7F)
     @Override
     protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {

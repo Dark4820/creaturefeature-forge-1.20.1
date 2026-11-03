@@ -8,7 +8,7 @@
     "SleepyJumpMixin", "LivingEntitySwingMixin", "AbstractBlockMixin", "AbstractContainerMenuMixin", "LivingEntityGoopMixin", "MonsterEntityMixin", "PlayerAdvancementsMixin", "PlayerMixin", "ShearsItemMixin"
   ],
   "client": [
-    "CFGameRendererMixin", "CFPostChainMixin", "CameraMixin", "CameraTypeMixin", "CFGuiMixin", "GuiGraphicsMixin", "FallingBlockEntityRendererMixin", "HumanoidArmorLayerMixin", "IamActivelyHavingaMigraineMixin", "LivingEntityRendererMixin"
+    "CFGameRendererMixin", "CFPostChainMixin", "CameraMixin", "CameraTypeMixin", "CFGuiMixin", "GuiGraphicsMixin", "FallingBlockEntityRendererMixin", "HumanoidArmorLayerMixin", "IamActivelyHavingaMigraineMixin", "LivingEntityRendererMixin", "AdvancementTabMixin", "AdvancementWidgetMixin"
   ],
   "injectors": {
     "defaultRequire": 1

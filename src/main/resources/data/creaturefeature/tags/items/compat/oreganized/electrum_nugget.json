@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "oreganized:electrum_nugget",
+      "required": false
+    }
+  ]
+}

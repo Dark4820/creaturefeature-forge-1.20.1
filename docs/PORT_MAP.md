@@ -79,8 +79,8 @@ minedflayer_jelly, carapace_block, eep (TNT), carapace_bricks, carapace_brick_st
 | 7 | PlayerAdvancementsMixin | común | `PlayerAdvancements.award` (HEAD) | 🔧 recibe `Advancement`, no `AdvancementHolder` |
 | 8 | PlayerMixin | común | `Player.tick` → "brainrot"/"rabies" del jugador | ✅ (+ datos sincronizados 🔧) |
 | 9 | ShearsItemMixin | común | agrega regla de `Tool` (velocidad 8 en tag `shearable`) y `mineBlock` | 🔧 no hay componente `Tool`: inyectar en `ShearsItem.getDestroySpeed` (y `isCorrectToolForDrops`) |
-| 10 | AdvancementTabMixin | cliente | `AdvancementTab.drawContents` → fondo propio | 🔧 verificar firma de `blit` · **pasa a F8** (junto con los logros que dibuja) |
-| 11 | AdvancementWidgetMixin | cliente | `AdvancementWidget.draw/isMouseOver` → dibujo propio de los logros del mod | 🔧 `AdvancementNode` no existe (usar `Advancement`); `@WrapMethod` requiere MixinExtras (ok) · **pasa a F8** |
+| 10 | AdvancementTabMixin | cliente | `AdvancementTab.drawContents` → fondo propio | ✅ F8: mismo destino y mismos ordinales de las variables int (4-7); los campos agregados pasan a `@Unique` |
+| 11 | AdvancementWidgetMixin | cliente | `AdvancementWidget.draw/isMouseOver` → dibujo propio de los logros del mod | ✅ F8: `AdvancementNode` → `Advancement` del widget; `requirements()[0][0]` → `getRequirements()[0][0]`; `getType()` → `getFrame()`; `getMaxProgressWidth()` (1.20.2+) → la misma cuenta que el constructor de 1.20.1; `@WrapMethod` con MixinExtras 0.4.1 |
 | 12 | CameraMixin | cliente | `Camera.setup` y `setRotation` → cámara alterada | ✅ F7: `setRotation(FF)V` (xRot sigue siendo el float de ordinal 1); `hasEffect(SLEEPY.get())` |
 | 13 | CameraTypeMixin | cliente | `CameraType.isFirstPerson` | ✅ F7 |
 | 14 | CFGameRendererMixin | cliente | `GameRenderer.render/renderLevel` → ejecuta los 9 `PostChain` y copia profundidad | ✅ F7: `render(FJZ)V`, mismos anclajes (`doEntityOutline` y primer `bindWrite`, justo después del post effect vanilla); `PostChain.setUniform` (1.20.5+) → `CreatureFeatureClient.setUniform` (uniform en el efecto de cada pase); `getRealtimeDeltaTicks` → `getDeltaFrameTime`; la inyección vacía en `renderLevel` no se porta |
@@ -132,7 +132,7 @@ Además hay que corregir: el original usa `java.awt.Color` en un renderer (funci
 | Pantalla de configuración | `ConfigurationScreen` de NeoForge (botón "Config" en la lista de mods) | Forge 1.20.1 no trae una genérica: el config se edita en `config/creaturefeature-client.toml` y `world/serverconfig/creaturefeature-server.toml` (o con un mod como Configured) | ⚠️ menor, sin código |
 | Contenido vanilla 1.21 usado | `Items.MACE`, `BREEZE_ROD` (posición en pestaña), sonidos `BREEZE_*` (Beauty, Blitz, Coat of Arms), partículas `DUST_PILLAR` (8 usos) e `ITEM_COBWEB`, efectos `INFESTED` y `OOZING` (blighted_brain), trial chambers | no existen | ⚠️ D3 |
 
-### Biome tags `c:` → 1.20.1 (propuesta, lo decido yo salvo que digas otra cosa)
+### Biome tags `c:` → 1.20.1 (aplicado en F8 por `tools/convert_resources.py`, `BIOME_TAGS`)
 | Original | 1.20.1 |
 |---|---|
 | `#c:is_overworld` | `#minecraft:is_overworld` |
@@ -216,6 +216,12 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | Friend fuera de Fabulous: buffer propio que se vuelca en `FRIEND_TARGET` y solo lo muestra la post chain "friend" | F4-F6 usaban siempre el camino Fabulous; **F7 vuelve al original** (Fabulous → buffer normal; Rápidos/Elegantes → `getFriendSource()` + post chain) |
 | `Item.Properties().durability(4).stacksTo(1)` (flintlock) | `durability(4)`: en 1.20.1 `stacksTo` después de `durability` lanza "Unable to have damage AND stack" (el mod no cargaba) |
 | `PacketDistributor.sendToPlayer` | `CFNetwork.sendToPlayer` |
+| Biome modifiers (F8): `neoforge:add_spawns/remove_spawns` en `neoforge/biome_modifier` | `forge:add_spawns/remove_spawns` en `forge/biome_modifier`, mismos biomas, pesos y grupos; los tags `c:` según la tabla de §4 (`#c:is_outer_end_island`, `#c:is_floral` y `#c:no_default_monsters` pasan a listas de biomas). `toadstool.json` no (D2). Lo hace el script |
+| `neoforge:add_table` (F8, compat Oreganized / C&C) | no existe en Forge 1.20.1: loot modifier propio `creaturefeature:add_table` (`AddTableLootModifier`, agregado del port), mismos archivos y condiciones (`forge:loot_table_id`, `random_chance`); lista en `data/forge/loot_modifiers/global_loot_modifiers.json` |
+| Tablas `oreganized:entities/extra_*` y `caverns_and_chasms:entities/extra_sinister` con el ítem del otro mod (F8) | en 1.20.1 un ítem desconocido en una loot table es un error de carga si el mod no está: la entrada pasa a `minecraft:tag` con un tag propio (`creaturefeature:compat/<mod>/<ítem>`) que lista el ítem como opcional (`required: false`); sin el mod el tag queda vacío y no cae nada. `enchanted_count_increase` → `looting_enchant` |
+| `ominous_powder_skull` (loot modifier sobre `minecraft:spawners/trial_chamber/items_to_drop_when_ominous`) | no se porta: las trial chambers no existen en 1.20.1 (y la powder skull es ★, F9) |
+| Tags de entidad `minecraft:aquatic` y `can_breathe_under_water` (cangrejo, F8; se habían pasado en F5) | no existen en 1.20.1: `getMobType() = WATER` y `canBreatheUnderwater() = true` en `CannonballCrabEntity`. `arthropod` (dreamweaver) ya lo da `Spider`; `zombies` ver arriba |
+| Logros (F8): `advancement/`, ícono `{"id"}` | `advancements/`, ícono `{"item"}` (lo hace el script); triggers con `CriteriaTriggers.register` (desde F1) |
 | `PostChain.setUniform(name, value)` (F7) | no existe en 1.20.1: `CreatureFeatureClient.setUniform(chain, name, value)` hace lo mismo pase por pase (`getEffect().safeGetUniform(name).set(value)`) |
 | `ClientTickEvent.Pre` (F7) | `TickEvent.ClientTickEvent` con `phase == START` |
 | Recarga de recursos (F7): el original dejaba `HAZE_TARGET` apuntando a la cadena vieja hasta cambiar el tamaño de la ventana | `registerPostChains` lo pone en null para que el tick lo tome de la cadena nueva |
@@ -274,7 +280,7 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | **F5** ✅ | Lote 3: dreamweaver, cannonball_crab, minedflayer, mockingbird, pathogen, saint_solis, stained_glass, **blossom** (pasó de F3: escupe `spat_block`) + spat_block, murky_pearl, vitric_arrow, eep (TNT, bloque + entidad), **feather** (mockingbird) y **star** (saint_solis), que estaban en F4, + los ítems arrojables de esas entidades: murky_pearl, vitric_arrow, down_feather y **solar_shard** (pasó de F6: solo arroja stars) | `/summon`, ver y pelear; arrojar los ítems |
 | **F6** ✅ | Ítems con lógica (el flintlock ya está desde F4 y solar_shard desde F5): vertigo_horn (vuelve con él el botín de cuernos del vertigo), dream_catcher, open_mind, the_pill, bouquet (`FlowerCloneRecipe`), fiendish_soda, bacterium_ball, solar_shard, living_glass, heavy_axe, doohickey (BE + renderer) + mixins comunes (1,2,4,5,7,8,9) | usar cada ítem; atrapar un spawner con el dream catcher |
 | **F7** ✅ | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
-| **F8** | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |
+| **F8** ✅ | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |
 | **F9** (opcional, según D1) | Contenido ★: powder_skull, trichael, fisheye, wraith, obelisk, collumn, delay | `/summon` |
 | **F10** | Pulido: servidor dedicado con cliente, modpack real (Oculus/Embeddium si están), versión final | sesión de juego normal |
 
