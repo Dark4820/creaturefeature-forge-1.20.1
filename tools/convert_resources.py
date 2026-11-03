@@ -115,6 +115,33 @@ def copy_assets():
 
 
 # ---------- data ----------
+ENTITY_TARGETS = {"direct_attacker": "direct_killer", "attacker": "killer", "attacking_player": "killer_player"}
+
+
+def convert_condition(c):
+    """1.21 loot conditions inside functions/entries -> 1.20.1: entity target names, and the equipment predicate
+    with #minecraft:smelts_loot (1.21 vanilla "killed with fire aspect") -> the 1.20.1 enchantment predicate."""
+    if isinstance(c, list):
+        return [convert_condition(x) for x in c]
+    if not isinstance(c, dict):
+        return c
+    c = {k: convert_condition(v) for k, v in c.items()}
+    if c.get("condition") == "minecraft:entity_properties" and c.get("entity") in ENTITY_TARGETS:
+        c["entity"] = ENTITY_TARGETS[c["entity"]]
+    preds = c.get("predicates")
+    if isinstance(preds, dict) and "minecraft:enchantments" in preds:
+        enchs = []
+        for e in preds.pop("minecraft:enchantments"):
+            if e.get("enchantments") == "#minecraft:smelts_loot":
+                enchs.append({"enchantment": "minecraft:fire_aspect"})
+            else:
+                raise ValueError("unknown enchantment predicate " + json.dumps(e))
+        if not preds:
+            c.pop("predicates")
+        c["enchantments"] = enchs
+    return c
+
+
 def convert_entity_loot(d, ids, dropped):
     """1.21 entity loot -> 1.20.1. Entries with items not registered yet are dropped (and listed); a pool left
     without entries is removed. Re-running the script in a later phase brings them back."""
@@ -127,6 +154,8 @@ def convert_entity_loot(d, ids, dropped):
                 dropped.append(name)
                 continue
             for f in e.get("functions", []):
+                if "conditions" in f:
+                    f["conditions"] = convert_condition(f["conditions"])
                 if f["function"] == "minecraft:enchanted_count_increase":
                     _LOOT_COUNTS[id(e)] = f["count"]
                     # 1.21 enchanted_count_increase(looting) -> 1.20.1 looting_enchant (same count per level)

@@ -1,7 +1,7 @@
 package net.atired.creaturefeature.init;
 
 import net.atired.creaturefeature.CreatureFeature;
-import net.atired.creaturefeature.items.FlintlockItem;
+import net.atired.creaturefeature.items.*;
 import net.atired.creaturefeature.items.NanDiscItem;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -48,6 +48,39 @@ public class CFItemInit {
             ForgeSpawnEggItem(CFEntityInit.VERTIGO,0xa97eb6,0x736967,new  Item.Properties()));
     public static final RegistryObject<Item> COAT_OF_ARMS_EGG = ITEMS.register("coat_of_arms_spawn_egg", ()->new
             ForgeSpawnEggItem(CFEntityInit.COATOFARMS,0xdcafa7,0x975249,new  Item.Properties()));
+    public static final RegistryObject<Item> MINEDFLAYER_EGG = ITEMS.register("minedflayer_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.MINEDFLAYER,0xe7b9d1,0x75a6cd,new  Item.Properties()));
+    public static final RegistryObject<Item> DREAMWEAVER_EGG = ITEMS.register("dreamweaver_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.DREAMWEAVER,0x64775d,0x515657,new  Item.Properties()));
+    public static final RegistryObject<Item> RUNAWAY_EGG = ITEMS.register("runaway_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.CANNONBALL_CRAB,0x8a9a71,0x507590,new  Item.Properties()));
+    public static final RegistryObject<Item> MOCKINGBIRD_EGG = ITEMS.register("mockingbird_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.MOCKINGBIRD,0xefefc3,0x9ae1d7,new  Item.Properties()));
+    public static final RegistryObject<Item> PATHOGEN_EGG = ITEMS.register("pathogen_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.PATHOGEN,0xd8e7c3,0x4ca150,new  Item.Properties()));
+    public static final RegistryObject<Item> BLOSSOM_EGG = ITEMS.register("blossom_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.BLOSSOM,0x67e081,0x729e65,new  Item.Properties()));
+    public static final RegistryObject<Item> SAINT_SOLIS_EGG = ITEMS.register("saint_solis_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.SAINT_SOLIS,0xeb9e5a,0xdb4b4b,new  Item.Properties()));
+    public static final RegistryObject<Item> STAINED_GLASS_EGG = ITEMS.register("stained_glass_spawn_egg", ()->new
+            ForgeSpawnEggItem(CFEntityInit.STAINED_GLASS,0x9f96b6,0x45467f,new  Item.Properties()));
+    // PORT: the throwables of the F5 entities come with them (solar_shard from F6: it only throws stars)
+    public static final RegistryObject<Item> VITRIC_ARROW = ITEMS.register(
+            "vitric_arrow",
+            ()->new VitricArrowItem(new Item.Properties())
+    );
+    public static final RegistryObject<Item> DOWN_FEATHER = ITEMS.register(
+            "down_feather",
+            ()->new DownFeatherItem(new Item.Properties())
+    );
+    public static final RegistryObject<Item> SOLAR_SHARD = ITEMS.register(
+            "solar_shard",
+            ()->new SolarShardItem(new Item.Properties())
+    );
+    public static final RegistryObject<Item> MURKY_PEARL = ITEMS.register(
+            "murky_pearl",
+            ()->new MurkyPearlItem(new Item.Properties())
+    );
     // PORT: flintlock moved from F6 to F4: the fiend and the coat of arms hold it (renderers) and the fiend's shots
     // throw its item particles.
     public static final RegistryObject<Item> FLINTLOCK = ITEMS.register(

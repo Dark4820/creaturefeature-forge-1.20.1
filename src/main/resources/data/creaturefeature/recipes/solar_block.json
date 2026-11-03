@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": {
+      "item": "creaturefeature:solar_shard"
+    },
+    "A": {
+      "item": "minecraft:blaze_powder"
+    }
+  },
+  "pattern": [
+    "A#",
+    "#A"
+  ],
+  "result": {
+    "item": "creaturefeature:solar_block",
+    "count": 4
+  }
+}

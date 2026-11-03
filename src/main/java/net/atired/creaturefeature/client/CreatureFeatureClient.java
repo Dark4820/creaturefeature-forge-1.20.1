@@ -23,7 +23,7 @@ import net.minecraftforge.fml.common.Mod;
  * subscriber limited to Dist.CLIENT (a dedicated server never loads it). The original also registered NeoForge's
  * ConfigurationScreen; Forge 1.20.1 has no built-in config screen, so the config is edited in its file.
  * Filled phase by phase: F1 = feather colour handlers (added after the in-game test), F2 = PROXY and particle
- * providers (shaders are registered in CFRenderTypes), F3-F4 = layers and renderers of the creatures ported so far.
+ * providers (shaders are registered in CFRenderTypes), F3-F5 = layers and renderers of the creatures.
  * Still to come: item properties (F6), post chains and render targets (F7), the other layers and renderers (F4-F5)
  * and the client tick (with their content).
  */
@@ -50,7 +50,9 @@ public class CreatureFeatureClient {
     }
 
     // PORT: only the creatures already ported (F3: minds, machination, sinister, beauty, detritus;
-    // F4: fiend, fend, friend, blitz, eeper, nothing, canary, vertigo, coat_of_arms + bullet, kicked_block)
+    // F4: fiend, fend, friend, blitz, eeper, nothing, canary, vertigo, coat_of_arms + bullet, kicked_block;
+    // F5: minedflayer, cannonball_crab, dreamweaver, mockingbird, pathogen, blossom, saint_solis, stained_glass +
+    // eep, vitric_arrow, feather, star, spat_block, murky_pearl)
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(MindsEntityModel.LAYER_LOCATION, MindsEntityModel::createBodyLayer);
@@ -72,6 +74,16 @@ public class CreatureFeatureClient {
         event.registerLayerDefinition(FendEntityModel.LAYER_LOCATION, FendEntityModel::createBodyLayer);
         event.registerLayerDefinition(FendEntityModel.LAYER_INNER_ARMOUR_LOCATION,()->{return LayerDefinition.create(HumanoidArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION), 64, 32);});
         event.registerLayerDefinition(FendEntityModel.LAYER_ARMOUR_LOCATION, ()->{return LayerDefinition.create(HumanoidArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION), 64, 32);});
+        event.registerLayerDefinition(MinedFlayerEntityModel.LAYER_LOCATION, MinedFlayerEntityModel::createBodyLayer);
+        event.registerLayerDefinition(DreamWeaverEntityModel.LAYER_LOCATION, DreamWeaverEntityModel::createBodyLayer);
+        event.registerLayerDefinition(DreamWeaverEntityModel.INNER_LAYER_LOCATION, ()->{return DreamWeaverEntityModel.createBodyLayer(-0.1f);});
+        event.registerLayerDefinition(DreamWeaverEntityModel.INNERER_LAYER_LOCATION, ()->{return DreamWeaverEntityModel.createBodyLayer(-0.05f);});
+        event.registerLayerDefinition(CannonballCrabEntityModel.LAYER_LOCATION, CannonballCrabEntityModel::createBodyLayer);
+        event.registerLayerDefinition(MockingBirdEntityModel.LAYER_LOCATION, MockingBirdEntityModel::createBodyLayer);
+        event.registerLayerDefinition(PathogenEntityModel.LAYER_LOCATION, PathogenEntityModel::createBodyLayer);
+        event.registerLayerDefinition(BlossomEntityModel.LAYER_LOCATION, BlossomEntityModel::createBodyLayer);
+        event.registerLayerDefinition(SaintSolisEntityModel.LAYER_LOCATION, SaintSolisEntityModel::createBodyLayer);
+        event.registerLayerDefinition(StainedGlassEntityModel.LAYER_LOCATION, StainedGlassEntityModel::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -93,6 +105,20 @@ public class CreatureFeatureClient {
         event.registerEntityRenderer(CFEntityInit.FEND.get(), FendEntityRenderer::new);
         event.registerEntityRenderer(CFEntityInit.BULLET.get(), BulletEntityRenderer::new);
         event.registerEntityRenderer(CFEntityInit.KICKED_BLOCK.get(), KickedBlockEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.MINEDFLAYER.get(), MinedFlayerEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.CANNONBALL_CRAB.get(), CannonballCrabEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.DREAMWEAVER.get(), DreamWeaverEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.MOCKINGBIRD.get(), MockingBirdEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.PATHOGEN.get(), PathogenEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.BLOSSOM.get(), BlossomEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.SAINT_SOLIS.get(), SaintSolisEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.STAINED_GLASS.get(), StainedGlassEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.EEP.get(), EepEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.VITRIC_ARROW.get(),  (c)->{return new VitricArrowEntityRenderer(c);});
+        event.registerEntityRenderer(CFEntityInit.FEATHER.get(),  (c)->{return new FeatherEntityRenderer(c,1.0f,false);});
+        event.registerEntityRenderer(CFEntityInit.STAR.get(),  (c)->{return new StarProjEntityRenderer(c,1.0f,false);});
+        event.registerEntityRenderer(CFEntityInit.SPAT_BLOCK.get(), SpatBlockEntityRenderer::new);
+        event.registerEntityRenderer(CFEntityInit.MURKY_PEARL.get(), (c)->{return new MurkyPearlEntityRenderer(c,1.0f,false);});
     }
 
     // PORT: FISHEYE and RED_POWDER (★) are left out until F9

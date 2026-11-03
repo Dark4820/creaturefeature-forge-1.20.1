@@ -24,6 +24,14 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = CreatureFeature.MODID)
 public class CFEvents {
 
+    // PORT: FurnaceFuelBurnTimeEvent is the same event in Forge 1.20.1
+    @SubscribeEvent
+    public static void onFuelBurnTime(net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent event) {
+        if (event.getItemStack().is(CFItemInit.SOLAR_SHARD.get())) {
+            event.setBurnTime(1600*8);
+        }
+    }
+
     @SubscribeEvent
     public static void hurtMinds(AttackEntityEvent event) {
         if(event.getTarget() instanceof MindsEntityPart part){
@@ -52,6 +60,14 @@ public class CFEvents {
             event.put(CFEntityInit.FEND.get(), FendEntity.createFendAttributes().build());
             event.put(CFEntityInit.FRIEND.get(), FriendEntity.createFriendAttributes().build());
             event.put(CFEntityInit.COATOFARMS.get(), CoatOfArmsEntity.createCoatOfArmsAttributes().build());
+            event.put(CFEntityInit.MINEDFLAYER.get(), MinedFlayerEntity.createFlayerAttributes().build());
+            event.put(CFEntityInit.CANNONBALL_CRAB.get(), CannonballCrabEntity.createCrabAttributes().build());
+            event.put(CFEntityInit.DREAMWEAVER.get(), DreamWeaverEntity.createWeaverAttributes().build());
+            event.put(CFEntityInit.MOCKINGBIRD.get(), MockingBirdEntity.createMockingBirdAttributes().build());
+            event.put(CFEntityInit.PATHOGEN.get(), PathogenesisEntity.createPathogenAttributes().build());
+            event.put(CFEntityInit.BLOSSOM.get(), BlossomEntity.createAttributes().build());
+            event.put(CFEntityInit.SAINT_SOLIS.get(), SaintSolisEntity.createSaintSolisAttributes().build());
+            event.put(CFEntityInit.STAINED_GLASS.get(), StainedGlassEntity.createStainedGlassAttributes().build());
         }
 
         // PORT: RegisterSpawnPlacementsEvent/SpawnPlacementTypes -> SpawnPlacementRegisterEvent/SpawnPlacements.Type.
@@ -68,6 +84,13 @@ public class CFEvents {
             event.register(CFEntityInit.FRIEND.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FriendEntity::checkFriendSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.FEND.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, FendEntity::checkFendSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.COATOFARMS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.MINEDFLAYER.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ((entityType, serverLevelAccessor, mobSpawnType, blockPos, randomSource) -> {return blockPos.getY()>50;}), SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.CANNONBALL_CRAB.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.DREAMWEAVER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.BLOSSOM.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.SAINT_SOLIS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.STAINED_GLASS.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ((entityType, serverLevelAccessor, mobSpawnType, blockPos, randomSource) -> {return Monster.isDarkEnoughToSpawn(serverLevelAccessor, blockPos, randomSource)&&blockPos.getY()>0&&Math.random()>0.4&&serverLevelAccessor.getHeight(Heightmap.Types.MOTION_BLOCKING,blockPos.getX(),blockPos.getZ())+6>blockPos.getY();}), SpawnPlacementRegisterEvent.Operation.AND);
+            event.register(CFEntityInit.MOCKINGBIRD.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.BEAUTY.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.MINDS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
             event.register(CFEntityInit.MACHINATION.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, SpawnPlacementRegisterEvent.Operation.AND);
@@ -83,18 +106,27 @@ public class CFEvents {
                 event.accept(CFItemInit.BEAUTY_EGG.get());
                 event.accept(CFItemInit.SINISTER_EGG.get());
                 event.accept(CFItemInit.MACHINATION_EGG.get());
+                event.accept(CFItemInit.MINEDFLAYER_EGG.get());
                 event.accept(CFItemInit.EEPER_EGG.get());
                 event.accept(CFItemInit.BLITZ_EGG.get());
                 event.accept(CFItemInit.NOTHING_EGG.get());
                 event.accept(CFItemInit.CANARY_EGG.get());
                 event.accept(CFItemInit.VERTIGO_EGG.get());
+                event.accept(CFItemInit.DREAMWEAVER_EGG.get());
+                event.accept(CFItemInit.RUNAWAY_EGG.get());
                 event.accept(CFItemInit.FIEND_EGG.get());
                 event.accept(CFItemInit.FEND_EGG.get());
                 event.accept(CFItemInit.FRIEND_EGG.get());
+                event.accept(CFItemInit.MOCKINGBIRD_EGG.get());
+                event.accept(CFItemInit.PATHOGEN_EGG.get());
+                event.accept(CFItemInit.BLOSSOM_EGG.get());
+                event.accept(CFItemInit.SAINT_SOLIS_EGG.get());
                 event.accept(CFItemInit.DETRITUS_EGG.get());
+                event.accept(CFItemInit.STAINED_GLASS_EGG.get());
                 event.accept(CFItemInit.COAT_OF_ARMS_EGG.get());
             }
             if(event.getTabKey()==CreativeModeTabs.COMBAT){
+                insertAfter(event,Items.ARROW,CFItemInit.VITRIC_ARROW.get());
                 insertBefore(event,Items.BOW,CFItemInit.FLINTLOCK.get());
             }
             if(event.getTabKey()==CreativeModeTabs.INGREDIENTS){
@@ -109,7 +141,10 @@ public class CFEvents {
                 insertAfter(event,Items.BLAZE_ROD,CFItemInit.BLITZ_ROD.get());
                 insertBefore(event,Items.NAUTILUS_SHELL,CFItemInit.CARAPACE.get());
                 insertAfter(event,Items.POPPED_CHORUS_FRUIT,CFItemInit.DREAM_SILK.get());
+                insertAfter(event,Items.HONEYCOMB,CFItemInit.DOWN_FEATHER.get());
                 insertAfter(event,Items.HONEYCOMB,CFItemInit.ECTOPLASM.get());
+                insertAfter(event,Items.ENDER_PEARL,CFItemInit.SOLAR_SHARD.get());
+                insertAfter(event,Items.ENDER_PEARL,CFItemInit.MURKY_PEARL.get());
                 insertBefore(event,Items.GHAST_TEAR,CFItemInit.THINGAMABOB.get());
                 insertBefore(event,Items.GHAST_TEAR,CFItemInit.FIENDISH_ESSENCE.get());
                 insertBefore(event,Items.LEATHER,CFItemInit.COAT_SCRAPS.get());
@@ -141,6 +176,9 @@ public class CFEvents {
             if(event.getTabKey()==CreativeModeTabs.FUNCTIONAL_BLOCKS){
                 insertAfter(event,Items.SOUL_CAMPFIRE, CFBlockInit.CARAPACE_BLOCK.get());
                 insertBefore(event,Items.LODESTONE, CFBlockInit.MINEDFLAYER_JELLY.get());
+            }
+            if(event.getTabKey()==CreativeModeTabs.REDSTONE_BLOCKS){
+                insertBefore(event,Items.TNT,CFBlockInit.EEP.get());
             }
             if(event.getTabKey()==CreativeModeTabs.TOOLS_AND_UTILITIES){
                 insertAfter(event,Items.MUSIC_DISC_13, CFItemInit.NOTHING_DISC.get());

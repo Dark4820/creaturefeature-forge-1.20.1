@@ -1,13 +1,25 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**F4 cerrada; prueba corta hecha, con 2 errores corregidos (2026-11-02).** Falta volver a probar coat of arms y friend en el juego. Siguiente: F5 (tercer lote de criaturas).
+**F5 cerrada (2026-11-02).** Falta la prueba corta de F5 y volver a probar coat of arms y friend. Siguiente: F6 (ítems con lógica y mixins comunes).
 
 ## Pruebas en el juego pendientes
 - **Arreglos de F4:** coat of arms (abre la capa y dispara sin crashear) y friend (se ve el cubo, la carita y las copias), en gráficos Rápidos/Detallados y en Fabulosos.
+- **Prueba corta de F5:** que las 8 criaturas, los proyectiles y el eep se vean, se animen y ataquen bien (lista en el mensaje de cierre de F5).
+- **Tanda final, F5:** botín, los 8 huevos, sonidos, arrojar murky_pearl/down_feather/solar_shard (también con dispensador), vitric_arrow con arco, solar_shard como combustible (12 800 ticks), eep con mechero, redstone y fuego.
 - **Compat. ectoplasma:** con Goety instalado, las recetas de pergaminos y antorchas aceptan `goety:ectoplasm`.
 - **Tanda final, F3:** botín de las 5 criaturas (con y sin Botín III), los 5 huevos (pestaña y colores), sonidos y el resto de los detalles de la lista de F3 (cerebro del minds con flecha, rebote de daño del sinister, flechas desviadas por el beauty, detritus dañado por curación instantánea, etc.).
 - **Tanda final, F4:** botín (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…), los 9 huevos, sonidos, el flintlock en la pestaña Combate (dispara y se rompe a los 4 usos), el disco NaN cuando un fiend mata a otro fiend y el disco "nothing" cuando un esqueleto mata a un nothing, el jinete esqueleto del fiend (1 de 12 al aparecer naturalmente, F8), la variante "deep" del fend (aparece bajo y=20).
+
+## F5 - Criaturas lote 3 (2026-11-02) ✅
+Lote: **minedflayer, dreamweaver, cannonball_crab** (huevo `runaway_spawn_egg`), **mockingbird, pathogen, blossom, saint_solis, stained_glass** + entidades **spat_block** (lo escupe el blossom), **murky_pearl, feather** (las tira el mockingbird), **vitric_arrow, star** (las tira el saint solis), **eep** (TNT de sueño: bloque `eep` + entidad) y los ítems arrojables de esas entidades: **murky_pearl, vitric_arrow, down_feather, solar_shard** (este último adelantado de F6: solo arroja stars; también es combustible).
+- Revisado en el original el renderizado especial: dreamweaver (capas de seda con el shader `silk`, ojos, y dibuja dentro la criatura que va a invocar), saint_solis (sol de icosfera, `misc/IcoSphere` copiado tal cual), blossom (pétalos y nube de esporas con el shader `blossom`), mockingbird (alas de cintas; texturas alternativas con `remodelmb`), stained_glass y feather/vitric_arrow (estelas `ambush`), cannonball_crab (patas de cintas), pathogen (sombra que se desvanece), spat_block (bloque girando), eep (TNT que gira). Ninguno tiene manejadores de color.
+- Cambios con `// PORT:` (PORT_MAP §6c). Saint solis y star: hasta F7 toman el camino `fixsas` del original (como el friend). Pathogen: se quita el import de `ToadstoolRenderPayload` (Sable, D2).
+- Esperan su ítem de F6: `bacterium_ball` (botín del pathogen), `living_glass_shards` (botín del stained glass y receta de la vitric_arrow: hasta F6 las flechas vítreas solo salen del modo creativo). El minedflayer usa `PlayerBrainrotAccessor` (F6).
+- Encontrado por los GameTests: el dreamweaver no se podía crear (`ConcurrentModificationException` al quitar metas mientras recorría el conjunto); la loot table del mockingbird no cargaba (condición de 1.21, ahora la convierte el script); nombres de GameTests repetidos entre clases (ahora con prefijo de fase). Bug del original que se conserva: la murky pearl disparada por dispensador tiene el tipo `snowball`.
+- GameTests (`F5GameTests`, 6): los 8 huevos; botín de 7 criaturas (incluye el murky_pearl del nothing, que esperaba desde F4); gravedades (minedflayer 0, pathogen y stained_glass 0,01, la vitric_arrow cae con la gravedad variable del original); los 3 arrojables (1, 3 y 8 proyectiles) y el ítem flecha; combustible del solar_shard; el dispensador dispara la murky pearl; el bloque eep se enciende con mechero y su explosión da sleepy.
+
+Verificado: `build` OK; `runGameTestServer` 36/36; `runServer` hasta `Done (2.772s)`; `runClientRenderSmoke` OK con 22 criaturas (sin errores del mod; capturas revisadas).
 
 ## Prueba corta de F4 + arreglos (2026-11-02)
 El usuario probó el jar real: fiend, fend, blitz, eeper, nothing, canary, vertigo y el flintlock funcionan. Dos errores:

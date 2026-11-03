@@ -34,6 +34,8 @@ public class CFBlockInit {
     // PORT: ColorRGBA does not exist in 1.20.1: the dust color is a plain ARGB int
     public static final RegistryObject<Block> CARAPACE_BLOCK = registerBlock("carapace_block",
             () -> new CarapaceBlock(0xFF7b775f,BlockBehaviour.Properties.copy(Blocks.PACKED_MUD)));
+    public static final RegistryObject<Block> EEP = registerBlock("eep",
+            () -> new EepBlock(BlockBehaviour.Properties.copy(Blocks.TNT)));
     public static final RegistryObject<Block> CARAPACE_BRICKS = registerBlock("carapace_bricks",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE_BRICKS)));
     // PORT: Forge's StairBlock(Supplier<BlockState>, Properties) because CARAPACE_BRICKS is not built yet here

@@ -48,7 +48,7 @@ public class F3GameTests {
             CFEntityInit.MINDS, CFEntityInit.MACHINATION, CFEntityInit.SINISTER, CFEntityInit.BEAUTY, CFEntityInit.DETRITUS);
 
     @GameTest(template = TEMPLATE)
-    public static void spawnEggsSpawnTheirCreature(GameTestHelper helper) {
+    public static void f3SpawnEggsSpawnTheirCreature(GameTestHelper helper) {
         List<Supplier<? extends Item>> eggs = List.of(CFItemInit.MINDS_EGG, CFItemInit.MACHINATION_EGG, CFItemInit.SINISTER_EGG,
                 CFItemInit.BEAUTY_EGG, CFItemInit.DETRITUS_EGG);
         Player player = helper.makeMockPlayer();
@@ -65,7 +65,7 @@ public class F3GameTests {
     }
 
     @GameTest(template = TEMPLATE)
-    public static void lootTablesDropTheOriginalItems(GameTestHelper helper) {
+    public static void f3LootTablesDropTheOriginalItems(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         Player killer = helper.makeMockPlayer();
         assertDrops(helper, CFEntityInit.MINDS.get(), killer, Set.of(Items.ROTTEN_FLESH, CFItemInit.BLIGHTED_BRAIN.get()));

@@ -48,7 +48,7 @@ public class F4GameTests {
     private static final String TEMPLATE = SkeletonGameTests.TEMPLATE;
 
     @GameTest(template = TEMPLATE)
-    public static void spawnEggsSpawnTheirCreature(GameTestHelper helper) {
+    public static void f4SpawnEggsSpawnTheirCreature(GameTestHelper helper) {
         List<Supplier<? extends Item>> eggs = List.of(CFItemInit.FIEND_EGG, CFItemInit.FEND_EGG, CFItemInit.FRIEND_EGG, CFItemInit.BLITZ_EGG,
                 CFItemInit.EEPER_EGG, CFItemInit.NOTHING_EGG, CFItemInit.CANARY_EGG, CFItemInit.VERTIGO_EGG, CFItemInit.COAT_OF_ARMS_EGG);
         List<Supplier<? extends EntityType<?>>> types = List.of(CFEntityInit.FIEND, CFEntityInit.FEND, CFEntityInit.FRIEND, CFEntityInit.BLITZ,
@@ -67,7 +67,7 @@ public class F4GameTests {
     }
 
     @GameTest(template = TEMPLATE)
-    public static void lootTablesDropTheOriginalItems(GameTestHelper helper) {
+    public static void f4LootTablesDropTheOriginalItems(GameTestHelper helper) {
         Player killer = helper.makeMockPlayer();
         assertDrops(helper, CFEntityInit.BLITZ.get(), killer, Set.of(CFItemInit.BLITZ_ROD.get()));
         assertDrops(helper, CFEntityInit.CANARY.get(), killer, Set.of(Items.IRON_NUGGET, Items.IRON_INGOT));

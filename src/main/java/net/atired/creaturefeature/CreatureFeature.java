@@ -15,6 +15,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(CreatureFeature.MODID)
 public class CreatureFeature {
     public static final String MODID = "creaturefeature";
+    // sphere mesh shared by the saint solis renderer (F5) and the doohickey renderer (F6); plain geometry, no client classes
+    public static net.atired.creaturefeature.misc.IcoSphere ICO = net.atired.creaturefeature.misc.IcoSphere.MakeIcosphere(2);
 
     public CreatureFeature() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -37,8 +39,35 @@ public class CreatureFeature {
         return new ResourceLocation(MODID, string);
     }
 
+    // PORT: 1.21 items implementing ProjectileItem are dispensed automatically; in 1.20.1 each one registers an
+    // AbstractProjectileDispenseBehavior (same default power 1.1 and uncertainty 6 as ProjectileItem's)
+    private static void registerDispenserBehaviours() {
+        net.minecraft.world.level.block.DispenserBlock.registerBehavior(CFItemInit.MURKY_PEARL.get(), projectile(
+                (level, pos, stack) -> ((net.atired.creaturefeature.items.MurkyPearlItem) CFItemInit.MURKY_PEARL.get()).asProjectile(level, pos, stack, null)));
+        net.minecraft.world.level.block.DispenserBlock.registerBehavior(CFItemInit.DOWN_FEATHER.get(), projectile(
+                (level, pos, stack) -> ((net.atired.creaturefeature.items.DownFeatherItem) CFItemInit.DOWN_FEATHER.get()).asProjectile(level, pos, stack, null)));
+        net.minecraft.world.level.block.DispenserBlock.registerBehavior(CFItemInit.SOLAR_SHARD.get(), projectile(
+                (level, pos, stack) -> ((net.atired.creaturefeature.items.SolarShardItem) CFItemInit.SOLAR_SHARD.get()).asProjectile(level, pos, stack, null)));
+        net.minecraft.world.level.block.DispenserBlock.registerBehavior(CFItemInit.VITRIC_ARROW.get(), projectile(
+                (level, pos, stack) -> ((net.atired.creaturefeature.items.VitricArrowItem) CFItemInit.VITRIC_ARROW.get()).asProjectile(level, pos, stack, null)));
+    }
+
+    private interface ProjectileFactory {
+        net.minecraft.world.entity.projectile.Projectile create(net.minecraft.world.level.Level level, net.minecraft.core.Position pos, net.minecraft.world.item.ItemStack stack);
+    }
+
+    private static net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior projectile(ProjectileFactory factory) {
+        return new net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior() {
+            @Override
+            protected net.minecraft.world.entity.projectile.Projectile getProjectile(net.minecraft.world.level.Level level, net.minecraft.core.Position pos, net.minecraft.world.item.ItemStack stack) {
+                return factory.create(level, pos, stack);
+            }
+        };
+    }
+
     // PORT: the payloads were registered in CFEvents.register (RegisterPayloadHandlersEvent); see CFNetwork
     private void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(CFNetwork::register);
+        event.enqueueWork(CreatureFeature::registerDispenserBehaviours);
     }
 }
