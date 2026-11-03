@@ -20,7 +20,7 @@ published 1.2.3.3 jar), first Forge 1.20.1 release.
 ## Install
 
 - Minecraft 1.20.1 with Forge 47.4 or newer.
-- Use `creaturefeature-1.2.3.3-forge.1-all.jar` (it carries MixinExtras inside). Install it on the server and on
+- Use `creaturefeature-forge-1.20.1-1.2.3.3-forge.1.jar` (it carries MixinExtras inside; the `-dev` jar is not for players). Install it on the server and on
   every client.
 - No other mod is required. Optional compat: Oreganized and Caverns and Chasms (extra drops), Blueprint (armour
   trim item models), Goety (its ectoplasm and this mod's are interchangeable).

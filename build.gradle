@@ -165,8 +165,18 @@ tasks.named('jar', Jar).configure {
     }
 }
 
-// The distributed jar is the jarJar one (it carries MixinExtras); reobfuscate it too
-tasks.named('jarJar') { finalizedBy 'reobfJarJar' }
+// The distributed jar is the jarJar one (it carries MixinExtras); reobfuscate it too.
+// PORT: names: the jarJar one is the release, creaturefeature-forge-1.20.1-<version>.jar (no classifier); the plain
+// jar (without MixinExtras, not usable in the real game) keeps the "-dev" classifier so it cannot be mistaken for it.
+tasks.named('jarJar', Jar).configure {
+    archiveBaseName = "${mod_id}-forge-${minecraft_version}"
+    archiveClassifier = ''
+    finalizedBy 'reobfJarJar'
+}
+tasks.named('jar', Jar).configure {
+    archiveBaseName = "${mod_id}-forge-${minecraft_version}"
+    archiveClassifier = 'dev'
+}
 reobf { jarJar {} }
 
 tasks.withType(JavaCompile).configureEach {
