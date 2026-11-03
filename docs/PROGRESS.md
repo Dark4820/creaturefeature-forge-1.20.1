@@ -1,65 +1,38 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**Port completo (2026-11-02): F0-F10 cerradas, etiqueta `port-completo`.** Versión `1.2.3.3-forge.1`. Falta la tanda final de pruebas en el juego (lista de abajo).
+**Port completo y probado en el juego (2026-11-03).** F0-F10 cerradas, versión `1.2.3.3-forge.1` (etiqueta `port-completo`). Tanda final hecha con todo el modpack; lo que falta se ve jugando (abajo).
 
-## Pruebas en el juego pendientes (lista única, en orden)
-Con el jar `creaturefeature-1.2.3.3-forge.1-all.jar` en `C:\cf\test\mods` (sacar el jar anterior). Un mundo nuevo en creativo con trucos para los pasos 1-9 y uno en supervivencia, dificultad difícil, para el 10 en adelante. Antes de empezar: `/gamerule doDaylightCycle false`, `/time set midnight`.
+## Por ver jugando (sin prueba dedicada)
+Lo que queda de la tanda final; el usuario lo va viendo en partidas normales. La lista detallada con comandos está en el historial (commit `6a79c05`, "Pruebas en el juego pendientes").
+- **Apariciones naturales** de todas las criaturas en sus biomas (con la versión personal: vertigo en biomas fríos, stained glass en el End, blossom en las cuevas frondosas, beauty/nothing/mockingbird nunca, zombiflore sin lush_caves). **Blossom en lush_caves sin confirmar:** como todo monstruo necesita luz de bloque 0, y en las cuevas frondosas del modpack hay mucha luz (bayas brillantes); las listas de aparición sí están verificadas (`CF_PERSONAL_OK`).
+- **Logros** que faltan: horse, friendless, sinister, gas, renovation.
+- **Discos:** NaN (un fiend mata a otro fiend) y "nothing" (un esqueleto mata a un nothing).
+- **Botín** con y sin Botín III, huevos y sonidos de cada criatura, variantes (fend "deep" bajo y=20, fiend con esqueleto montado).
+- **Interruptor por criatura** en un mundo normal (`beauty = false`: el que existía desaparece; `/summon` sin NBT funciona, con NBT no).
+- **Compat Oreganized / Caverns and Chasms** (drops extra), si se instalan completos.
 
-1. **Arranque y versión:** en Mods aparece "Creature Feature (Forge 1.20.1 port)" 1.2.3.3-forge.1 con autores AtiredDev, Team Galena y los créditos.
-2. **Huevos (F3-F5):** en la pestaña de huevos están los 22 huevos con sus colores; usá cada uno (o `/summon creaturefeature:<id> ~ ~ ~4`) y escuchá sus sonidos. Detalles de F3: el minds suelta el cerebro con una flecha, el sinister refleja daño, el beauty desvía flechas, el detritus se daña con `/effect give @e[type=creaturefeature:detritus] instant_health`.
-3. **Botín (F3-F5):** `/give @s diamond_sword{Enchantments:[{id:"minecraft:looting",lvl:3}]}` y matar una de cada criatura con y sin la espada (blitz_rod, sleeping_powder, flintlock, coat_scraps, ectoplasm, fiendish_essence, vertigo_chunk…; el cuerno de vertigo sale el 60 % de las veces).
-4. **Discos (F4):** un fiend que mata a otro fiend suelta el disco NaN (`/summon creaturefeature:fiend ~ ~ ~3` dos veces y dejar que peleen, o darle daño con uno al otro); un esqueleto que mata a un nothing suelta el disco "nothing". Ponerlos en un tocadiscos.
-5. **Ítems (F4-F6):**
-   - el flintlock está en Combate, dispara y se rompe a los 4 usos;
-   - arrojar murky_pearl, down_feather y solar_shard a mano y con un dispensador (la perla sale como perla);
-   - vitric_arrow con arco;
-   - solar_shard como combustible en un horno (12 800 ticks = 64 ítems);
-   - el bloque eep (`/give @s creaturefeature:eep`) con mechero, redstone y fuego;
-   - tijeras rápidas en down_feathers y dream_silk_spool;
-   - el aviso del dream catcher sobre cofres.
-6. **Recetas (F6):** en el libro de recetas: open_mind (lingotes de hierro, cerebro marchito, mesa de crafteo), heavy_axe (blitz rods y lingote de netherita), flower_clone (dos flores juntas con el ramo).
-7. **Efectos de pantalla en Rápidos y Fabulosos** (Opciones → Video → Gráficos; en Elegantes ya se probó):
-   - sueño `/effect give @s creaturefeature:sleepy 20`;
-   - fiend `/effect give @s creaturefeature:fiendish 20`;
-   - gas `/summon creaturefeature:canary ~ ~ ~6`;
-   - bacterias (usar `/give @s creaturefeature:bacterium_ball`);
-   - friend y saint solis (`/summon creaturefeature:friend ~ ~ ~5`, `/summon creaturefeature:saint_solis ~ ~ ~8`).
-8. **Efectos que faltan (F7):**
-   - rabia: dejar que un vertigo ataque (`/summon creaturefeature:vertigo ~ ~ ~6`) o tocar el cuerno;
-   - minedflayer: `/summon creaturefeature:minedflayer ~ ~ ~6` y dejar que pegue; `/give @s creaturefeature:minedflayer_jelly 4` y saltar encima desde 3 bloques;
-   - adornos: `/give @s iron_chestplate{Trim:{material:"creaturefeature:ectoplasm",pattern:"minecraft:coast"}}` y ponérsela (tercera persona, F5);
-   - caparazón: `/summon falling_block ~ ~12 ~4 {BlockState:{Name:"creaturefeature:carapace_block"}}` (muros verdes al caer y aplastado al aterrizar);
-   - con un efecto activo, F3+T.
-9. **Logros que faltan (F8):** horse (golpear un caballo con el hacha pesada), friendless (golpear un friend), sinister (golpear un sinister hasta que el golpe entre), gas (daño diferido de un canary), renovation (pincel sobre down_feathers).
-10. **Apariciones (F8), en supervivencia de noche:** `/locate biome <bioma>`, `/tp` y esperar un minuto:
-    - beauty en `minecraft:lush_caves`;
-    - minds en `minecraft:savanna`;
-    - blossom en `minecraft:jungle`;
-    - vertigo en `minecraft:taiga` y `minecraft:dark_forest`;
-    - coat of arms en `minecraft:swamp`;
-    - fend en `minecraft:flower_forest` (grupos de 3 en `minecraft:sunflower_plains`);
-    - mockingbird en `minecraft:jagged_peaks`;
-    - stained glass en `minecraft:desert`;
-    - sinister, detritus y canary en el Overworld, y ninguno en `minecraft:mushroom_fields`;
-    - friend en el Nether;
-    - machination en `minecraft:warped_forest`;
-    - en el End (`/execute in minecraft:the_end run tp @s 1000 100 0`): dreamweaver, eeper, blitz, nothing, saint solis y minedflayer.
-    - Variantes: el fend "deep" bajo y=20; el fiend con esqueleto montado (1 de 12).
-11. **Interruptores por criatura (F10):** con el mundo cerrado, en `saves\<mundo>\serverconfig\creaturefeature-server.toml` poner `beauty = false`. Al entrar:
-    - el beauty que hubiera desapareció sin soltar nada;
-    - `/summon creaturefeature:beauty` sí funciona (queda marcado);
-    - `/summon creaturefeature:beauty ~ ~ ~ {Health:20f}` no aparece.
-    - Volver a `true`.
-12. **Compatibilidades (opcionales):**
-    - con Goety, las recetas de pergaminos y antorchas aceptan `goety:ectoplasm` y las dos recetas 1:1 convierten uno en otro;
-    - con Oreganized o Caverns and Chasms, matar minds/machination/sinister con Botín y ver pepitas o lingotes de plata.
-13. **Versión personal** (`C:\cf\personal`, ver su `LEEME.md`): instalar el datapack en `global_packs\required_data` y la configuración; `/datapack list enabled` muestra `cf_personal`; vertigo en `minecraft:snowy_taiga` y no en `minecraft:dark_forest`; stained glass en las islas exteriores del End y no en el desierto; blossom en `minecraft:lush_caves` y no en la jungla; beauty, nothing y mockingbird no aparecen; zombiflore en `minecraft:jungle` y no en `minecraft:lush_caves`.
-14. **Modpack completo:** una sesión normal con todo el modpack (y Oculus con un shaderpack, si lo usás): los efectos de pantalla y las criaturas con shader propio (fend, friend, silk, blossom) se ven o, como mínimo, no crashean.
+## Tanda final en el juego (2026-11-03) ✅
+El usuario probó el jar real `1.2.3.3-forge.1` en una copia de su mundo con **todo el modpack** (371 mods, Oculus 1.8.0 con el shaderpack Complementary Unbound activo), con `cf_personal` en la carpeta `datapacks` del mundo y la configuración personal en `serverconfig`. Funcionó:
+- arranque, versión y créditos;
+- ítems y recetas: flintlock, dispensador con la murky pearl, eep, open_mind y heavy_axe;
+- los efectos que faltaban: rabia, minedflayer, adornos y caparazón que cae;
+- la versión personal: `cf_personal` activo y el beauty desactivado aparece con `/summon`;
+- la conversión de ectoplasma con Goety.
+
+Log (`%APPDATA%\.minecraft\logs`: `2026-11-02-1.log.gz` 23:47-23:59, rotado a medianoche, y `latest.log` 00:00-00:09): **ningún error de Creature Feature ni de `cf_personal`, ningún crash report, ningún conflicto de mixins**. Avisos del mod, todos conocidos y sin efecto:
+- `could not find sampler/uniform` de los shaders del mod (datos del original que el compilador GLSL descarta);
+- `Missing sound ... stained_glass_retreat` (error del original);
+- `Object did not get ID it asked for` (la copia del mundo ya tenía el mod con otra numeración; Forge reasigna los IDs);
+- `creaturefeature-client.toml is not correct. Correcting` (primera carga del mod en esa instancia: Forge completa el archivo).
+- 23 líneas en STDOUT de `IcoSphere.MakeIcosphere`: impresiones de depuración que ya trae el original, inofensivas.
+
+Errores del log que mencionan mods de la compat pero **no son del port**: 19 recetas de Dixta's Armory y de Oreganized que piden `oreganized:electrum_upgrade_smithing_template` (ese ítem no existe en el modpack) y la tabla `caverns_and_chasms:blocks/eumus_brick` del propio Caverns and Chasms.
 
 ## F10 - Opción por criatura, versión personal y publicación (2026-11-02) ✅
 - **Opción por criatura** (agregado del port, va en el mod publicado): sección `[creatures]` en `creaturefeature-server.toml`, una clave por criatura (22), todas `true`. Una desactivada no aparece de forma natural, no la agrega ningún spawner ni otra criatura del mod, y si ya existe desaparece sin botín (al cargar o en su siguiente tick). Huevos, dispensador con huevo y `/summon` sin NBT siguen funcionando para los admins (marcan la entidad con el tag `creaturefeature_allowed`; con NBT hay que agregarlo a mano). Con todo activado no cambia nada (el conjunto de desactivadas queda vacío y los manejadores salen enseguida). `misc/CreatureToggles`.
-- **Versión personal** (fuera del repositorio y del jar): `C:\cf\personal` con el datapack `cf_personal`, `creaturefeature-server.toml` y `LEEME.md`. Se instala en `global_packsequired_data` (Global Packs, ya en el modpack). Verificado con `runServer -Dcreaturefeature.personalCheck=true` (`PersonalPackCheck`, solo desarrollo): carga sin errores y las listas de aparición quedan como se pidió (`CF_PERSONAL_OK`). Forge 1.20.1 respeta `forge:conditions` en los biome modifiers: el archivo de Zombiflore se salta sin error si falta Skarrier Mobs.
+- **Versión personal** (fuera del repositorio y del jar): `C:\cf\personal` con el datapack `cf_personal`, `creaturefeature-server.toml` y `LEEME.md`. Se instala en `global_packs
+equired_data` (Global Packs, ya en el modpack). Verificado con `runServer -Dcreaturefeature.personalCheck=true` (`PersonalPackCheck`, solo desarrollo): carga sin errores y las listas de aparición quedan como se pidió (`CF_PERSONAL_OK`). Forge 1.20.1 respeta `forge:conditions` en los biome modifiers: el archivo de Zombiflore se salta sin error si falta Skarrier Mobs.
 - **Publicación:** versión `1.2.3.3-forge.1`; créditos a AtiredDev y Team Galena en `mods.toml` (`authors`, `credits`, `displayURL`) y en `README.md`; `LICENSE` (MIT); `CHANGES.md` con lo quitado, adaptado, corregido y agregado. Los tres van dentro del jar (`META-INF`).
 - GameTests (`F10GameTests`, lote propio `f10_toggles`, 3): una criatura desactivada no entra al mundo, la que ya existía desaparece sin botín y el huevo sigue andando; una activada aparece igual que siempre y sin marca; las 22 claves existen y valen `true` por defecto.
 
