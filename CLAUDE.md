@@ -6,7 +6,7 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 
 ## Licencia
 - El original declara MIT en sus metadatos (`neoforge.mods.toml`); el repositorio no trae archivo `LICENSE`. Se mantiene `mod_license=MIT` y los créditos a AtiredDev / Team Galena en `mods.toml`.
-- **Repositorio público** (desde 2026-11-04, a pedido del autor original): https://github.com/Dark4820/creaturefeature-forge-1.20.1 (ver "Cómo trabajar", punto 9).
+- **Repositorio público** (desde 2026-11-04; el README aclara que el port no está respaldado ni afiliado a los autores originales): https://github.com/Dark4820/creaturefeature-forge-1.20.1 (ver "Cómo trabajar", punto 9).
 
 ## Carpetas
 - `C:\cf\port` = este proyecto (lo único que se edita). Rutas cortas por el límite de 260 caracteres de Windows.

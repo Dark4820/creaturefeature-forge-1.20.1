@@ -2,7 +2,8 @@
 
 > **This is an UNOFFICIAL port.** It is not made, maintained or supported by the original authors.
 > Original mod: **[Creature Feature](https://github.com/TerriblyBadCoder/creaturefeature)** by **AtiredDev and Team Galena**
-> (NeoForge 1.21.1, MIT license). This repository is published at the original author's request.
+> (NeoForge 1.21.1, MIT license). The source code is published openly. This port is not endorsed by or affiliated
+> with the original authors.
 
 A port of Creature Feature to **Minecraft 1.20.1 / Forge 47.4+**. In the mod list and in JEI it shows as
 **Creature Feature**, like the original; the mod description and credits say it is this unofficial port.
