@@ -12,3 +12,13 @@ logs/
 # Jars (built mods, reference jars, libs/). The Gradle wrapper jar stays: gradlew.bat needs it to build.
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# Local-only material (never published): mod jars copied from the modpack, crash dumps, compressed logs
+libs/
+*.log.gz
+hs_err_pid*.log
+replay_pid*.log
+crash-reports/
+screenshots/
+saves/
+.claude/

@@ -1,8 +1,11 @@
 # Creature Feature — Forge 1.20.1 port
 
-An **unofficial** port of [Creature Feature](https://github.com/TerriblyBadCoder/creaturefeature) to
-**Minecraft 1.20.1 / Forge 47.4+**. In the mod list and in JEI it shows as **Creature Feature**, like the original;
-the mod description and credits say it is this unofficial port.
+> **This is an UNOFFICIAL port.** It is not made, maintained or supported by the original authors.
+> Original mod: **[Creature Feature](https://github.com/TerriblyBadCoder/creaturefeature)** by **AtiredDev and Team Galena**
+> (NeoForge 1.21.1, MIT license). This repository is published at the original author's request.
+
+A port of Creature Feature to **Minecraft 1.20.1 / Forge 47.4+**. In the mod list and in JEI it shows as
+**Creature Feature**, like the original; the mod description and credits say it is this unofficial port.
 
 ## Credits
 
@@ -10,7 +13,18 @@ the mod description and credits say it is this unofficial port.
 in this mod is theirs. The original is a NeoForge 1.21.1 mod released under the **MIT license** (declared in its
 mod metadata). This port only translates their code and data to Forge 1.20.1.
 
-Please report problems of this port to the port, not to the original authors.
+## Bug reports
+
+**Report problems of this port here, in this repository's
+[issues](https://github.com/Dark4820/creaturefeature-forge-1.20.1/issues), not to the original authors.** Bugs that
+only happen with this port are not theirs to fix.
+
+## How it was made
+
+The port was made with the help of AI (Claude Code, by Anthropic) and reviewed and tested by a person: automated
+GameTests (59) and a render test run on every change, and the mod was played in game, alone and inside a large
+modpack (371 mods, with Oculus shaders). Every code change from the original is marked with a `// PORT:` comment, and
+`docs/PORT_MAP.md` maps the original to the port file by file (the docs are in Spanish).
 
 ## Version
 

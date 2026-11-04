@@ -6,7 +6,7 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 
 ## Licencia
 - El original declara MIT en sus metadatos (`neoforge.mods.toml`); el repositorio no trae archivo `LICENSE`. Se mantiene `mod_license=MIT` y los créditos a AtiredDev / Team Galena en `mods.toml`.
-- Uso personal: **git solo local** (ver "Cómo trabajar").
+- **Repositorio público** (desde 2026-11-04, a pedido del autor original): https://github.com/Dark4820/creaturefeature-forge-1.20.1 (ver "Cómo trabajar", punto 9).
 
 ## Carpetas
 - `C:\cf\port` = este proyecto (lo único que se edita). Rutas cortas por el límite de 260 caracteres de Windows.
@@ -39,7 +39,7 @@ Antes de cada tramo hay que leer `docs\PORT_MAP.md` (inventario, diferencias, fa
 6. **Nada de accesos por nombre que fallen en el jar real**: el juego real está ofuscado (SRG). Prohibido `getDeclaredField("nombreMojang")`, `Class.forName` de clases de Minecraft o reflexión por nombre sin `ObfuscationReflectionHelper` con el nombre SRG. Preferir mixin `@Accessor`/`@Invoker` (con refmap) o un Access Transformer.
 7. **Lo de cliente solo en clases de cliente**: el código común nunca nombra clases de `net.minecraft.client` ni `CreatureFeatureClient`. Los manejadores de paquetes de cliente y el `PROXY` van en clases aparte, llamadas con `DistExecutor.unsafeRunWhenOn(Dist.CLIENT, ...)`. Verificarlo con `runServer`/`runGameTestServer`. (El original mezcla cosas, p. ej. `JukeBoxPlayableMixin` y `CreatureFeature` importan clases de cliente: corregirlo al portar.)
 8. Sesiones cortas por fase.
-9. **Git solo local:** identidad propia del repo ("CF Port" / cf@local). **Nunca agregar un remoto ni hacer push.** El `.gitignore` excluye `build/`, `run/`, `.gradle/`, los jars (salvo el del wrapper) y los logs.
+9. **Git:** identidad propia del repo ("CF Port" / cf@local). **Excepción autorizada por el usuario (2026-11-04), solo para este proyecto:** el remoto `origin` = https://github.com/Dark4820/creaturefeature-forge-1.20.1 (público). Subir (`push`) solo cuando el usuario lo pida. Antes de cada push revisar que no entre nada privado: rutas con el usuario de Windows, correos, tokens, logs, carpetas `run*`, mundos, jars de otros mods (`libs/`) ni `C:\cf\personal`. El `.gitignore` excluye `build/`, `run/`, `.gradle/`, los jars (salvo el del wrapper), los logs y `libs/`. En los demás proyectos sigue la regla de no usar remotos.
 
 ## Reglas técnicas de 1.20.1 (mismo entorno que los otros ports)
 - **Datos:** carpetas en plural: `recipes/`, `loot_tables/`, `advancements/`, `tags/blocks|items|entity_types/`, `structures/`. JSON con `"item"` (no `"id"`), sin `components`; condiciones y tags `forge:` (no `neoforge:`/`c:`). Biome modifiers en `data/<ns>/forge/biome_modifier/` con `forge:add_spawns`/`forge:remove_spawns`.
