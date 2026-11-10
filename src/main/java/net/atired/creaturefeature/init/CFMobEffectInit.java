@@ -2,6 +2,8 @@ package net.atired.creaturefeature.init;
 
 import net.atired.creaturefeature.CreatureFeature;
 import net.atired.creaturefeature.statuseffects.FiendishEffect;
+import net.atired.creaturefeature.statuseffects.InfestedEffect;
+import net.atired.creaturefeature.statuseffects.OozingEffect;
 import net.atired.creaturefeature.statuseffects.SleepyStatusEffect;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -26,6 +28,11 @@ public class CFMobEffectInit {
     public static final RegistryObject<MobEffect> SLEEPY = MOB_EFFECTS.register("sleepy", () -> new SleepyStatusEffect(
                     MobEffectCategory.HARMFUL).addAttributeModifier(Attributes.MOVEMENT_SPEED, modifierId("effect.slowdown"), -0.5, AttributeModifier.Operation.MULTIPLY_BASE)
             );
+
+    // PORT: port-only copies of 1.21's vanilla Infested / Oozing (blighted brain), used when Trials Chambers is not
+    // installed (misc/TrialsCompat)
+    public static final RegistryObject<MobEffect> INFESTED = MOB_EFFECTS.register("infested", InfestedEffect::new);
+    public static final RegistryObject<MobEffect> OOZING = MOB_EFFECTS.register("oozing", OozingEffect::new);
 
     // PORT: name-based UUID of "creaturefeature:<path>" so the modifier stays the same between sessions
     private static String modifierId(String path) {

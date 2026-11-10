@@ -1,6 +1,6 @@
 # PORT_MAP - Creature Feature NeoForge 1.21.1 → Forge 1.20.1
 
-Fuente: `C:\cf\ref\creaturefeature-master\creaturefeature-master` (GitHub). Jar: `C:\cf\ref\creaturefeature-1.2.3.3.jar`.
+Fuente: `C:\Projects\cf\ref\creaturefeature-master\creaturefeature-master` (GitHub). Jar: `C:\Projects\cf\ref\creaturefeature-1.2.3.3.jar`.
 Leyenda: ✅ equivalente directo · 🔧 hay que adaptar (equivalente claro) · ⚠️ sin equivalente claro (decisión del usuario) · ★ solo en la fuente, NO en el jar 1.2.3.3.
 
 ---
@@ -168,8 +168,9 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 
 - **D1 – Base del port = código fuente de GitHub.** F1–F8 portan el contenido publicado en el jar 1.2.3.3. El contenido ★ se decide en F9 (idea del usuario: solo Powder Skull, con su botín pasado a las mazmorras; Trichael, Fish Eye y Wraith quedan afuera por inacabados). **Resuelto en F9 (2026-11-02): todo el contenido ★ queda fuera, también la Powder Skull** (ver "Contenido quitado").
 - **D2 – Sable: se quita.** Ver "Contenido quitado" abajo.
-- **D3 – Contenido vanilla de 1.21:** se quitan `INFESTED` y `OOZING` de blighted_brain; los sonidos `BREEZE_*` se cambian por sonidos parecidos de 1.20.1; `DUST_PILLAR` → `ParticleTypes.BLOCK` (mismo bloque) e `ITEM_COBWEB` → `ParticleTypes.ITEM` con una telaraña. Cada cambio lleva `// PORT:`.
-- **D4 – Galena Hats: no se incluye.**
+- **D3 – Contenido vanilla de 1.21:** se quitan `INFESTED` y `OOZING` de blighted_brain (**revisado el 2026-11-09:** vuelven; con Trials Chambers, los suyos; sin él, copias propias, ver §6d); los sonidos `BREEZE_*` se cambian por sonidos parecidos de 1.20.1; `DUST_PILLAR` → `ParticleTypes.BLOCK` (mismo bloque) e `ITEM_COBWEB` → `ParticleTypes.ITEM` con una telaraña. Cada cambio lleva `// PORT:`.
+- **D4 – Galena Hats: no se incluye** (confirmado el 2026-11-09: ni como dependencia; existe `dev.galena:hats-forge` para 1.20.1, pero el original solo lo empaquetaba sin usarlo, y sus texturas son "todos los derechos reservados").
+- **D5 (2026-11-09) – Toadstool y Runic Stone Bricks quedan fuera definitivamente:** Sable solo existe para 1.21.1 (`maven.ryanhcode.dev`: common, Fabric y NeoForge 1.21.1; nada para Forge 1.20.1) y los dos están hechos sobre su API.
 
 ### Contenido quitado (no existe en el port)
 | Contenido | Motivo |
@@ -184,6 +185,7 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | Agregado | Detalle |
 |---|---|
 | Compatibilidad del ectoplasma con **Goety** (pedido del usuario, 2026-11-02) | Tag `data/forge/tags/items/ectoplasm.json` = `creaturefeature:ectoplasm` + `goety:ectoplasm` (opcional, `"required": false`: sin Goety el tag carga solo con el de este mod). Las recetas del mod que usan ectoplasma (`bi/pan/pride/trans_scroll`, `torch`) lo piden por `#forge:ectoplasm`; lo hace `tools/convert_resources.py` (`SHARED_TAGS`), solo en ingredientes. Goety 2.5.59.2: su ectoplasma es `goety:ectoplasm`; lo usan 92 ingredientes en 59 rituales (`goety:ritual`) y 15 recetas de mesa, todos como `{"item": "goety:ectoplasm"}` (sus rituales sí aceptan tags: 275 de 337 ya usan alguno). Decisión del usuario: **recetas de conversión 1:1** en los dos sentidos (`recipes/compat/goety/ectoplasm_from_goety.json` y `ectoplasm_to_goety.json`, hechas a mano), cargadas solo con Goety (`forge:mod_loaded`). Las recetas y rituales de Goety no se tocan |
+| **Efectos Infested y Oozing** (2026-11-09, pedido del usuario) | el cerebro marchito vuelve a dar los tres efectos del original (náusea 100, infested 400, oozing 200 ticks, 80 % cada uno). `misc/TrialsCompat`: con Trials Chambers (mod id `trials`, opcional) usa `trials:infested` y `trials:oozing` (el nombre de registro es `oozing`, aunque su traducción diga `effect.trials.ooze`); si no, `creaturefeature:infested` y `creaturefeature:oozing` (`statuseffects/InfestedEffect`, `OozingEffect`), copias de 1.21: 10 % por golpe recibido de 1-2 pececillos de plata (`LivingDamageEvent`) y 2 slimes de tamaño 2 al morir, limitados por `maxEntityCramming` (`LivingDeathEvent`). Íconos: un ítem vanilla dibujado (`client/CFEffectIcons`), sin texturas de 1.21. Nombres en `en_us` (`EXTRA_LANG_EN` del script) |
 | **Opción por criatura** (F10, pedido del usuario) | `[creatures]` en `creaturefeature-server.toml`, una clave por criatura (22), todas `true` = comportamiento del original. Desactivada: se niega la aparición natural (`MobSpawnEvent.SpawnPlacementCheck`), se cancela su entrada al mundo (`EntityJoinLevelEvent`: spawners, otras criaturas del mod, chunks guardados, sin botín) y se descarta en su tick si se desactiva con el mundo andando. Huevos, dispensador con huevo y `/summon` sin NBT marcan la entidad con el tag `creaturefeature_allowed` (en `MobSpawnEvent.FinalizeSpawn`) y siguen funcionando. Los segmentos del canary siguen al canary. `misc/CreatureToggles` |
 | Loot modifier `creaturefeature:add_table` (F8) | ver §6c; Forge 1.20.1 no trae `add_table` |
 | `README.md`, `LICENSE` (MIT), `CHANGES.md` (F10) | créditos a AtiredDev y Team Galena, licencia y lista de cambios; van también dentro del jar (`META-INF`). `mods.toml` con `credits` y `displayURL` al repositorio original |
@@ -286,7 +288,7 @@ Cada fase: compila, GameTests, `runServer` hasta `Done`, pruebas en el juego, co
 | **F7** ✅ | Efectos de pantalla y cliente: 9 `PostChain` + mixins de cliente (10-21), cámara, hotbar, adornos | ver cada efecto (rabia, haze, sueño, fiend, minedflayer...) en el cliente |
 | **F8** ✅ | Spawns naturales (27 biome modifiers), GLM `add_table` + compat Oreganized / C&C / Blueprint, logros y triggers | `/locate biome` + esperar spawns; matar sinister con C&C instalado; árbol de logros |
 | **F9** ✅ (vacía) | Contenido ★: se revisó la Powder Skull (incompleta) y el usuario decidió dejar fuera todo lo ★ | — |
-| **F10** ✅ | Opción por criatura (`[creatures]`), versión personal fuera del jar (`C:/cf/personal`), versión `1.2.3.3-forge.1`, créditos, README, LICENSE y CHANGES | tanda final de pruebas (PROGRESS) |
+| **F10** ✅ | Opción por criatura (`[creatures]`), versión personal fuera del jar (`C:/Projects/cf/personal`), versión `1.2.3.3-forge.1`, créditos, README, LICENSE y CHANGES | tanda final de pruebas (PROGRESS) |
 
 ## 8. Riesgos
 1. **Renderizado**: 41 archivos con la API de vértices nueva y todos los modelos con color `int`: mucho trabajo mecánico; errores dan modelos invisibles/negros, no crashes.

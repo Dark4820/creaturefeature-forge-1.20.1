@@ -120,6 +120,12 @@ dependencies {
     implementation(jarJar('io.github.llamalad7:mixinextras-forge:0.4.1')) {
         jarJar.ranged(it, '[0.4.1,)')
     }
+
+    // PORT: dev-only check of the optional Trials Chambers compat (blighted brain effects). Only with
+    // -PwithTrials, after copying the modpack's Trials-Final.jar to libs/trials-2.3.4.jar; never in the mod jar.
+    if (project.hasProperty('withTrials')) {
+        runtimeOnly fg.deobf('local:trials:2.3.4')
+    }
 }
 
 jarJar.enable()

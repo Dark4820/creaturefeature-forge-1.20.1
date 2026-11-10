@@ -38,7 +38,16 @@ published 1.2.3.3 jar), first Forge 1.20.1 release.
 - Use `creaturefeature-forge-1.20.1-1.2.3.3-forge.1.jar` (it carries MixinExtras inside; the `-dev` jar is not for players). Install it on the server and on
   every client.
 - No other mod is required. Optional compat: Oreganized and Caverns and Chasms (extra drops), Blueprint (armour
-  trim item models), Goety (its ectoplasm and this mod's are interchangeable).
+  trim item models), Goety (its ectoplasm and this mod's are interchangeable), Trials Chambers (the blighted brain
+  gives its Infested and Oozing; without it, the port's own copies of those 1.21 effects).
+
+## Not included
+
+- **Toadstool** and **Runic Stone Bricks**: they are built on [Sable](https://github.com/RyanHCode/Sable), a physics
+  library that only exists for Minecraft 1.21.1. There is no Sable for Forge 1.20.1, so they cannot be ported.
+- **Galena Hats** (Team Galena's supporter top hats): the original only bundled it inside its jar and never used it
+  in its code; this port does not include it.
+- The original's unfinished, source-only content (Powder Skull, Trichael, Fish Eye, Wraith...).
 
 ## Configuration
 

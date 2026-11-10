@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PORT: dev-only (src/gametest, never in the jar). Checks the user's personal datapack and config (C:\cf\personal)
+ * PORT: dev-only (src/gametest, never in the jar). Checks the user's personal datapack and config (C:\Projects\cf\personal)
  * once the server has started: run with -Dcreaturefeature.personalCheck=true after copying cf_personal into
  * run/world/datapacks and creaturefeature-server.toml into run/world/serverconfig. Logs CF_PERSONAL_OK or the
  * failures (CF_PERSONAL_FAIL).

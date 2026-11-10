@@ -1,7 +1,7 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**Port completo y probado en el juego (2026-11-03).** F0-F10 cerradas, versión `1.2.3.3-forge.1` (etiqueta `port-completo`). Tanda final hecha con todo el modpack; lo que falta se ve jugando (abajo).
+**Port completo y probado en el juego (2026-11-03); ajustes del 2026-11-09 (efectos del cerebro) sin probar todavía en el juego.** F0-F10 cerradas, versión `1.2.3.3-forge.1` (etiqueta `port-completo`). Tanda final hecha con todo el modpack; lo que falta se ve jugando (abajo).
 
 ## Por ver jugando (sin prueba dedicada)
 Lo que queda de la tanda final; el usuario lo va viendo en partidas normales. La lista detallada con comandos está en el historial (commit `6a79c05`, "Pruebas en el juego pendientes").
@@ -11,6 +11,15 @@ Lo que queda de la tanda final; el usuario lo va viendo en partidas normales. La
 - **Botín** con y sin Botín III, huevos y sonidos de cada criatura, variantes (fend "deep" bajo y=20, fiend con esqueleto montado).
 - **Interruptor por criatura** en un mundo normal (`beauty = false`: el que existía desaparece; `/summon` sin NBT funciona, con NBT no).
 - **Compat Oreganized / Caverns and Chasms** (drops extra), si se instalan completos.
+
+## Ajustes posteriores (2026-11-09)
+- **Efectos del cerebro marchito** (decisión del usuario, "Trials o propios"): vuelven Infested y Oozing. Con Trials Chambers instalado, los suyos (`trials:infested`, `trials:oozing`); sin él, copias propias del comportamiento de 1.21 (`creaturefeature:infested`, `creaturefeature:oozing`). Trials Chambers es opcional: sin él no hay errores. `EffectsGameTests` (3): qué efectos da el cerebro según esté o no Trials, los pececillos de Infested y los slimes de Oozing.
+- **Fuera definitivamente:** Toadstool y Runic Stone Bricks (Sable solo existe para 1.21.1) y Galena Hats (ni como dependencia). Documentado en CHANGES.md, README y PORT_MAP (D4, D5).
+- **CHANGES.md** completado con lo que faltaba: botín del detritus con Botín I/II, `pathogen = true`, adornos sin Blueprint, fend y eeper.
+- **Rutas:** el proyecto pasó a `C:\Projects\cf\` (script de recursos, CLAUDE.md, PORT_MAP, PROGRESS y `PersonalPackCheck`).
+
+Verificado: `build` OK; `runGameTestServer` 62/62 **sin** Trials (el cerebro da `creaturefeature:infested`/`oozing`) y 62/62 **con** Trials (`-PwithTrials`: `trials:infested`/`oozing`); `runServer` hasta `Done` en los dos casos; `runClientRenderSmoke` OK, con los íconos y nombres de los efectos propios en el inventario (`cf_effect_icons.png`).
+Por probar en el juego: comer el cerebro marchito con y sin Trials Chambers en la instancia de prueba.
 
 ## Tanda final en el juego (2026-11-03) ✅
 El usuario probó el jar real `1.2.3.3-forge.1` en una copia de su mundo con **todo el modpack** (371 mods, Oculus 1.8.0 con el shaderpack Complementary Unbound activo), con `cf_personal` en la carpeta `datapacks` del mundo y la configuración personal en `serverconfig`. Funcionó:
@@ -31,7 +40,7 @@ Errores del log que mencionan mods de la compat pero **no son del port**: 19 rec
 
 ## F10 - Opción por criatura, versión personal y publicación (2026-11-02) ✅
 - **Opción por criatura** (agregado del port, va en el mod publicado): sección `[creatures]` en `creaturefeature-server.toml`, una clave por criatura (22), todas `true`. Una desactivada no aparece de forma natural, no la agrega ningún spawner ni otra criatura del mod, y si ya existe desaparece sin botín (al cargar o en su siguiente tick). Huevos, dispensador con huevo y `/summon` sin NBT siguen funcionando para los admins (marcan la entidad con el tag `creaturefeature_allowed`; con NBT hay que agregarlo a mano). Con todo activado no cambia nada (el conjunto de desactivadas queda vacío y los manejadores salen enseguida). `misc/CreatureToggles`.
-- **Versión personal** (fuera del repositorio y del jar): `C:\cf\personal` con el datapack `cf_personal`, `creaturefeature-server.toml` y `LEEME.md`. Se instala en `global_packs
+- **Versión personal** (fuera del repositorio y del jar): `C:\Projects\cf\personal` con el datapack `cf_personal`, `creaturefeature-server.toml` y `LEEME.md`. Se instala en `global_packs
 equired_data` (Global Packs, ya en el modpack). Verificado con `runServer -Dcreaturefeature.personalCheck=true` (`PersonalPackCheck`, solo desarrollo): carga sin errores y las listas de aparición quedan como se pidió (`CF_PERSONAL_OK`). Forge 1.20.1 respeta `forge:conditions` en los biome modifiers: el archivo de Zombiflore se salta sin error si falta Skarrier Mobs.
 - **Publicación:** versión `1.2.3.3-forge.1`; créditos a AtiredDev y Team Galena en `mods.toml` (`authors`, `credits`, `displayURL`) y en `README.md`; `LICENSE` (MIT); `CHANGES.md` con lo quitado, adaptado, corregido y agregado. Los tres van dentro del jar (`META-INF`).
 - GameTests (`F10GameTests`, lote propio `f10_toggles`, 3): una criatura desactivada no entra al mundo, la que ya existía desaparece sin botín y el huevo sigue andando; una activada aparece igual que siempre y sin marca; las 22 claves existen y valen `true` por defecto.
@@ -43,7 +52,7 @@ Se revisó la Powder Skull en la fuente: no ataca, no tiene sonidos ni botín pr
 
 ## Prueba corta de F8 (2026-11-02) ✅
 El usuario probó el jar real: árbol de logros con el fondo animado, logros sleepy y pill, el efecto "man" (y roots_man), fiends en nether_wastes, cangrejos en la playa y el cangrejo bajo el agua sin ahogarse. Confirmó que la prueba de F7 fue en Elegantes.
-Log (`C:\cf\test\logs\latest.log`, 22:48-22:51, solo la última sesión) sin errores del mod ni crash reports nuevos. Avisos: los ya conocidos de F7 (shaders, `stained_glass_retreat`) y 3 `Received passengers for unknown entity` al llegar a nether_wastes: los fiends que aparecen con un esqueleto montado (1 de cada 12) se arman igual que la araña jinete vanilla (`startRiding` en `finalizeSpawn`, mismo código que el original) y vanilla da el mismo aviso; sin efecto.
+Log (`C:\Projects\cf\test\logs\latest.log`, 22:48-22:51, solo la última sesión) sin errores del mod ni crash reports nuevos. Avisos: los ya conocidos de F7 (shaders, `stained_glass_retreat`) y 3 `Received passengers for unknown entity` al llegar a nether_wastes: los fiends que aparecen con un esqueleto montado (1 de cada 12) se arman igual que la araña jinete vanilla (`startRiding` en `finalizeSpawn`, mismo código que el original) y vanilla da el mismo aviso; sin efecto.
 
 ## F8 - Apariciones, compatibilidades por datos y logros (2026-11-02) ✅
 - **Apariciones naturales:** 26 biome modifiers del original (23 `add_spawns` + 3 `remove_spawns`) con los mismos biomas, pesos y tamaños de grupo; `toadstool` fuera (D2). Los tags `c:` se traducen según PORT_MAP §4. Las 21 criaturas ya tenían su `SpawnPlacement` igual que el original.
@@ -59,8 +68,8 @@ Log (`C:\cf\test\logs\latest.log`, 22:48-22:51, solo la última sesión) sin err
 Verificado: `build` OK; `runGameTestServer` 56/56 sin errores de datos; `runServer` hasta `Done (2.943s)`; `runClientRenderSmoke` OK (criaturas, efectos en 3 modos y pantalla de logros).
 
 ## Prueba corta de F7 (2026-11-02) ✅
-El usuario probó el jar real: sueño, fiend, gas del canary, bacterias, título del disco NaN, friend y saint solis, gelatina y cambio de tamaño de ventana funcionan. El mensaje dejó sin completar el modo gráfico; `C:\cf\test\options.txt` no cambió desde las 15:24 y dice `graphicsMode:1`, o sea **Elegantes** (cambiar el modo desde el menú reescribe ese archivo). Rápidos y Fabulosos van a la tanda final.
-Log (`C:\cf\test\logs\latest.log`, 22:21-22:29) sin errores del mod ni crash reports. Avisos esperables:
+El usuario probó el jar real: sueño, fiend, gas del canary, bacterias, título del disco NaN, friend y saint solis, gelatina y cambio de tamaño de ventana funcionan. El mensaje dejó sin completar el modo gráfico; `C:\Projects\cf\test\options.txt` no cambió desde las 15:24 y dice `graphicsMode:1`, o sea **Elegantes** (cambiar el modo desde el menú reescribe ese archivo). Rápidos y Fabulosos van a la tanda final.
+Log (`C:\Projects\cf\test\logs\latest.log`, 22:21-22:29) sin errores del mod ni crash reports. Avisos esperables:
 - `could not find sampler/uniform ...` de los shaders del mod (33): son samplers y uniforms declarados en los JSON que el compilador GLSL elimina por no usarse; los JSON son los del original, sin efecto visible.
 - `Missing sound for event: creaturefeature:entity.stained_glass_retreat`: el original registra ese evento pero su `sounds.json` no lo define (error del original, sin efecto).
 - `Object did not get ID it asked for`: el mundo de prueba se creó con una versión anterior del port (con menos ítems); Forge reasigna los IDs numéricos, es normal.
@@ -79,7 +88,7 @@ Log (`C:\cf\test\logs\latest.log`, 22:21-22:29) sin errores del mod ni crash rep
 Verificado: `build` OK (refmap con los nombres SRG de los 10 mixins); `runGameTestServer` 50/50 (los mixins de cliente no se cargan en el servidor); `runServer` hasta `Done (2.911s)` sin errores del mod; `runClientRenderSmoke` OK en los 3 modos, sin errores de shaders, y cada efecto se ve en su captura.
 
 ## Prueba corta de F6 y arreglos de F4 (2026-11-02) ✅
-El usuario probó el jar real: cuerno, atrapasueños, open_mind, ramo, píldora, soda, bola de bacterias, vidrio vivo, hacha pesada, doohickey y tijeras funcionan. Los arreglos de F4 también: el coat of arms ya no crashea (el crash de las 19:56 en `C:\cf\test\crash-reports` era del jar anterior al arreglo, mismas líneas 188/115) y el friend se ve.
+El usuario probó el jar real: cuerno, atrapasueños, open_mind, ramo, píldora, soda, bola de bacterias, vidrio vivo, hacha pesada, doohickey y tijeras funcionan. Los arreglos de F4 también: el coat of arms ya no crashea (el crash de las 19:56 en `C:\Projects\cf\test\crash-reports` era del jar anterior al arreglo, mismas líneas 188/115) y el friend se ve.
 
 ## F6 - Ítems con lógica y mixins comunes (2026-11-02) ✅
 - **Ítems:** vertigo_horn, dream_catcher (`SpawnerCaptureItem`), open_mind, the_pill, bouquet + receta especial `flower_clone` (`FlowerCloneRecipe`, serializer `crafting_special_flowerclone`), fiendish_soda, bacterium_ball, living_glass_shards, heavy_axe y el bloque **doohickey** (block entity + renderer con la esfera de icosfera y el ítem flotando; acepta sleeping_powder, minedflayer_goop, vertigo_horn, bacterium_ball y fiendish_essence). Item properties de cliente (`tooting`, `full`, `open`). El flintlock y el solar_shard ya estaban (F4, F5).
@@ -140,7 +149,7 @@ Lote: **fiend, fend, friend, blitz, eeper, nothing, canary** (+ `canary_part`, l
 Verificado: `build` OK; `runGameTestServer` 29/29; `runServer` hasta `Done (4.240s)` (los 2 mixins se aplican) sin errores del mod; `runClient` hasta la pantalla de título sin errores del mod (cerrado por su PID).
 
 ## Prueba corta en el juego de F3 + plumas (2026-11-02) ✅
-El usuario probó el jar real (`C:\cf\test`): las 5 criaturas se ven y se animan bien y lo característico de cada una funciona; las plumas cambian de color y el pincel las alterna. `latest.log` sin errores del mod: solo los avisos conocidos y "Object did not get ID it asked for" de los 5 huevos (el mundo de prueba se creó con el jar de F2 y Forge renumera los ítems nuevos; es normal).
+El usuario probó el jar real (`C:\Projects\cf\test`): las 5 criaturas se ven y se animan bien y lo característico de cada una funciona; las plumas cambian de color y el pincel las alterna. `latest.log` sin errores del mod: solo los avisos conocidos y "Object did not get ID it asked for" de los 5 huevos (el mundo de prueba se creó con el jar de F2 y Forge renumera los ítems nuevos; es normal).
 
 ## F3 - Criaturas lote 1 (2026-11-02) ✅
 Lote elegido por depender menos de fases futuras: **minds** (+ `MindsEntityPart`, el cerebro que se puede golpear aparte), **machination**, **sinister**, **beauty**, **detritus**. Usan solo partículas, sonidos, red y un shader core ya portados en F1–F2.
@@ -156,7 +165,7 @@ Hecho:
 Verificado: `build` OK; `runGameTestServer` 21/21; `runServer` hasta `Done (4.367s)` sin errores del mod; `runClient` hasta la pantalla de título sin errores del mod (ahí se construyen los renderers y se hornean los modelos). El dibujo de las criaturas en el mundo no lo cubre ninguna prueba automática: se ve en las pruebas en el juego.
 
 ## Pruebas en el juego de F1 + F2 (2026-11-02) ✅
-El usuario probó el jar real en una instancia aparte (`C:\cf\test`): pestañas, carapacho, gelatina, sleepy, fiendish, comidas, partículas (sleepy, glass_shard, crit_text, spore), discos, recetas, drops y adornos funcionaron. En el `latest.log` de la prueba no hay errores del mod: solo los avisos conocidos (uniforms de shaders, sonido `entity.stained_glass_retreat`) y la corrección de los `.toml` de configuración creados por primera vez.
+El usuario probó el jar real en una instancia aparte (`C:\Projects\cf\test`): pestañas, carapacho, gelatina, sleepy, fiendish, comidas, partículas (sleepy, glass_shard, crit_text, spore), discos, recetas, drops y adornos funcionaron. En el `latest.log` de la prueba no hay errores del mod: solo los avisos conocidos (uniforms de shaders, sonido `entity.stained_glass_retreat`) y la corrección de los `.toml` de configuración creados por primera vez.
 
 Falla encontrada y corregida:
 - **El pincel no cambiaba las plumas a mosaico** (ni al bloque ni a la alfombra), aunque salían las partículas. Causa: el cambio de bloque sí se hacía en el servidor, pero las plumas normales y las mosaico usan **el mismo modelo** (igual que en el original) y solo se distinguen por el color (`tintindex`) que ponen los manejadores de color del cliente. Esos manejadores (`registerBlockColors`/`registerItemColors` del original) no se habían portado en F1, así que las cuatro variantes se veían iguales, sin teñir.

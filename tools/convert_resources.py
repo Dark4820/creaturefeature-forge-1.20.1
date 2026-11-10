@@ -12,7 +12,7 @@ import shutil
 import sys
 
 PORT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REF = r"C:\cf\ref\creaturefeature-master\creaturefeature-master\src\main\resources"
+REF = r"C:\Projects\cf\ref\creaturefeature-master\creaturefeature-master\src\main\resources"
 JAVA = os.path.join(PORT, "src", "main", "java", "net", "atired", "creaturefeature")
 OUT = os.path.join(PORT, "src", "main", "resources")
 NS = "creaturefeature"
@@ -100,6 +100,10 @@ def convert_advancement(d):
     return d
 
 
+# PORT: names of the port's own effects (1.21's vanilla Infested / Oozing, absent in 1.20.1), added to en_us.json;
+# other languages fall back to English
+EXTRA_LANG_EN = {"effect.creaturefeature.infested": "Infested", "effect.creaturefeature.oozing": "Oozing"}
+
 # music disc item -> jukebox_song id (1.21)
 DISCS = {"music_disc_nothing": "nothing", "music_disc_nan": "new_age_nevermore"}
 
@@ -150,6 +154,8 @@ def copy_assets():
                     key = "jukebox_song.%s.%s" % (NS, song)
                     if key in lang:
                         lang["item.%s.%s.desc" % (NS, disc)] = lang[key]
+                if rel == "lang/en_us.json":
+                    lang.update(EXTRA_LANG_EN)
                 write_json(dst, lang)
             elif rel.startswith("models/") and rel.endswith(".json") and '"neoforge:' in open(src, encoding="utf-8").read():
                 # NeoForge model loaders -> the Forge 1.20.1 ones (same JSON: neoforge:separate_transforms ->

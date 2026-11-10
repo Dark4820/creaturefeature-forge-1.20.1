@@ -179,5 +179,7 @@
   "entity.creaturefeature.delay": "Sigil",
   "entity.creaturefeature.powder_skull": "Powder Skull",
   "item.creaturefeature.music_disc_nothing.desc": "Tory Fox - egg.ogg",
-  "item.creaturefeature.music_disc_nan.desc": "RENREN - New Age Nevermore"
+  "item.creaturefeature.music_disc_nan.desc": "RENREN - New Age Nevermore",
+  "effect.creaturefeature.infested": "Infested",
+  "effect.creaturefeature.oozing": "Oozing"
 }

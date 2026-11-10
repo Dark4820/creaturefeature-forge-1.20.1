@@ -102,9 +102,13 @@ public class CFItemInit {
             "music_disc_nan",
             ()->new NanDiscItem(3, CFSoundInit.NEW_AGE_NEVERMORE, (new Item.Properties()).stacksTo(1).rarity(Rarity.RARE), 71*20)
     );
-    // PORT: saturationModifier -> saturationMod. INFESTED and OOZING do not exist in 1.20.1: removed (decision D3).
+    // PORT: saturationModifier -> saturationMod. INFESTED and OOZING do not exist in 1.20.1: Trials Chambers' ones when
+    // it is installed, else the port's own copies (misc/TrialsCompat); suppliers, so the choice is made when eaten.
+    // Same durations and chances as the original.
     public static final FoodProperties BLIGHTED_BRAIN_FOOD = (new FoodProperties.Builder()).nutrition(11).saturationMod(0.3F)
-            .effect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0), 0.8F).build();
+            .effect(new MobEffectInstance(MobEffects.CONFUSION, 100, 0), 0.8F)
+            .effect(() -> new MobEffectInstance(net.atired.creaturefeature.misc.TrialsCompat.infested(), 400, 0), 0.8F)
+            .effect(() -> new MobEffectInstance(net.atired.creaturefeature.misc.TrialsCompat.oozing(), 200, 0), 0.8F).build();
 
     public static final RegistryObject<Item> BLIGHTED_BRAIN = ITEMS.register(
             "blighted_brain",

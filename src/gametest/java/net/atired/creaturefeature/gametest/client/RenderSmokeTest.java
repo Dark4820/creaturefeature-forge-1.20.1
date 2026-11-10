@@ -88,6 +88,16 @@ public class RenderSmokeTest {
         }
         if (ticksInWorld == ADV_AT) {
             server.execute(() -> run(server, server.getPlayerList().getPlayers().get(0), "advancement grant @s only creaturefeature:root"));
+            // the port's own Infested / Oozing icons (CFEffectIcons) in the inventory and on the HUD
+            server.execute(() -> run(server, server.getPlayerList().getPlayers().get(0), "effect give @s creaturefeature:infested 60 0"));
+            server.execute(() -> run(server, server.getPlayerList().getPlayers().get(0), "effect give @s creaturefeature:oozing 60 0"));
+        }
+        if (ticksInWorld == ADV_AT + 5) {
+            mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+        }
+        if (ticksInWorld == ADV_AT + 15) {
+            net.minecraft.client.Screenshot.grab(mc.gameDirectory, "cf_effect_icons.png", mc.getMainRenderTarget(),
+                    message -> LOGGER.info("CF_RENDER_SMOKE screenshot {}", message.getString()));
         }
         if (ticksInWorld == ADV_AT + 20) {
             var advancements = mc.player.connection.getAdvancements();
