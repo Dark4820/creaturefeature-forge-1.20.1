@@ -82,6 +82,11 @@ public class CreatureFeatureClient {
     // (minecraft namespace), data components -> the NBT helpers of CFDataComponentTypeInit
     @SubscribeEvent
     public static void onClientSetup(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) {
+        // PORT: port-only opt-in in-game self-test (blighted brain effects), only with -Dcreaturefeature.selftest=true
+        if (Boolean.getBoolean("creaturefeature.selftest")) {
+            org.slf4j.LoggerFactory.getLogger(CreatureFeature.MODID).warn("creaturefeature: self-test enabled (-Dcreaturefeature.selftest); it changes the player and spawns mobs, use a throwaway world");
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new CFSelfTest());
+        }
         event.enqueueWork(()->{
             net.minecraft.client.renderer.item.ItemProperties.register(net.atired.creaturefeature.init.CFItemInit.VERTIGO_HORN.get(), new net.minecraft.resources.ResourceLocation("tooting"), (stack, level, entity, seed) -> {
                 if(entity!=null&&entity.isUsingItem()){

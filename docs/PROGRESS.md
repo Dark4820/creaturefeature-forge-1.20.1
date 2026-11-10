@@ -1,7 +1,7 @@
 # PROGRESS - Creature Feature port a Forge 1.20.1
 
 ## Estado actual
-**Port completo y probado en el juego (2026-11-03); ajustes del 2026-11-09 (efectos del cerebro) sin probar todavía en el juego.** F0-F10 cerradas, versión `1.2.3.3-forge.1` (etiqueta `port-completo`). Tanda final hecha con todo el modpack; lo que falta se ve jugando (abajo).
+**Port completo y probado en el juego (2026-11-03); ajustes del 2026-11-09 (efectos del cerebro, versión `1.2.3.3-forge.2`) probados en producción con el self-test.** F0-F10 cerradas, versión `1.2.3.3-forge.1` (etiqueta `port-completo`). Tanda final hecha con todo el modpack; lo que falta se ve jugando (abajo).
 
 ## Por ver jugando (sin prueba dedicada)
 Lo que queda de la tanda final; el usuario lo va viendo en partidas normales. La lista detallada con comandos está en el historial (commit `6a79c05`, "Pruebas en el juego pendientes").
@@ -19,7 +19,8 @@ Lo que queda de la tanda final; el usuario lo va viendo en partidas normales. La
 - **Rutas:** el proyecto pasó a `C:\Projects\cf\` (script de recursos, CLAUDE.md, PORT_MAP, PROGRESS y `PersonalPackCheck`).
 
 Verificado: `build` OK; `runGameTestServer` 62/62 **sin** Trials (el cerebro da `creaturefeature:infested`/`oozing`) y 62/62 **con** Trials (`-PwithTrials`: `trials:infested`/`oozing`); `runServer` hasta `Done` en los dos casos; `runClientRenderSmoke` OK, con los íconos y nombres de los efectos propios en el inventario (`cf_effect_icons.png`).
-Por probar en el juego: comer el cerebro marchito con y sin Trials Chambers en la instancia de prueba.
+**Probado en producción (2026-11-09)**, juego real con Forge 47.4.28 (`tools/launch_test.py`) y el jar `1.2.3.3-forge.2` en `C:\Projects\cf\test`, con el self-test `-Dcreaturefeature.selftest=true` en una copia del mundo (borrada después): **sin Trials Chambers 6/6 PASS** (el cerebro da náusea, `creaturefeature:infested` y `creaturefeature:oozing`; 12 pececillos en 100 golpes; 2 slimes de tamaño 2 al morir el zombi; íconos y nombres en el inventario) y **con Trials Chambers 6/6 PASS** (`trials:infested` y `trials:oozing`, 32 pececillos, 2 slimes, íconos de Trials). Trials se sacó de `test/mods` al terminar (no estaba).
+- **Versión `1.2.3.3-forge.2`** (contenido nuevo respecto de forge.1).
 
 ## Tanda final en el juego (2026-11-03) ✅
 El usuario probó el jar real `1.2.3.3-forge.1` en una copia de su mundo con **todo el modpack** (371 mods, Oculus 1.8.0 con el shaderpack Complementary Unbound activo), con `cf_personal` en la carpeta `datapacks` del mundo y la configuración personal en `serverconfig`. Funcionó:

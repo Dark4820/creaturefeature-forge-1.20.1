@@ -79,6 +79,8 @@ is marked `// PORT:` in the source; the full technical map is `docs/PORT_MAP.md`
   exist when Goety is installed.
 - `creaturefeature:add_table` loot modifier (see "Adapted").
 - The MIT license text, this file and a README inside the jar.
+- An opt-in in-game self-test of the blighted brain effects (`-Dcreaturefeature.selftest=true`, for a throwaway world
+  only); it does nothing unless that property is set.
 
 Development-only tools (GameTests, an automatic render test, a performance test) live in a separate source set and are
 not in the jar.
