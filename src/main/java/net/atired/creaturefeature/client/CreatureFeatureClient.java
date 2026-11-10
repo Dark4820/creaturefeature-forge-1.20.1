@@ -86,6 +86,7 @@ public class CreatureFeatureClient {
         if (Boolean.getBoolean("creaturefeature.selftest")) {
             org.slf4j.LoggerFactory.getLogger(CreatureFeature.MODID).warn("creaturefeature: self-test enabled (-Dcreaturefeature.selftest); it changes the player and spawns mobs, use a throwaway world");
             net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new CFSelfTest());
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new CFRemoteSelfTest());
         }
         event.enqueueWork(()->{
             net.minecraft.client.renderer.item.ItemProperties.register(net.atired.creaturefeature.init.CFItemInit.VERTIGO_HORN.get(), new net.minecraft.resources.ResourceLocation("tooting"), (stack, level, entity, seed) -> {

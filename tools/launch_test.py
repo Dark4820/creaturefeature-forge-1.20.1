@@ -1,6 +1,6 @@
 r"""Starts the test instance (the Forge profile installed in %APPDATA%/.minecraft) offline, without a launcher, with
 the real (production) Forge, not the dev runClient.
-Usage: python -I tools/launch_test.py 1.20.1-forge-47.4.28 <game dir> <java17.exe> [-Dprop=value ...] [game args,
+Usage: python -I tools/launch_test.py 1.20.1-forge-47.4.28 <game dir> <java17.exe> [-Xmx2G] [-Dprop=value ...] [game args,
 e.g. --quickPlaySingleplayer "<world folder>"]. The -D... go to the JVM, the rest to the game.
 For checks only (e.g. -Dcreaturefeature.selftest=true on a copy of a world); to play, use a normal launcher."""
 import json, os, subprocess, sys
@@ -83,10 +83,12 @@ def expand(args):
     return out
 
 
-jvm = ["-Xmx4G"] + expand(parent["arguments"]["jvm"]) + expand(child["arguments"].get("jvm", []))
+xmx = next((a for a in sys.argv[4:] if a.startswith("-Xmx")), "-Xmx4G")  # an -Xmx... among the extra args replaces the default
+jvm = [xmx] + expand(parent["arguments"]["jvm"]) + expand(child["arguments"].get("jvm", []))
 game = expand(parent["arguments"]["game"]) + expand(child["arguments"].get("game", []))
 extra = sys.argv[4:]  # -D... go to the JVM, the rest to the game (e.g. --quickPlaySingleplayer "New World")
 jvm += [a for a in extra if a.startswith("-D")]
+extra = [a for a in extra if not a.startswith("-Xmx")]
 cmd = [java] + jvm + [child["mainClass"]] + game + [a for a in extra if not a.startswith("-D")]
 log = open(os.path.join(gamedir, "launch-stdout.log"), "w", encoding="utf-8")
 sys.exit(subprocess.call(cmd, cwd=gamedir, stdout=log, stderr=subprocess.STDOUT))

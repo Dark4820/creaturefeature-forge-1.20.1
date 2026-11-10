@@ -70,6 +70,9 @@ is marked `// PORT:` in the source; the full technical map is `docs/PORT_MAP.md`
 - A Murky Pearl fired by a dispenser was created as a snowball; it is now a murky pearl.
 - After a resource reload (F3+T) the canary's haze screen effect kept a reference to the old post chain; it now
   follows the new one.
+- On a client joining a dedicated server, the mod's items were missing from the Tools & Utilities tab (and from JEI):
+  the vertigo horn was placed by looking up the goat horn tag before the server had sent it, which threw and skipped
+  the rest of that tab. When the tag is not there yet, the horn now goes to the end of the tab.
 
 ## Added (not in the original)
 
@@ -79,8 +82,10 @@ is marked `// PORT:` in the source; the full technical map is `docs/PORT_MAP.md`
   exist when Goety is installed.
 - `creaturefeature:add_table` loot modifier (see "Adapted").
 - The MIT license text, this file and a README inside the jar.
-- An opt-in in-game self-test of the blighted brain effects (`-Dcreaturefeature.selftest=true`, for a throwaway world
-  only); it does nothing unless that property is set.
+- An opt-in in-game self-test (`-Dcreaturefeature.selftest=true`, for a throwaway world only): in singleplayer it checks
+  the blighted brain effects; on a dedicated server started with the same property, and a client connected with it,
+  it checks what travels between them (effects, screen effects, the mod's packets, every creature). It does nothing
+  unless that property is set.
 
 Development-only tools (GameTests, an automatic render test, a performance test) live in a separate source set and are
 not in the jar.

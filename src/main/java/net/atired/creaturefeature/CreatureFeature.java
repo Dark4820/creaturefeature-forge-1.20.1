@@ -71,6 +71,11 @@ public class CreatureFeature {
 
     // PORT: the payloads were registered in CFEvents.register (RegisterPayloadHandlersEvent); see CFNetwork
     private void commonSetup(FMLCommonSetupEvent event) {
+        // PORT: port-only opt-in check on a real dedicated server (misc/CFServerSelfTest), only with -Dcreaturefeature.selftest=true
+        if (Boolean.getBoolean("creaturefeature.selftest") && net.minecraftforge.fml.loading.FMLEnvironment.dist.isDedicatedServer()) {
+            org.slf4j.LoggerFactory.getLogger(MODID).warn("creaturefeature: server self-test enabled (-Dcreaturefeature.selftest); it changes the first player and spawns mobs, use a throwaway world");
+            net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new net.atired.creaturefeature.misc.CFServerSelfTest());
+        }
         event.enqueueWork(CFNetwork::register);
         event.enqueueWork(CreatureFeature::registerDispenserBehaviours);
     }

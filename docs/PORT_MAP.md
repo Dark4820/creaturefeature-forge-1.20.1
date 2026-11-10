@@ -251,6 +251,7 @@ Conclusión: **no hay ninguna dependencia obligatoria que falte en Forge 1.20.1.
 | `ProjectileItem` (murky_pearl, down_feather, solar_shard, vitric_arrow: el dispensador los dispara) | `DispenserBlock.registerBehavior` con `AbstractProjectileDispenseBehavior` (misma potencia 1,1 y dispersión 6) en `commonSetup` |
 | `ItemStack.consume`, `appendHoverText(…, TooltipContext, …)`, `Block.playerWillDestroy` que devuelve `BlockState`, codec del bloque (eep) | `shrink` si no es creativo, `appendHoverText(…, Level, …)`, `playerWillDestroy` `void`, sin codec |
 | `getSunSource()` (saint_solis, star) fuera de `fixsas` | F5-F6 usaban siempre el camino `fixsas`; **F7 vuelve al original** (`getSunSource()` + post chain "sun" salvo con `fixsas = true`) |
+| Pestaña Herramientas en un cliente conectado a un servidor dedicado | **error del original corregido** (2026-11-09): `BuiltInRegistries.INSTRUMENT.getTag(GOAT_HORNS).get().get(0)` tira si el tag todavía no llegó del servidor y se perdía el resto de esa pestaña; sin el tag, el cuerno va al final (`CFEvents`) |
 | Murky pearl disparada por dispensador | **error del original corregido** (decisión del usuario): el constructor `(level, x, y, z)` la creaba con el tipo `EntityType.SNOWBALL` (para el cliente y al guardar era una bola de nieve); ahora usa `CFEntityInit.MURKY_PEARL`. GameTest `dispenserShootsMurkyPearls` |
 
 ## 6b. Cambios en archivos JSON (no admiten `// PORT:`)

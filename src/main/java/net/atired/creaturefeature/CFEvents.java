@@ -186,8 +186,15 @@ public class CFEvents {
                 insertBefore(event,Items.TNT,CFBlockInit.EEP.get());
             }
             if(event.getTabKey()==CreativeModeTabs.TOOLS_AND_UTILITIES){
-                // PORT: the goat horn anchor is built as in 1.20.1's tab (InstrumentItem.create with the first #goat_horns)
-                insertBefore(event,InstrumentItem.create(Items.GOAT_HORN, BuiltInRegistries.INSTRUMENT.getTag(InstrumentTags.GOAT_HORNS).get().get(0)),CFItemInit.VERTIGO_HORN.get());
+                // PORT: the goat horn anchor is built as in 1.20.1's tab (InstrumentItem.create with the first #goat_horns).
+                // Fix of an original bug: it called getTag(...).get().get(0), which throws when #goat_horns is not bound
+                // yet (a client joining a dedicated server builds the tabs before the server's tags arrive), and the
+                // rest of this tab was lost. Without the tag the horn goes to the end of the tab (insertBefore's fallback).
+                var goatHorns = BuiltInRegistries.INSTRUMENT.getTag(InstrumentTags.GOAT_HORNS);
+                ItemStack hornAnchor = goatHorns.isPresent() && goatHorns.get().size() > 0
+                        ? InstrumentItem.create(Items.GOAT_HORN, goatHorns.get().get(0))
+                        : new ItemStack(Items.GOAT_HORN);
+                insertBefore(event,hornAnchor,CFItemInit.VERTIGO_HORN.get());
                 insertBefore(event,Items.BRUSH,CFItemInit.OPEN_MIND.get());
                 insertBefore(event,Items.SADDLE,CFItemInit.DREAM_CATCHER.get());
                 insertBefore(event,Items.SADDLE,CFItemInit.BACTERIUM_BALL.get());
